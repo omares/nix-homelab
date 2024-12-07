@@ -1,0 +1,151 @@
+#!/usr/bin/env zsh
+
+setopt ERR_EXIT PIPE_FAIL WARN_CREATE_GLOBAL
+
+# Find required commands first
+SSH=$(command -v ssh)
+SCP=$(command -v scp)
+CAT=$(command -v cat)
+MKTEMP=$(command -v mktemp)
+RM=$(command -v rm)
+
+for cmd in "ssh:$SSH" "scp:$SCP" "cat:$CAT" "mktemp:$MKTEMP" "rm:$RM"; do
+  if [[ -z "${cmd#*:}" ]]; then
+    print -P "%F{red}Error:%f ${cmd%:*} not found in PATH"
+    exit 1
+  fi
+done
+
+# Default values
+typeset PROXMOX_HOST="192.168.20.114"
+typeset PROXMOX_USER="root"
+typeset PROXMOX_PATH="/var/lib/vz/dump"
+typeset IMAGE_PATH="result"
+
+usage() {
+  $CAT <<EOF
+Usage: $0 [options]
+Options:
+  -h, --host    Proxmox host (default: $PROXMOX_HOST)
+  -u, --user    SSH user (default: $PROXMOX_USER)
+  -p, --path    Remote path (default: $PROXMOX_PATH)
+  -i, --vmid    VM ID for restore (will prompt if not provided)
+      --apply   Execute the deployment
+      --help    Show this help message
+EOF
+}
+
+# Show help if no arguments
+if [[ $# -eq 0 ]]; then
+  usage
+  exit 0
+fi
+
+# Parse arguments
+zmodload zsh/zutil
+if ! zparseopts -D -E -F -A opts \
+  h:=host -host:=host \
+  u:=user -user:=user \
+  p:=path -path:=path \
+  i:=vmid -vmid:=vmid \
+  -apply=apply \
+  -help=help 2>/dev/null; then
+    print -P "%F{red}Error:%f Invalid option provided"
+    print
+    usage
+    exit 1
+fi
+
+# Handle explicit help request
+if (( ${#help} )); then
+  usage
+  exit 0
+fi
+
+if (( ${#apply} == 0 )); then
+  print -P "%F{yellow}Note:%f Use --apply to execute the deployment"
+  print
+  usage
+  exit 1
+fi
+
+[[ -n "${host[-1]}" ]] && PROXMOX_HOST="${host[-1]}"
+[[ -n "${user[-1]}" ]] && PROXMOX_USER="${user[-1]}"
+[[ -n "${path[-1]}" ]] && PROXMOX_PATH="${path[-1]}"
+
+# Find the image file using zsh globbing
+setopt NULL_GLOB
+image_files=($IMAGE_PATH/vzdump-qemu-*.vma.zst)
+if (( ${#image_files} == 0 )); then
+  print -P "%F{red}Error:%f No image file found in $IMAGE_PATH"
+  exit 1
+fi
+IMAGE_FILE=$image_files[1]
+
+# Create temporary directory for SSH control socket
+SSH_CONTROL_DIR=$($MKTEMP -d)
+SSH_CONTROL_PATH="$SSH_CONTROL_DIR/socket"
+
+print -P "Deploying image %F{blue}${IMAGE_FILE:t}%f to %F{cyan}$PROXMOX_USER%f@%F{yellow}$PROXMOX_HOST%f:%F{green}$PROXMOX_PATH%f"
+
+# Check if we can connect
+if ! $SSH -o ControlMaster=yes \
+        -o ControlPath="$SSH_CONTROL_PATH" \
+        -o ControlPersist=5m \
+        -q "$PROXMOX_USER@$PROXMOX_HOST" exit; then
+  print -P "%F{red}Error:%f Cannot connect to $PROXMOX_USER@$PROXMOX_HOST"
+  $RM -rf $SSH_CONTROL_DIR
+  exit 1
+fi
+
+# Check if remote directory exists
+if ! $SSH -o ControlMaster=auto \
+        -o ControlPath="$SSH_CONTROL_PATH" \
+        -o ControlPersist=5m \
+        "$PROXMOX_USER@$PROXMOX_HOST" "[ -d $PROXMOX_PATH ]"; then
+  print -P "%F{red}Error:%f Remote directory $PROXMOX_PATH does not exist"
+  $RM -rf $SSH_CONTROL_DIR
+  exit 1
+fi
+# Copy the file
+print -P "%F{blue}Copying image file...%f"
+if $SCP -o ControlMaster=auto \
+       -o ControlPath="$SSH_CONTROL_PATH" \
+       -o ControlPersist=60 \
+       "$IMAGE_FILE" "$PROXMOX_USER@$PROXMOX_HOST:$PROXMOX_PATH/"; then
+  print -P "%F{green}Successfully copied image to Proxmox%f"
+  print -P "%F{blue}Image location:%f $PROXMOX_PATH/${IMAGE_FILE:t}"
+
+  VM_ID=""
+  if [[ -n "${vmid[-1]}" ]]; then
+    VM_ID="${vmid[-1]}"
+  else
+    print -P "%F{yellow}Enter VM ID for restore:%f"
+    read "VM_ID"
+  fi
+
+  if [[ ! "$VM_ID" =~ ^[0-9]+$ ]]; then
+    print -P "%F{red}Error:%f Invalid VM ID: $VM_ID"
+    $RM -rf $SSH_CONTROL_DIR
+    exit 1
+  fi
+
+  print -P "%F{blue}Restoring VM with ID $VM_ID...%f"
+  if ! $SSH -o ControlMaster=auto \
+          -o ControlPath="$SSH_CONTROL_PATH" \
+          -o ControlPersist=60 \
+          "$PROXMOX_USER@$PROXMOX_HOST" "qmrestore $PROXMOX_PATH/${IMAGE_FILE:t} $VM_ID --unique true --storage pond"; then
+    print -P "%F{red}Error:%f Failed to restore VM"
+    $RM -rf $SSH_CONTROL_DIR
+    exit 1
+  fi
+
+  print -P "%F{green}Successfully restored VM $VM_ID%f"
+else
+  print -P "%F{red}Error:%f Failed to copy image to Proxmox"
+  $RM -rf $SSH_CONTROL_DIR
+  exit 1
+fi
+
+# Clean up
+$RM -rf $SSH_CONTROL_DIR
