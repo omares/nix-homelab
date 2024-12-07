@@ -1,0 +1,5 @@
+.direnv/
+.idea/
+result
+backup/
+*vma.zst

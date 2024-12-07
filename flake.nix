@@ -58,30 +58,31 @@
           nixfmt-rfc-style
         ];
       };
-#
-#      colmena = import ./roles {
-#        inherit nixpkgs;
-#        homelabLib = self.lib;
-#      };
+      #
+      #      colmena = import ./roles {
+      #        inherit nixpkgs;
+      #        homelabLib = self.lib;
+      #      };
 
       colmena = {
         meta = {
           nixpkgs = import nixpkgs {
             system = "x86_64-linux";
           };
-          specialArgs = {
+
+          _module.args = {
             homelabLib = self.lib;
           };
         };
 
-          defaults = {
-            deployment = {
-              targetUser = "omares";
-            };
-            imports = [
-              ./roles/defaults
-            ];
+        defaults = {
+          deployment = {
+            targetUser = "omares";
           };
+          imports = [
+            ./roles/defaults
+          ];
+        };
 
         build-01 = {
           deployment = {
