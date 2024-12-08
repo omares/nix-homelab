@@ -70,7 +70,7 @@
             system = "x86_64-linux";
           };
 
-          _module.args = {
+          specialArgs = {
             homelabLib = self.lib;
           };
         };
