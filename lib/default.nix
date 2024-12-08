@@ -1,6 +1,11 @@
 { lib }:
-{
+let
   roles = import ./roles.nix;
-  getProxmoxTemplate = import ./get-proxmox-template.nix { inherit (lib.strings) splitString; };
-  #    mkNode = import ./mkNode.nix { lib = final; };
+in
+{
+  roles = roles;
+  mkNode = import ./mkNode.nix {
+    inherit (lib) mkIf;
+    availableRoles = roles;
+  };
 }

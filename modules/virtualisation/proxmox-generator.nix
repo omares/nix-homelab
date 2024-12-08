@@ -5,15 +5,12 @@
   nixpkgs,
   extraModules ? [ ],
 }:
-let
-  proxmoxConfig = homelabLib.getProxmoxTemplate system;
-in
 nixos-generators.nixosGenerate {
   inherit system;
   modules = [
     ../_all.nix
     { nix.registry.nixpkgs.flake = nixpkgs; }
-    proxmoxConfig
+    ./proxmox-default.nix
   ] ++ extraModules;
   format = "proxmox";
 }

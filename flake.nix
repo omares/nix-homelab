@@ -25,7 +25,9 @@
       pkgs = nixpkgs.legacyPackages.${system};
     in
     {
-      lib = import ./lib { inherit (nixpkgs) lib; };
+      lib = import ./lib {
+        inherit (nixpkgs) lib;
+      };
 
       packages.${system} = {
         # x86_64 VM template
@@ -60,40 +62,9 @@
         ];
       };
 
-      #      colmena = import ./roles {
-      #        inherit nixpkgs;
-      #        homelabLib = self.lib;
-      #      };
-
-      colmena = {
-        meta = {
-          nixpkgs = import nixpkgs {
-            system = "x86_64-linux";
-          };
-
-          specialArgs = {
-            homelabLib = self.lib;
-            pkgs = import nixpkgs { system = "x86_64-linux"; };
-          };
-        };
-
-        defaults = {
-          deployment = {
-            targetUser = "omares";
-          };
-          imports = [
-            ./roles/defaults
-          ];
-        };
-
-        build-01 = {
-          deployment = {
-            targetHost = "192.168.20.224";
-          };
-          imports = [
-            ./roles/builder
-          ];
-        };
+      colmena = import ./roles {
+        inherit nixpkgs;
+        homelabLib = self.lib;
       };
     };
 }

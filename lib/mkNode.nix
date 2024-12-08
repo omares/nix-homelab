@@ -1,4 +1,4 @@
-{ lib }:
+{ mkIf, availableRoles }:
 {
   roles ? [ ],
   deployment ? { },
@@ -12,7 +12,7 @@
   ...
 }:
 let
-  rolesExcludingDefault = builtins.filter (role: role != lib.roles.default) roles;
+  rolesExcludingDefaults = builtins.filter (role: role != availableRoles.defaults) roles;
 in
 #assert builtins.trace "Builder role args: ${toString (builtins.attrNames args)}" true;
 #assert builtins.trace "Builder role lib source: ${toString lib.outPath or "unknown"}" true;
@@ -20,21 +20,14 @@ in
 #assert builtins.trace "mkNode called with roles: ${toString roles}" true;
 {
   deployment = deployment // {
-    tags = (deployment.tags or [ ]) ++ rolesExcludingDefault;
+    tags = (deployment.tags or [ ]) ++ rolesExcludingDefaults;
   };
 
-  networking = lib.mkIf (name != "default") {
+  networking = mkIf (name != "default") {
     hostName = name;
   };
 
-  imports =
-    assert builtins.trace "Before mapping roles in mkNode" true;
-    map (
-      role:
-      assert builtins.trace "Processing role: ${role}" true;
-      ../roles/${role}
-    ) roles
-    ++ imports;
+  imports = map (role: ../roles/${role}) roles ++ imports;
 }
 // (removeAttrs args [
   "roles"
