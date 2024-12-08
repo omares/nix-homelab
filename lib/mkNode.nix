@@ -27,11 +27,14 @@ in
     hostName = name;
   };
 
-  imports = assert builtins.trace "Before mapping roles in mkNode" true;
-    map (role:
+  imports =
+    assert builtins.trace "Before mapping roles in mkNode" true;
+    map (
+      role:
       assert builtins.trace "Processing role: ${role}" true;
       ../roles/${role}
-    ) roles ++ imports;
+    ) roles
+    ++ imports;
 }
 // (removeAttrs args [
   "roles"

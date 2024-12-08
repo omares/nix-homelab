@@ -5,11 +5,11 @@
   ...
 }@args:
 let
-#  proxmoxTemplate = lib.getProxmoxTemplate pkgs.system;
 in
+#  proxmoxTemplate = lib.getProxmoxTemplate pkgs.system;
 {
   imports = [
-#  proxmoxTemplate
+    #  proxmoxTemplate
     ../../modules/virtualisation/proxmox-builder.nix
     ../../modules/users/root.nix
   ];

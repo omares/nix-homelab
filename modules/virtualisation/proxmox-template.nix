@@ -1,15 +1,13 @@
 {
-  lib,
+  homelabLib,
   nixos-generators,
   system,
   nixpkgs,
   extraModules ? [ ],
 }:
 let
-  proxmoxConfig = lib.getProxmoxTemplate system;
+  proxmoxConfig = homelabLib.getProxmoxTemplate system;
 in
-#assert builtins.trace "Using proxmox config: ${toString proxmoxConfig}" true;
-#assert lib.traceVal proxmoxConfig != null;
 nixos-generators.nixosGenerate {
   inherit system;
   modules = [

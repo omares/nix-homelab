@@ -4,16 +4,19 @@
   pkgs,
   lib,
   homelabLib,
+
   ...
-}@args:
+}:
 let
   #  myLib = specialArgs.lib;
   #  proxmoxTemplate = lib.getProxmoxTemplate pkgs.system;
   #  ourLib = import ../../lib { inherit (specialArgs) lib; };
   proxmoxTemplate = homelabLib.getProxmoxTemplate pkgs.system;
+
 in
-assert builtins.trace "defaults module evaluation started" true;
-assert builtins.trace "homelabLib available: ${toString (homelabLib ? getProxmoxTemplate)}" true;
+#assert builtins.trace "defaults module evaluation started" true;
+#assert builtins.trace "full pkgs ${toString (pkgs)}" true;
+#assert builtins.trace "homelabLib available: ${toString (homelabLib ? getProxmoxTemplate)}" true;
 {
   imports = [
     "${toString modulesPath}/virtualisation/proxmox-image.nix"

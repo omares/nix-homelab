@@ -17,7 +17,6 @@
       efidisk0 = "pond:1,format=qcow2,pre-enrolled-keys=0";
     };
 
-
     cloudInit = {
       enable = lib.mkDefault true;
     };

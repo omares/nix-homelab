@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
@@ -26,6 +26,7 @@
     in
     {
       lib = import ./lib { inherit (nixpkgs) lib; };
+
       packages.${system} = {
         # x86_64 VM template
         proxmox-x86 = import ./modules/virtualisation/proxmox-template.nix {
@@ -58,7 +59,7 @@
           nixfmt-rfc-style
         ];
       };
-      #
+
       #      colmena = import ./roles {
       #        inherit nixpkgs;
       #        homelabLib = self.lib;
@@ -72,6 +73,7 @@
 
           specialArgs = {
             homelabLib = self.lib;
+            pkgs = import nixpkgs { system = "x86_64-linux"; };
           };
         };
 
