@@ -1,6 +1,6 @@
 {
   imports = [
-    ./resolved.nix
-    ./adguard-home.nix
+    ../../modules/services/resolved.nix
+    ../../modules/services/adguard-home.nix
   ];
 }

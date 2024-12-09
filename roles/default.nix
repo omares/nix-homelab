@@ -17,22 +17,25 @@
     };
   };
 
-  pmx = homelabLib.mkNode {
-    roles = [
-      homelabLib.roles.pmx
-      homelabLib.roles.dns
-    ];
-    deployment = {
-      targetHost = "192.168.20.47";
-    };
-  };
-
   build-01 = homelabLib.mkNode {
     roles = [
       homelabLib.roles.builder
     ];
+
     deployment = {
       targetHost = "192.168.20.224";
+    };
+  };
+
+  build-02 = homelabLib.mkNode {
+    nixpkgs.system = "aarch64-linux";
+
+    roles = [
+      homelabLib.roles.builder
+    ];
+
+    deployment = {
+      targetHost = "192.168.20.46";
     };
   };
 
@@ -52,7 +55,7 @@
       homelabLib.roles.dns
     ];
     deployment = {
-      targetHost = "192.168.20.47";
+      targetHost = "192.168.20.xx";
     };
   };
 }

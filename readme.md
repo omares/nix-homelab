@@ -95,9 +95,9 @@
 ### VM Naming Convention
 
 #### Format
-`{purpose}:{nn}`
+`{purpose}-{nn}`
 
-Example: `dns:01`, `k8s:01`, `db:01`
+Example: `dns-01`, `k8s-01`, `db-01`
 
 #### Purpose Prefixes
 
@@ -153,22 +153,22 @@ Example: `dns:01`, `k8s:01`, `db:01`
 #### Examples
 ```text
 # Infrastructure
-dns:01     # Primary DNS
-proxy:01   # Main reverse proxy
-build:01   # Build server
+dns-01     # Primary DNS
+proxy-01   # Main reverse proxy
+build-01   # Build server
 
 # Applications
-web:01     # Primary web server
-db:01      # Main database
-app:01     # Application server
+web-01     # Primary web server
+db-01      # Main database
+app-01     # Application server
 
 # Storage
-nas:01     # Primary NAS
-store:01   # General storage
+nas-01     # Primary NAS
+store-01   # General storage
 
 # Media/Home
-plex:01    # Media server
-ha:01      # Home Assistant
+plex-01    # Media server
+ha-01      # Home Assistant
 ```
 
 #### Notes

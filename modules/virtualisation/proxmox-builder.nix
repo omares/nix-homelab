@@ -1,15 +1,18 @@
-{ lib, ... }:
+{
+  lib,
+  homelabLib,
+  pkgs,
+  ...
+}:
+let
+  isAarch64 = pkgs.hostPlatform.isAarch64;
+in
 {
   proxmox = {
     qemuConf = {
       cores = 4;
-      memory = 16384;
+      memory = homelabLib.mkIfElse isAarch64 (6 * 1024) (16 * 1024);
       diskSize = 51200;
     };
-  };
-
-  boot = {
-    # Enable ARM64 emulation
-    binfmt.emulatedSystems = [ "aarch64-linux" ];
   };
 }

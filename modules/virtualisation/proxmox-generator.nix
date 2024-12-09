@@ -12,5 +12,10 @@ nixos-generators.nixosGenerate {
     { nix.registry.nixpkgs.flake = nixpkgs; }
     ./proxmox-default.nix
   ] ++ extraModules;
+
+  specialArgs = {
+    inherit homelabLib;
+  };
+
   format = "proxmox";
 }

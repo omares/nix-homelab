@@ -2,7 +2,12 @@
 # After importing and starting the VM, secure boot has to be disabled.
 # Enter the BIOS and navigate to "Device Manager" -> "Secure Boot Configuration," then uncheck "Attempt Secure Boot."
 
-{ lib, pkgs, ... }:
+{
+  lib,
+  homelabLib,
+  pkgs,
+  ...
+}:
 let
   isAarch64 = pkgs.hostPlatform.isAarch64;
 in
@@ -18,20 +23,19 @@ in
       scsihw = lib.mkIf isAarch64 "virtio-scsi-pci";
     };
 
-    qemuExtraConf =
+    qemuExtraConf = lib.mkMerge [
       {
         tags = "nixos";
         efidisk0 =
-          if isAarch64 then
-            "local:1,format=qcow2,pre-enrolled-keys=0"
-          else
+          homelabLib.mkIfElse isAarch64 "local:1,format=qcow2,pre-enrolled-keys=0"
             "pond:1,format=qcow2,pre-enrolled-keys=0";
-        cpu = if isAarch64 then "host" else "x86-64-v2-AES";
+        cpu = homelabLib.mkIfElse isAarch64 "host" "x86-64-v2-AES";
       }
-      // lib.mkIf isAarch64 {
+      (lib.mkIf isAarch64 {
         arch = "aarch64";
         machine = "virt";
-      };
+      })
+    ];
 
     cloudInit = {
       enable = lib.mkDefault true;

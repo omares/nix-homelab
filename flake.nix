@@ -31,21 +31,21 @@
 
       packages.${system} = {
         # x86_64 VM template
-        proxmox-x86 = import ./modules/virtualisation/proxmox-template.nix {
+        proxmox-x86 = import ./modules/virtualisation/proxmox-generator.nix {
           inherit nixos-generators nixpkgs;
           homelabLib = self.lib;
           system = "x86_64-linux";
         };
 
         # aarch64 VM template
-        proxmox-arm = import ./modules/virtualisation/proxmox-template.nix {
+        proxmox-arm = import ./modules/virtualisation/proxmox-generator.nix {
           inherit nixos-generators nixpkgs;
           homelabLib = self.lib;
           system = "aarch64-linux";
         };
 
         # Builder VM (x86_64) with arm support
-        proxmox-builder = import ./modules/virtualisation/proxmox-template.nix {
+        proxmox-builder = import ./modules/virtualisation/proxmox-generator.nix {
           inherit nixos-generators nixpkgs;
           homelabLib = self.lib;
           system = "x86_64-linux";
