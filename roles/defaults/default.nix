@@ -4,7 +4,7 @@
   pkgs,
   lib,
   homelabLib,
-
+  inputs,
   ...
 }:
 {

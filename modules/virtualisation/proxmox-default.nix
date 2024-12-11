@@ -1,5 +1,8 @@
 # The recommended values for aarch64 (ARM) are taken from https://github.com/jiangcuo/Proxmox-Port/wiki/Qemu-VM
-# After importing and starting the VM, secure boot has to be disabled.
+
+# After importing add an EFI disk to the proxmox VM with pre enrolled key disabled.
+
+# In case pre enrolled keys are enabled, disabling secure boot is required:
 # Enter the BIOS and navigate to "Device Manager" -> "Secure Boot Configuration," then uncheck "Attempt Secure Boot."
 
 {
@@ -26,9 +29,10 @@ in
     qemuExtraConf = lib.mkMerge [
       {
         tags = "nixos";
-        efidisk0 =
-          homelabLib.mkIfElse isAarch64 "local:1,format=qcow2,pre-enrolled-keys=0"
-            "pond:1,format=qcow2,pre-enrolled-keys=0";
+        # efi disk creation is not supported by the proxmox vm builder
+        # efidisk0 =
+        #   homelabLib.mkIfElse isAarch64 "local:efitype=4m,format=qcow2,pre-enrolled-keys=0"
+        #     "pond:efitype=4m,format=qcow2,pre-enrolled-keys=0";
         cpu = homelabLib.mkIfElse isAarch64 "host" "x86-64-v2-AES";
       }
       (lib.mkIf isAarch64 {

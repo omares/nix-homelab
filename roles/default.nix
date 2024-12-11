@@ -1,61 +1,51 @@
-{ nixpkgs, homelabLib, ... }:
 {
-  meta = {
-    nixpkgs = import nixpkgs {
-      system = "x86_64-linux";
+  homelabLib,
+  ...
+}:
+{
+
+  # imports = [
+  #   ../modules/cluster/cluster.nix
+  # ];
+
+  cluster.nodes = {
+    defaults = {
+      managed = false;
+      roles = [ homelabLib.roles.defaults ];
     };
 
-    specialArgs = {
-      inherit homelabLib;
+    build-01 = {
+      roles = [ homelabLib.roles.builder ];
+      host = "192.168.20.224";
     };
-  };
 
-  defaults = homelabLib.mkNode {
-    roles = [ homelabLib.roles.defaults ];
-    deployment = {
-      targetUser = "omares";
+    build-02 = {
+      roles = [ homelabLib.roles.builder ];
+      host = "192.168.20.46";
+      system = "aarch64-linux";
     };
-  };
 
-  build-01 = homelabLib.mkNode {
-    roles = [
-      homelabLib.roles.builder
-    ];
-
-    deployment = {
-      targetHost = "192.168.20.224";
+    dns-01 = {
+      roles = [ homelabLib.roles.dns ];
+      host = "192.168.20.47";
     };
-  };
 
-  build-02 = homelabLib.mkNode {
-    nixpkgs.system = "aarch64-linux";
-
-    roles = [
-      homelabLib.roles.builder
-    ];
-
-    deployment = {
-      targetHost = "192.168.20.46";
+    dns-02 = {
+      roles = [ homelabLib.roles.dns ];
+      host = "192.168.20.xx";
+      system = "aarch64-linux";
     };
-  };
 
-  dns-01 = homelabLib.mkNode {
-    roles = [
-      homelabLib.roles.dns
-    ];
-    deployment = {
-      targetHost = "192.168.20.47";
-    };
-  };
-
-  dns-02 = homelabLib.mkNode {
-    nixpkgs.system = "aarch64-linux";
-
-    roles = [
-      homelabLib.roles.dns
-    ];
-    deployment = {
-      targetHost = "192.168.20.xx";
+    proxy-01 = {
+      roles = [ homelabLib.roles.proxy ];
+      sops-vault = [
+        "acme"
+        "easydns"
+      ];
+      host = "192.168.20.44";
     };
   };
+
+  # localFlake.nixosConfigurations = cluster.nodes;
+
 }
