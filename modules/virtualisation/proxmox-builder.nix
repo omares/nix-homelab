@@ -1,5 +1,4 @@
 {
-  lib,
   homelabLib,
   pkgs,
   ...

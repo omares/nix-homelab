@@ -1,14 +1,17 @@
-{ lib }:
-let
-  roles = import ./roles.nix;
-in
 {
-  roles = roles;
-  mkIfElse = import ./mkIfElse.nix {
-    inherit (lib) mkMerge mkIf;
+  nixpkgs,
+  config,
+  lib,
+}:
+let
+  self = {
+    mkIfElse = import ./mkIfElse.nix {
+      inherit (lib) mkMerge mkIf;
+    };
+    mkNixosSystem = import ./mkNixosSystem.nix {
+      inherit nixpkgs config;
+      homelabLib = removeAttrs self [ "mkNixosSystem" ];
+    };
   };
-  mkNode = import ./mkNode.nix {
-    inherit (lib) mkIf;
-    availableRoles = roles;
-  };
-}
+in
+self

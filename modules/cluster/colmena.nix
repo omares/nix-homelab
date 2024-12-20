@@ -10,29 +10,26 @@
 
 with lib;
 let
-  managedNodes = filterAttrs (_: node: node.managed) config.cluster.nodes;
+  # managedNodes = filterAttrs (_: node: node.managed) config.cluster.nodes;
 
-  mkColmenaNode = name: nodeCfg: {
-    deployment = {
-      targetUser = nodeCfg.user;
-      targetHost = nodeCfg.host;
-      tags = [ name ] ++ (builtins.filter (role: role != "defauls") nodeCfg.roles);
-    };
+  # mkColmenaNode = name: nodeCfg: {
+  #   deployment = {
+  #     targetUser = nodeCfg.user;
+  #     targetHost = nodeCfg.host;
+  #     tags = [ name ] ++ (builtins.filter (role: role != "defauls") nodeCfg.roles);
+  #   };
 
-    networking.hostName = name;
+  #   networking.hostName = name;
 
-    imports =
-      map (role: ../../roles/${role}) nodeCfg.roles
-      ++ nodeCfg.imports
-      ++ optional (nodeCfg.sops-vault != [ ]) ../security/sops.nix;
+  #   imports =
+  #     map (role: ../../roles/${role}) nodeCfg.roles
+  #     ++ nodeCfg.imports
+  #     ++ optional (nodeCfg.sops-vault != [ ]) ../security/sops.nix;
 
-    sops-vault.items = mkIf (nodeCfg.sops-vault != [ ]) nodeCfg.sops-vault;
-  };
 in
+#   sops-vault.items = mkIf (nodeCfg.sops-vault != [ ]) nodeCfg.sops-vault;
+# };
 {
-  imports = [
-    ../../roles
-  ];
   options = {
     cluster.nodes = mkOption {
       type = types.attrsOf (

@@ -46,31 +46,10 @@
         ];
       flake =
         { config, ... }:
-        let
-          mkNixosSystem =
-            name: nodeCfg:
-            nixpkgs.lib.nixosSystem {
-              inherit (nodeCfg) system;
-
-              specialArgs = {
-                inherit nixpkgs;
-                modulesPath = toString nixpkgs + "/nixos/modules";
-                homelabLib = self.lib;
-
-              };
-
-              modules = [
-                {
-                  networking.hostName = name;
-                }
-                ./roles/defaults
-
-              ] ++ (map (role: ./roles/${role}) nodeCfg.roles);
-            };
-        in
         {
 
           lib = import ./lib {
+            inherit nixpkgs config;
             inherit (nixpkgs) lib;
           };
 
@@ -95,7 +74,7 @@
               homelabLib = self.lib;
               system = "x86_64-linux";
               extraModules = [
-                ./roles/${self.lib.roles.builder}
+                config.nixosModules.role-builder
               ];
             };
           };
@@ -109,45 +88,22 @@
             };
           };
 
-          imports = [
-            ./modules/cluster/cluster.nix
-            ./modules/cluster/colmena.nix
-            ./roles
-          ];
-
-          nixosConfigurations = nixpkgs.lib.mapAttrs mkNixosSystem config.cluster.nodes;
-
-          # imports = [
-          #   # inputs.flake-parts.flakeModules.flakeModules
-          #   # (flake-parts.lib.importApply ./modules/cluster/cluster.nix { homelabLib = self.lib; })
-          #   ./modules/cluster/cluster.nix
-          #   # ./modules/cluster/colmena.nix
-          #   (flake-parts.lib.importApply ./modules/cluster/colmena.nix)
-          #   ./roles
-          # ];
-
           _module.args = {
             homelabLib = self.lib;
           };
 
-          # nixosConfigurations =
-          #   (nixpkgs.lib.evalModules {
-          #     modules = [
-          #       ./roles
-          #     ];
-          #     specialArgs = {
-          #       inherit nixpkgs sops-nix;
-          #       homelabLib = self.lib;
-          #     };
-          #   }).config.nixosConfigurations;
+          nixosModules = {
+            role-default = import ./modules/cluster/roles/default.nix;
+            role-builder = import ./modules/cluster/roles/builder.nix;
+            role-dns = import ./modules/cluster/roles/dns.nix;
+            role-proxy = import ./modules/cluster/roles/proxy.nix;
+          };
 
-          # colmena = import ./modules/cluster/colmena.nix {
-          #   inherit nixpkgs sops-nix nix-sops-vault;
-          #   inherit (nixpkgs) lib;
-          #   homelabLib = self.lib;
+          imports = [
+            ./modules/cluster/nodes.nix
+          ];
 
-          #   # config = self.cluster;
-          # };
+          nixosConfigurations = nixpkgs.lib.mapAttrs self.lib.mkNixosSystem config.cluster.nodes;
         };
     };
 }

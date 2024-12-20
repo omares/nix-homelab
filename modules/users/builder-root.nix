@@ -1,4 +1,3 @@
-{ pkgs, lib, ... }:
 {
 
   # On Mac, the user connecting to the remote builder must exist as a user on the host machine.

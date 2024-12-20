@@ -5,8 +5,8 @@
 {
   imports = [
     "${toString modulesPath}/virtualisation/proxmox-image.nix"
-    ../../modules/virtualisation/proxmox-default.nix
-    ../../modules/_all.nix
+    ../../virtualisation/proxmox-default.nix
+    ../../_all.nix
   ];
 
   # After a clean first-boot network setup managed by cloud-init,

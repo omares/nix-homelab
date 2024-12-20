@@ -1,30 +1,10 @@
 {
-  inputs,
-  config,
   lib,
-  pkgs,
   ...
 }:
 with lib;
 let
-  availableRoles = builtins.attrNames (
-    lib.filterAttrs (_: type: type == "directory") (builtins.readDir ../../roles)
-  );
 
-  mkNixosSystem =
-    name: nodeCfg:
-    nixpkgs.lib.nixosSystem {
-      inherit (nodeCfg) system;
-      modules = [
-        {
-          networking.hostName = name;
-        }
-        (map (role: ../../roles/${role}) nodeCfg.roles)
-      ];
-      specialArgs = {
-        inherit (config) homelabLib;
-      };
-    };
 in
 {
   options.cluster = {
@@ -42,9 +22,21 @@ in
             };
 
             roles = mkOption {
-              type = types.listOf (types.enum availableRoles);
+              type = types.listOf (
+                types.attrs
+                // {
+                  check = val: isFunction val || isAttrs val && (val ? imports || val ? config || val ? options);
+                  description = "valid NixOS module";
+                }
+              );
               default = [ ];
-              description = "List of roles to apply on the node";
+              description = "List of roles to apply to the node. Must be NixOS module references";
+              example = ''
+                [
+                  config.nixosModules.role-dns
+                  config.nixosModules.role-builder
+                ]
+              '';
             };
 
             host = mkOption {
@@ -64,30 +56,4 @@ in
     };
 
   };
-
-  # config = {
-  #   nixosConfigurations = lib.mapAttrs (
-
-  #     name: nodeCfg:
-  #     pkgs.lib.nixosSystem {
-  #       inherit (nodeCfg) system;
-
-  #       specialArgs = {
-  #         inherit nixpkgs;
-  #       };
-
-  #       modules = [
-  #         {
-  #           networking.hostName = name;
-  #         }
-  #         (map (role: ../../roles/${role}) nodeCfg.roles)
-  #       ];
-  #       specialArgs = {
-  #         # inherit homelabLib;
-  #       };
-  #     }
-  #   ) config.cluster.nodes;
-  # };
-  # config =
-  # localFlake.nixosConfigurations = mapAttrs mkNixosSystem config.cluster.nodes;
 }

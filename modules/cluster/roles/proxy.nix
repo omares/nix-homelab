@@ -4,7 +4,7 @@
 }:
 {
   imports = [
-    ../../modules/security/acme.nix
+    ../../security/acme.nix
     {
       services.nginx = {
         enable = true;
