@@ -1,10 +1,5 @@
 {
-  config,
   modulesPath,
-  pkgs,
-  lib,
-  homelabLib,
-  inputs,
   ...
 }:
 {

@@ -1,12 +1,10 @@
-localFlake:
-
 {
-  lib,
+  inputs,
   config,
-  nixpkgs,
+  lib,
+  pkgs,
   ...
 }:
-
 with lib;
 let
   availableRoles = builtins.attrNames (
@@ -50,7 +48,7 @@ in
             };
 
             host = mkOption {
-              type = types.ip;
+              type = types.str;
               description = "IP address of the node";
             };
 
@@ -64,24 +62,32 @@ in
       );
       default = { };
     };
+
   };
 
-  config = {
-    nixosModules = lib.mapAttrs (
+  # config = {
+  #   nixosConfigurations = lib.mapAttrs (
 
-      name: nodeCfg: {
-        inherit (nodeCfg) system;
-        modules = [
-          {
-            networking.hostName = name;
-          }
-          (map (role: ../../roles/${role}) nodeCfg.roles)
-        ];
-        specialArgs = {
-          # inherit (config) homelabLib;
-        };
-      }) config.cluster.nodes;
-  };
+  #     name: nodeCfg:
+  #     pkgs.lib.nixosSystem {
+  #       inherit (nodeCfg) system;
+
+  #       specialArgs = {
+  #         inherit nixpkgs;
+  #       };
+
+  #       modules = [
+  #         {
+  #           networking.hostName = name;
+  #         }
+  #         (map (role: ../../roles/${role}) nodeCfg.roles)
+  #       ];
+  #       specialArgs = {
+  #         # inherit homelabLib;
+  #       };
+  #     }
+  #   ) config.cluster.nodes;
+  # };
   # config =
   # localFlake.nixosConfigurations = mapAttrs mkNixosSystem config.cluster.nodes;
 }

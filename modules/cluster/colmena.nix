@@ -1,11 +1,10 @@
-# modules/cluster/colmena.nix
 {
   config,
   lib,
-  nixpkgs,
-  homelabLib,
-  nix-sops-vault,
-  sops-nix,
+  # nixpkgs,
+  # nix-sops-vault,
+  # sops-nix,
+  # pkgs,
   ...
 }:
 
@@ -17,7 +16,7 @@ let
     deployment = {
       targetUser = nodeCfg.user;
       targetHost = nodeCfg.host;
-      tags = [ name ] ++ (builtins.filter (role: role != config.cluster.roles.defaults) nodeCfg.roles);
+      tags = [ name ] ++ (builtins.filter (role: role != "defauls") nodeCfg.roles);
     };
 
     networking.hostName = name;
@@ -62,19 +61,20 @@ in
     };
   };
 
-  config = mapAttrs mkColmenaNode managedNodes // {
-    meta = {
-      nixpkgs = import nixpkgs {
-        system = "x86_64-linux";
-      };
+  # config = {
 
-      specialArgs = {
-        inherit
-          homelabLib
-          sops-nix
-          nix-sops-vault
-          ;
-      };
-    };
-  };
+  #   colmena = mapAttrs mkColmenaNode managedNodes // {
+  #     meta = {
+  #       nixpkgs = pkgs;
+
+  #       specialArgs = {
+  #         inherit
+  #           homelabLib
+  #           sops-nix
+  #           nix-sops-vault
+  #           ;
+  #       };
+  #     };
+  #   };
+  # };
 }
