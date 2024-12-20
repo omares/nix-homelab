@@ -62,19 +62,19 @@ in
     };
   };
 
-  config = mapAttrs mkColmenaNode managedNodes // {
-    meta = {
-      nixpkgs = import nixpkgs {
-        system = "x86_64-linux";
-      };
+  # config = mapAttrs mkColmenaNode managedNodes // {
+  #   meta = {
+  #     nixpkgs = import nixpkgs {
+  #       system = "x86_64-linux";
+  #     };
 
-      specialArgs = {
-        inherit
-          homelabLib
-          sops-nix
-          nix-sops-vault
-          ;
-      };
-    };
-  };
+  #     specialArgs = {
+  #       inherit
+  #         homelabLib
+  #         sops-nix
+  #         nix-sops-vault
+  #         ;
+  #     };
+  #   };
+  # };
 }

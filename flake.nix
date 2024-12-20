@@ -85,29 +85,10 @@
         };
 
         imports = [
-          inputs.flake-parts.flakeModules.flakeModules
-          (flake-parts.lib.importApply ./modules/cluster/cluster.nix inputs)
+          ./modules/cluster/cluster.nix
+          ./modules/cluster/colmena.nix
           ./roles
         ];
-
-        # nixosConfigurations =
-        #   (nixpkgs.lib.evalModules {
-        #     modules = [
-        #       ./roles
-        #     ];
-        #     specialArgs = {
-        #       inherit nixpkgs sops-nix;
-        #       homelabLib = self.lib;
-        #     };
-        #   }).config.nixosConfigurations;
-
-        # colmena = import ./modules/cluster/colmena.nix {
-        #   inherit nixpkgs sops-nix nix-sops-vault;
-        #   inherit (nixpkgs) lib;
-        #   homelabLib = self.lib;
-
-        #   # config = self.cluster;
-        # };
       };
     };
 }

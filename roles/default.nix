@@ -3,11 +3,6 @@
   ...
 }:
 {
-
-  # imports = [
-  #   ../modules/cluster/cluster.nix
-  # ];
-
   cluster.nodes = {
     defaults = {
       managed = false;
@@ -45,7 +40,4 @@
       host = "192.168.20.44";
     };
   };
-
-  # localFlake.nixosConfigurations = cluster.nodes;
-
 }

@@ -1,9 +1,7 @@
-localFlake:
-
 {
-  lib,
+  inputs,
   config,
-  nixpkgs,
+  lib,
   ...
 }:
 
@@ -13,21 +11,21 @@ let
     lib.filterAttrs (_: type: type == "directory") (builtins.readDir ../../roles)
   );
 
-  mkNixosSystem =
-    name: nodeCfg:
-    nixpkgs.lib.nixosSystem {
-      inherit (nodeCfg) system;
-      modules = [
-        {
-          networking.hostName = name;
-        }
-        (map (role: ../../roles/${role}) nodeCfg.roles)
-      ];
-      specialArgs = {
-        inherit (config) homelabLib;
-      };
-    };
 in
+# mkNixosSystem =
+#   name: nodeCfg:
+#   nixpkgs.lib.nixosSystem {
+#     inherit (nodeCfg) system;
+#     modules = [
+#       {
+#         networking.hostName = name;
+#       }
+#       (map (role: ../../roles/${role}) nodeCfg.roles)
+#     ];
+#     specialArgs = {
+#       inherit (config) homelabLib;
+#     };
+#   };
 {
   options.cluster = {
     nodes = mkOption {
@@ -67,21 +65,22 @@ in
   };
 
   config = {
-    nixosModules = lib.mapAttrs (
+    nixosConfigurations = lib.mapAttrs (
 
-      name: nodeCfg: {
+      name: nodeCfg:
+      inputs.nixpkgs.lib.nixosSystem {
         inherit (nodeCfg) system;
         modules = [
           {
             networking.hostName = name;
           }
-          (map (role: ../../roles/${role}) nodeCfg.roles)
-        ];
+          ../../roles/defaults
+        ] ++ map (role: ../../roles/${role}) nodeCfg.roles;
+
         specialArgs = {
           # inherit (config) homelabLib;
         };
-      }) config.cluster.nodes;
+      }
+    ) config.cluster.nodes;
   };
-  # config =
-  # localFlake.nixosConfigurations = mapAttrs mkNixosSystem config.cluster.nodes;
 }
