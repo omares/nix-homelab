@@ -10,7 +10,9 @@
     };
 
     colmena = {
-      url = "github:zhaofengli/colmena";
+      # url = "github:zhaofengli/colmena";
+      # until https://github.com/zhaofengli/colmena/pull/256 is merged
+      url = "github:pks-t/colmena/pks-nix-eval-job-fix-patch";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -49,7 +51,12 @@
         {
 
           lib = import ./lib {
-            inherit nixpkgs config;
+            inherit
+              nixpkgs
+              config
+              sops-nix
+              nix-sops-vault
+              ;
             inherit (nixpkgs) lib;
           };
 
@@ -103,7 +110,48 @@
             ./modules/cluster/nodes.nix
           ];
 
-          nixosConfigurations = nixpkgs.lib.mapAttrs self.lib.mkNixosSystem config.cluster.nodes;
+          # nixosConfigurations = nixpkgs.lib.mapAttrs self.lib.mkNixosSystem config.cluster.nodes;
+          nixosConfigurations = nixpkgs.lib.mapAttrs (
+            name: nodeCfg:
+            nixpkgs.lib.nixosSystem {
+              inherit (nodeCfg) system;
+
+              deployment = {
+                targetUser = nodeCfg.user;
+                targetHost = nodeCfg.host;
+                tags = [ name ];
+              };
+
+              specialArgs = {
+                inherit nixpkgs;
+                homelabLib = self.lib;
+                modulesPath = toString nixpkgs + "/nixos/modules";
+              };
+
+              modules = [
+                {
+                  networking.hostName = name;
+                }
+                sops-nix.nixosModules.sops
+                nix-sops-vault.nixosModules.sops-vault
+                config.nixosModules.role-default
+              ] ++ nodeCfg.roles;
+
+              extraModules = [ inputs.colmena.nixosModules.deploymentOptions ];
+            }
+          ) config.cluster.nodes;
+
+          colmena =
+            {
+              meta = {
+                nixpkgs = import inputs.nixpkgs { system = "x86_64-linux"; };
+                nodeNixpkgs = builtins.mapAttrs (_: value: value.pkgs) self.nixosConfigurations;
+                nodeSpecialArgs = builtins.mapAttrs (_: value: value._module.specialArgs) self.nixosConfigurations;
+              };
+            }
+            // builtins.mapAttrs (_: value: {
+              imports = value._module.args.modules;
+            }) self.nixosConfigurations;
         };
     };
 }

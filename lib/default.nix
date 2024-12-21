@@ -2,6 +2,8 @@
   nixpkgs,
   config,
   lib,
+  sops-nix,
+  nix-sops-vault,
 }:
 let
   self = {
@@ -9,7 +11,12 @@ let
       inherit (lib) mkMerge mkIf;
     };
     mkNixosSystem = import ./mkNixosSystem.nix {
-      inherit nixpkgs config;
+      inherit
+        nixpkgs
+        config
+        sops-nix
+        nix-sops-vault
+        ;
       homelabLib = removeAttrs self [ "mkNixosSystem" ];
     };
   };

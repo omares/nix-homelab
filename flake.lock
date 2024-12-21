@@ -11,15 +11,16 @@
         "stable": "stable"
       },
       "locked": {
-        "lastModified": 1731527002,
-        "narHash": "sha256-dI9I6suECoIAmbS4xcrqF8r2pbmed8WWm5LIF1yWPw8=",
-        "owner": "zhaofengli",
+        "lastModified": 1734378383,
+        "narHash": "sha256-LLpiqfOGBippRax9F33kSJ/Imt8gJXb6o0JwSBiNHCk=",
+        "owner": "pks-t",
         "repo": "colmena",
-        "rev": "e3ad42138015fcdf2524518dd564a13145c72ea1",
+        "rev": "caabefa41eacd8a9062cbeba09a4e970b2c671b2",
         "type": "github"
       },
       "original": {
-        "owner": "zhaofengli",
+        "owner": "pks-t",
+        "ref": "pks-nix-eval-job-fix-patch",
         "repo": "colmena",
         "type": "github"
       }

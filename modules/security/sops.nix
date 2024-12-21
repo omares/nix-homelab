@@ -5,7 +5,7 @@
 }:
 {
   imports = [
-    sops-nix.nixosModules.sops
-    nix-sops-vault.nixosModules.sops-vault
+    # sops-nix.nixosModules.sops
+    # nix-sops-vault.nixosModules.sops-vault
   ];
 }

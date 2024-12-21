@@ -12,6 +12,12 @@ in
       type = types.attrsOf (
         types.submodule {
           options = {
+            managed = mkOption {
+              type = types.bool;
+              default = true;
+              description = "Whether this node is managed by the deployment tool";
+            };
+
             system = mkOption {
               type = types.enum [
                 "x86_64-linux"
