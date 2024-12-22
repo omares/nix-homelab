@@ -28,6 +28,4 @@ nixpkgs.lib.nixosSystem {
     # nix-sops-vault.nixosModules.sops-vault
     config.nixosModules.role-default
   ] ++ nodeCfg.roles;
-
-  extraModules = [ inputs.colmena.nixosModules.deploymentOptions ];
 }

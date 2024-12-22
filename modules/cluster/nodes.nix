@@ -6,15 +6,9 @@
 
   imports = [
     ./cluster.nix
-    ./colmena.nix
   ];
 
   cluster.nodes = {
-    defaults = {
-      managed = false;
-      roles = [ config.nixosModules.role-default ];
-    };
-
     build-01 = {
       roles = [ config.nixosModules.role-builder ];
       host = "192.168.20.224";
@@ -28,7 +22,7 @@
 
     dns-01 = {
       roles = [ config.nixosModules.role-dns ];
-      host = "192.168.20.47";
+      host = "192.168.20.29";
     };
 
     dns-02 = {
@@ -39,10 +33,6 @@
 
     proxy-01 = {
       roles = [ config.nixosModules.role-proxy ];
-      sops-vault = [
-        "acme"
-        "easydns"
-      ];
       host = "192.168.20.44";
     };
   };

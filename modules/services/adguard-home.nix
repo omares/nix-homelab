@@ -1,7 +1,7 @@
 {
   name,
   config,
-  lib,
+  nodeCfg,
   ...
 }:
 {
@@ -10,7 +10,7 @@
     mutableSettings = false;
     openFirewall = true;
 
-    host = config.deployment.targetHost;
+    host = nodeCfg.host;
     settings = {
 
       http = {

@@ -5,5 +5,5 @@
     ../../services/adguard-home.nix
   ];
 
-  # sops-vault = [ "adguard-home" ];
+  sops-vault.items = [ "adguard-home" ];
 }

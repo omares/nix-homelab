@@ -40,8 +40,8 @@
       "pve01.mares.id" = "http://192.168.20.246";
     };
 
-  # sops-vault = [
-  #   "acme"
-  #   "easydns"
-  # ];
+  sops-vault.items = [
+    "acme"
+    "easydns"
+  ];
 }

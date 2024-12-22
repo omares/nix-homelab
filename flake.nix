@@ -9,12 +9,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    colmena = {
-      # url = "github:zhaofengli/colmena";
-      # until https://github.com/zhaofengli/colmena/pull/256 is merged
-      url = "github:pks-t/colmena/pks-nix-eval-job-fix-patch";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    deploy-rs.url = "github:serokell/deploy-rs";
 
     sops-nix = {
       url = "github:Mic92/sops-nix";
@@ -33,7 +28,7 @@
       flake-parts,
       nixpkgs,
       nixos-generators,
-      colmena,
+      deploy-rs,
       sops-nix,
       nix-sops-vault,
     }:
@@ -89,7 +84,7 @@
           devShells.${system} = {
             default = pkgs.mkShell {
               packages = with pkgs; [
-                colmena.packages.${system}.colmena
+                deploy-rs.packages.${system}.deploy-rs
                 nixfmt-rfc-style
               ];
             };
@@ -111,47 +106,50 @@
           ];
 
           # nixosConfigurations = nixpkgs.lib.mapAttrs self.lib.mkNixosSystem config.cluster.nodes;
-          nixosConfigurations = nixpkgs.lib.mapAttrs (
-            name: nodeCfg:
-            nixpkgs.lib.nixosSystem {
-              inherit (nodeCfg) system;
+          nixosConfigurations =
+            let
+              managedNodes = nixpkgs.lib.filterAttrs (_: node: node.managed) config.cluster.nodes;
+            in
+            nixpkgs.lib.mapAttrs (
+              name: nodeCfg:
+              nixpkgs.lib.nixosSystem {
+                inherit (nodeCfg) system;
 
-              deployment = {
-                targetUser = nodeCfg.user;
-                targetHost = nodeCfg.host;
-                tags = [ name ];
+                specialArgs = {
+                  inherit nixpkgs nodeCfg name;
+                  homelabLib = self.lib;
+                  modulesPath = toString nixpkgs + "/nixos/modules";
+                };
+
+                modules = [
+                  {
+                    networking.hostName = name;
+                  }
+                  sops-nix.nixosModules.sops
+                  nix-sops-vault.nixosModules.sops-vault
+                  config.nixosModules.role-default
+                ] ++ nodeCfg.roles;
+              }
+            ) managedNodes;
+
+          deploy.nodes =
+            let
+              managedNodes = nixpkgs.lib.filterAttrs (_: node: node.managed) config.cluster.nodes;
+            in
+            nixpkgs.lib.mapAttrs (name: nodeCfg: {
+              hostname = nodeCfg.host;
+
+              profiles.system = {
+                sshUser = nodeCfg.user;
+                user = "root";
+                interactiveSudo = true;
+                remoteBuild = false;
+                path = deploy-rs.lib.${nodeCfg.system}.activate.nixos self.nixosConfigurations.${name};
               };
+            }) managedNodes;
 
-              specialArgs = {
-                inherit nixpkgs;
-                homelabLib = self.lib;
-                modulesPath = toString nixpkgs + "/nixos/modules";
-              };
+          checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
 
-              modules = [
-                {
-                  networking.hostName = name;
-                }
-                sops-nix.nixosModules.sops
-                nix-sops-vault.nixosModules.sops-vault
-                config.nixosModules.role-default
-              ] ++ nodeCfg.roles;
-
-              extraModules = [ inputs.colmena.nixosModules.deploymentOptions ];
-            }
-          ) config.cluster.nodes;
-
-          colmena =
-            {
-              meta = {
-                nixpkgs = import inputs.nixpkgs { system = "x86_64-linux"; };
-                nodeNixpkgs = builtins.mapAttrs (_: value: value.pkgs) self.nixosConfigurations;
-                nodeSpecialArgs = builtins.mapAttrs (_: value: value._module.specialArgs) self.nixosConfigurations;
-              };
-            }
-            // builtins.mapAttrs (_: value: {
-              imports = value._module.args.modules;
-            }) self.nixosConfigurations;
         };
     };
 }
