@@ -41,20 +41,22 @@
       systems =
         [
         ];
+
+      # Creates 'nixosModels', 'nixosConfigurations', 'deploy.nodes', and 'check' outputs
+      # based on defined nodes in ./modules/cluster/nodes.nix and existing roles in ./modules/cluster/roles.
+      imports = [
+        ./modules/cluster
+      ];
+
       flake =
         { config, ... }:
         {
 
           lib = import ./lib {
-            inherit
-              nixpkgs
-              config
-              sops-nix
-              nix-sops-vault
-              ;
             inherit (nixpkgs) lib;
           };
 
+          # todo: Move packages to own module
           packages.${system} = {
             # x86_64 VM template
             proxmox-x86 = import ./modules/virtualisation/proxmox-generator.nix {
@@ -89,67 +91,6 @@
               ];
             };
           };
-
-          _module.args = {
-            homelabLib = self.lib;
-          };
-
-          nixosModules = {
-            role-default = import ./modules/cluster/roles/default.nix;
-            role-builder = import ./modules/cluster/roles/builder.nix;
-            role-dns = import ./modules/cluster/roles/dns.nix;
-            role-proxy = import ./modules/cluster/roles/proxy.nix;
-          };
-
-          imports = [
-            ./modules/cluster/nodes.nix
-          ];
-
-          # nixosConfigurations = nixpkgs.lib.mapAttrs self.lib.mkNixosSystem config.cluster.nodes;
-          nixosConfigurations =
-            let
-              managedNodes = nixpkgs.lib.filterAttrs (_: node: node.managed) config.cluster.nodes;
-            in
-            nixpkgs.lib.mapAttrs (
-              name: nodeCfg:
-              nixpkgs.lib.nixosSystem {
-                inherit (nodeCfg) system;
-
-                specialArgs = {
-                  inherit nixpkgs nodeCfg name;
-                  homelabLib = self.lib;
-                  modulesPath = toString nixpkgs + "/nixos/modules";
-                };
-
-                modules = [
-                  {
-                    networking.hostName = name;
-                  }
-                  sops-nix.nixosModules.sops
-                  nix-sops-vault.nixosModules.sops-vault
-                  config.nixosModules.role-default
-                ] ++ nodeCfg.roles;
-              }
-            ) managedNodes;
-
-          deploy.nodes =
-            let
-              managedNodes = nixpkgs.lib.filterAttrs (_: node: node.managed) config.cluster.nodes;
-            in
-            nixpkgs.lib.mapAttrs (name: nodeCfg: {
-              hostname = nodeCfg.host;
-
-              profiles.system = {
-                sshUser = nodeCfg.user;
-                user = "root";
-                interactiveSudo = true;
-                remoteBuild = false;
-                path = deploy-rs.lib.${nodeCfg.system}.activate.nixos self.nixosConfigurations.${name};
-              };
-            }) managedNodes;
-
-          checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
-
         };
     };
 }
