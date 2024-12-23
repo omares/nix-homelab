@@ -4,10 +4,6 @@
 }:
 {
 
-  imports = [
-    ./cluster.nix
-  ];
-
   cluster.nodes = {
     build-01 = {
       roles = [ config.flake.nixosModules.role-builder ];

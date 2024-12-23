@@ -39,8 +39,8 @@ in
               description = "List of roles to apply to the node. Must be NixOS module references";
               example = ''
                 [
-                  config.nixosModules.role-dns
-                  config.nixosModules.role-builder
+                  config.flake.nixosModules.role-dns
+                  config.flake.nixosModules.role-builder
                 ]
               '';
             };

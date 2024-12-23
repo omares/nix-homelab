@@ -4,7 +4,6 @@
 }:
 {
   imports = [
-    # ../../security/sops.nix
     ../../security/acme.nix
   ];
 

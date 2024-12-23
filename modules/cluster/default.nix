@@ -1,6 +1,6 @@
 {
   imports = [
-    ./cluster.nix
+    ./options.nix
     ./nodes.nix
     ./outputs.nix
   ];
