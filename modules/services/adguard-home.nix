@@ -1,6 +1,5 @@
 {
   name,
-  config,
   nodeCfg,
   ...
 }:
@@ -65,7 +64,7 @@
           "hostname.bind"
         ];
         trusted_proxies = [
-          "192.168.20.105/32"
+          "192.168.20.44/32"
           "127.0.0.0/8"
           "::1/128"
         ];
@@ -136,34 +135,16 @@
       };
       filters = [
         {
-          enabled = false;
-          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_1.txt";
+          enabled = true;
+          url = "https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt";
           name = "AdGuard DNS filter";
           id = 1;
         }
         {
-          enabled = false;
-          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_2.txt";
-          name = "AdAway Default Blocklist";
+          enabled = true;
+          url = "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts";
+          name = "StevenBlack's Unified Hosts";
           id = 2;
-        }
-        {
-          enabled = false;
-          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_48.txt";
-          name = "HaGeZi's Pro Blocklist";
-          id = 1712088971;
-        }
-        {
-          enabled = false;
-          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_44.txt";
-          name = "HaGeZi's Threat Intelligence Feeds";
-          id = 1712088972;
-        }
-        {
-          enabled = false;
-          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_52.txt";
-          name = "HaGeZi's Encrypted DNS/VPN/TOR/Proxy Bypass";
-          id = 1712088973;
         }
       ];
       whitelist_filters = [ ];
@@ -216,11 +197,7 @@
         rewrites = [
           {
             domain = "*.mares.id";
-            answer = "192.168.20.105";
-          }
-          {
-            domain = "agh02.mares.id";
-            answer = "192.168.20.87";
+            answer = "192.168.20.44";
           }
         ];
         safebrowsing_cache_size = 1048576;

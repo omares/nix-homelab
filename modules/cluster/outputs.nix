@@ -25,7 +25,12 @@
           inherit (nodeCfg) system;
 
           specialArgs = {
-            inherit inputs nodeCfg name;
+            inherit
+              inputs
+              nodeCfg
+              name
+              ;
+            inherit (config) cluster;
             homelabLib = config.flake.lib;
             modulesPath = toString inputs.nixpkgs + "/nixos/modules";
           };
@@ -49,6 +54,7 @@
           user = "root";
           interactiveSudo = true;
           remoteBuild = false;
+          fastConnection = true;
           path =
             inputs.deploy-rs.lib.${nodeCfg.system}.activate.nixos
               config.flake.nixosConfigurations.${name};

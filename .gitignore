@@ -1,5 +1,6 @@
 .direnv/
 .idea/
+.deploy-gc
 result
 backup/
 *vma.zst

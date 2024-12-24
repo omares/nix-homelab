@@ -8,6 +8,12 @@ let
 in
 {
   options.cluster = {
+    proxy = {
+      domain = mkOption {
+        type = types.str;
+        description = "Base domain for all services";
+      };
+    };
     nodes = mkOption {
       type = types.attrsOf (
         types.submodule {
@@ -55,6 +61,55 @@ in
               default = "omares";
               description = "User to deploy as";
             };
+
+            proxy = mkOption {
+              type = types.nullOr (
+                types.submodule {
+                  options = {
+                    port = mkOption {
+                      type = types.port;
+                      description = "Target port";
+                    };
+
+                    subdomains = mkOption {
+                      type = types.listOf types.str;
+                      default = [ ];
+                      description = "Additional subdomains for this service";
+                    };
+
+                    protocol = mkOption {
+                      type = types.enum [
+                        "http"
+                        "https"
+                      ];
+                      default = "http";
+                      description = "Protocol to use in proxy address";
+                    };
+
+                    websockets = mkOption {
+                      type = types.bool;
+                      default = false;
+                      description = "Whether to support proxying websocket connections with HTTP/1.1.";
+                    };
+
+                    ssl = mkOption {
+                      type = types.bool;
+                      default = true;
+                      description = "Enable SSL for this service";
+                    };
+
+                    extraConfig = mkOption {
+                      type = types.lines;
+                      default = "";
+                      description = "Additional nginx configuration for this virtual host";
+                    };
+                  };
+                }
+              );
+              default = null;
+              description = "Proxy configuration for this node";
+            };
+
           };
         }
       );
