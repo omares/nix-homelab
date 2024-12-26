@@ -39,8 +39,6 @@
             {
               networking.hostName = name;
             }
-            inputs.sops-nix.nixosModules.sops
-            inputs.nix-sops-vault.nixosModules.sops-vault
             config.flake.nixosModules.role-default
           ] ++ nodeCfg.roles;
         };

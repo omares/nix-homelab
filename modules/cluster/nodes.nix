@@ -44,6 +44,19 @@
         host = "192.168.20.44";
       };
 
+      starr-sabnzbd-01 = {
+        roles = [ config.flake.nixosModules.role-starr-sabnzbd ];
+        host = "192.168.20.219";
+
+        proxy = {
+          port = 8080;
+          subdomains = [ "sabnzbd" ];
+        };
+      };
+
+      #
+      # Unmanaged nodes
+      #
       unifi = {
         managed = false;
 

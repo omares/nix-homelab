@@ -8,6 +8,8 @@
 
   nix.package = pkgs.nixVersions.stable;
 
+  nixpkgs.config.allowUnfree = true;
+
   nix.settings = {
     experimental-features = "nix-command flakes";
     # enable auto-cleanup

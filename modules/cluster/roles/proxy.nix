@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   cluster,
   ...
@@ -32,7 +33,12 @@ let
 
 in
 {
-  imports = [ ../../security/acme.nix ];
+  imports = [
+
+    inputs.sops-nix.nixosModules.sops
+    inputs.nix-sops-vault.nixosModules.sops-vault
+    ../../security/acme.nix
+  ];
   config = {
     networking.firewall = {
       allowedTCPPorts = [
