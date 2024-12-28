@@ -54,6 +54,16 @@
         };
       };
 
+      starr-prowlarr-01 = {
+        roles = [ config.flake.nixosModules.role-starr-prowlarr ];
+        host = "192.168.20.153";
+
+        proxy = {
+          port = 8080;
+          subdomains = [ "prowlarr" ];
+        };
+      };
+
       #
       # Unmanaged nodes
       #
