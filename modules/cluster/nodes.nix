@@ -44,6 +44,11 @@
         host = "192.168.20.44";
       };
 
+      db-01 = {
+        roles = [ config.flake.nixosModules.role-db ];
+        host = "192.168.20.28";
+      };
+
       starr-sabnzbd-01 = {
         roles = [ config.flake.nixosModules.role-starr-sabnzbd ];
         host = "192.168.20.219";

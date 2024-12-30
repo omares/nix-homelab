@@ -14,12 +14,22 @@
     ../../storage/truenas.nix
   ];
 
-  homelab.storage.truenas.media = {
+  cluster.storage.truenas.media = {
     enable = true;
-    uid = config.ids.uids.sabnzbd;
   };
 
   sops-vault.items = [
     "starr"
   ];
+
+  systemd.services.sabnzbd = {
+    wants = [
+      "sops-nix.service"
+      "mnt-media.mount"
+    ];
+    after = [
+      "sops-nix.service"
+      "mnt-media.mount"
+    ];
+  };
 }

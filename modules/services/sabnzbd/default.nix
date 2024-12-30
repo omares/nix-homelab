@@ -197,16 +197,5 @@ in
       group = "starr";
       openFirewall = true;
     };
-
-    systemd.services.sabnzbd = {
-      wants = [
-        "sops-nix.service"
-        "mnt-media.mount"
-      ];
-      after = [
-        "sops-nix.service"
-        "mnt-media.mount"
-      ];
-    };
   };
 }

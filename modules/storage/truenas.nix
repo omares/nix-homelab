@@ -6,33 +6,63 @@
 }:
 
 let
-  cfg = config.homelab.storage.truenas.media;
+  mountOptions = [
+    "vers=4"
+    "rw"
+    "noatime"
+    "_netdev"
+  ];
 in
 {
-  options.homelab.storage.truenas.media = {
-    enable = lib.mkEnableOption "Mount the 'media' TrueNAS storage.";
+  options.cluster.storage.truenas = {
 
-    uid = lib.mkOption {
-      type = lib.types.nullOr lib.types.int;
-      default = null;
-      description = "UID that should own the NFS mount. If null, no specific user ownership is set.";
-      example = 1000;
+    media = {
+      enable = lib.mkEnableOption "Mount the 'media' TrueNAS storage.";
+
+      mountPoint = lib.mkOption {
+        type = lib.types.path;
+        default = "/mnt/media";
+        description = "Local mount point where the remote media storage will be mounted";
+        example = "/mnt/media";
+      };
+    };
+
+    postgres-backup = {
+      enable = lib.mkEnableOption "Mount the PostgreSQL backup TrueNAS storage";
+
+      mountPoint = lib.mkOption {
+        type = lib.types.path;
+        default = "/mnt/backup/postgres";
+        description = "Local mount point where the remote backup storage will be mounted";
+        example = "/mnt/backup/postgres";
+      };
     };
   };
 
-  config = lib.mkIf cfg.enable {
+  config =
+    let
+      cfgMedia = config.cluster.storage.truenas.media;
+      cfgBackup = config.cluster.storage.truenas.postgres-backup;
+    in
+    lib.mkMerge [
+      (lib.mkIf cfgMedia.enable {
+        fileSystems."${cfgMedia.mountPoint}" = {
+          device = "${cluster.nodes.truenas.host}:/mnt/storage01/Media";
+          fsType = "nfs";
+          options = mountOptions;
+        };
 
-    fileSystems."/mnt/media" = {
-      device = "${cluster.nodes.truenas.host}:/mnt/storage01/Media";
-      fsType = "nfs";
-      options = [
-        "vers=4" # Use NFS version 4 protocol
-        "rw" # Mount as read-write
-        "noatime" # Don't update access times (better performance)
-        "_netdev" # Indicates this is a network mount
-      ];
-    };
+        services.rpcbind.enable = lib.mkDefault true;
+      })
 
-    services.rpcbind.enable = lib.mkDefault true;
-  };
+      (lib.mkIf cfgBackup.enable {
+        fileSystems."${cfgBackup.mountPoint}" = {
+          device = "${cluster.nodes.truenas.host}:/mnt/storage01/backups/postgres";
+          fsType = "nfs";
+          options = mountOptions;
+        };
+
+        services.rpcbind.enable = lib.mkDefault true;
+      })
+    ];
 }
