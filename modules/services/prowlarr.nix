@@ -1,11 +1,14 @@
 {
   config,
   nodeCfg,
+  cluster,
   ...
 }:
 {
   config = {
     sops.templates."config.xml" = {
+      # lib.toXML creates weird XML that Prowlarr seems to have issues with.
+      # I can't be bothered to convert this simple configuration to attributes.
       content = ''
         <Config>
           <BindAddress>${nodeCfg.host}</BindAddress>
@@ -23,6 +26,12 @@
           <UrlBase></UrlBase>
           <InstanceName>Prowlarr</InstanceName>
           <AnalyticsEnabled>False</AnalyticsEnabled>
+          <PostgresUser>prowlarr</PostgresUser>
+          <PostgresPassword>${config.sops.placeholder.pgsql-prowlarr_password}</PostgresPassword>
+          <PostgresPort>${toString config.services.pgbouncer.settings.pgbouncer.listen_port}</PostgresPort>
+          <PostgresHost>${cluster.nodes.db-01.host}</PostgresHost>
+          <PostgresMainDb>prowlarr</PostgresMainDb>
+          <PostgresLogDb>prowlarr_log</PostgresLogDb>
         </Config>
       '';
 

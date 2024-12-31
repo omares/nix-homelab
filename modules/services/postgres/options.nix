@@ -38,6 +38,15 @@
               description = "IP address or list of IP addresses from which this user can connect";
               example = "192.168.1.100";
             };
+
+            databases = lib.mkOption {
+              type = lib.types.listOf lib.types.str;
+              default = [ ];
+              description = "List of databases the user has access too.";
+              example = lib.literalExpression ''
+                [ "prowlarr" "prowlarr_log" ]
+              '';
+            };
           };
         }
       );

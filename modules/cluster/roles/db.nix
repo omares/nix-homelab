@@ -24,17 +24,26 @@
     listenAddress = nodeCfg.host;
     databases = {
       prowlarr = { };
+      prowlarr_log = { };
       radarr = { };
+      radarr_log = { };
     };
     users = {
       prowlarr = {
         ensureDBOwnership = true;
         createdb = false;
-        peer = cluster.nodes.starr-prowlarr-01.host;
+        databases = [
+          "prowlarr"
+          "prowlarr_log"
+        ];
       };
       radarr = {
         ensureDBOwnership = true;
         createdb = false;
+        databases = [
+          "radarr"
+          "radarr_log"
+        ];
       };
     };
   };
@@ -46,7 +55,10 @@
     {
       dbs-daily = {
         enable = true;
-        databases = lib.attrNames config.cluster.db.postgres.databases;
+        databases = [
+          "prowlarr"
+          "radarr"
+        ];
         pgdumpOptions = "-Fc -b";
         compression = "zstd";
         compressionLevel = 10;
@@ -56,7 +68,10 @@
       };
       dbs-weekly = {
         enable = true;
-        databases = lib.attrNames config.cluster.db.postgres.databases;
+        databases = [
+          "prowlarr"
+          "radarr"
+        ];
         pgdumpOptions = "-Fc -b";
         compression = "zstd";
         compressionLevel = 10;
@@ -64,7 +79,6 @@
         startAt = "Mon *-*-* 04:00:00";
         keep = 4; # Keep last 4 backups
       };
-
       globals-weekly = {
         enable = true;
         backupAll = true;

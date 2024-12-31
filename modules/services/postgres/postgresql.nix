@@ -9,15 +9,6 @@ let
   cfg = config.cluster.db.postgres;
 
   formatIp = ip: if lib.hasInfix "/" ip then ip else "${ip}/32";
-
-  formatPeerAddresses =
-    peer:
-    if peer == null then
-      [ "${cfg.listenAddress}/32" ]
-    else if lib.isList peer then
-      map formatIp peer
-    else
-      [ (formatIp peer) ];
 in
 {
   config = lib.mkIf cfg.enable {
@@ -35,17 +26,20 @@ in
       authentication = lib.mkForce (
         lib.concatLines (
           [
+            # TYPE   DATABASE    USER                ADDRESS      METHOD
             # System users
-            "local   all    root                peer"
-            "local   all    postgres            peer"
+            "local   all         root                peer"
+            "local   all         postgres            peer"
             # Admin user
-            "local   all    ${cfg.adminUser}    peer"
-            "host    all    ${cfg.adminUser}    0.0.0.0/0    scram-sha-256"
+            "local   all         ${cfg.adminUser}    peer"
+            "host    all         ${cfg.adminUser}    0.0.0.0/0    scram-sha-256"
           ]
           ++ lib.flatten (
             lib.mapAttrsToList (
               name: user:
-              map (addr: "host    ${name}    ${name}    ${addr}    scram-sha-256") (formatPeerAddresses user.peer)
+              map (
+                database: "host    ${database}    ${name}    ${formatIp cfg.listenAddress}    scram-sha-256"
+              ) user.databases
             ) cfg.users
           )
         )

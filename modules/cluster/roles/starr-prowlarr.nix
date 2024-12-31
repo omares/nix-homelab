@@ -13,5 +13,6 @@
 
   sops-vault.items = [
     "starr"
+    "pgsql"
   ];
 }
