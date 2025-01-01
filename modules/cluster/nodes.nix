@@ -64,8 +64,18 @@
         host = "192.168.20.153";
 
         proxy = {
-          port = 8080;
+          port = 9696;
           subdomains = [ "prowlarr" ];
+        };
+      };
+
+      starr-radarr-01 = {
+        roles = [ config.flake.nixosModules.role-starr-radarr ];
+        host = "192.168.20.58";
+
+        proxy = {
+          port = 7878;
+          subdomains = [ "radarr" ];
         };
       };
 
