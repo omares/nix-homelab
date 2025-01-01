@@ -7,8 +7,7 @@
     inputs.sops-nix.nixosModules.sops
     inputs.nix-sops-vault.nixosModules.sops-vault
     ../../users/starr.nix
-    ../../users/prowlarr.nix
-    ../../services/starr/prowlarr.nix
+    ../../services/starr/sonarr.nix
   ];
 
   sops-vault.items = [

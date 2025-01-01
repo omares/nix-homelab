@@ -6,7 +6,7 @@
 }:
 {
   config = {
-    sops.templates."radarr-config.xml" = {
+    sops.templates."sonarr-config.xml" = {
       # lib.toXML creates weird XML that radarr seems to have issues with.
       # I can't be bothered to convert this simple configuration to attributes.
       content = ''
@@ -35,16 +35,17 @@
         </Config>
       '';
 
-      path = "/var/lib/radarr/.config/Radarr/config.xml";
+      path = "${config.services.sonarr.dataDir}/config.xml";
       owner = "radarr";
       group = "starr";
       mode = "0660";
 
-      restartUnits = [ "radarr.service" ];
+      restartUnits = [ "sonarr.service" ];
     };
 
-    services.radarr = {
+    services.sonarr = {
       enable = true;
+      dataDir = "/var/lib/sonarr";
       group = "starr";
       openFirewall = true;
     };

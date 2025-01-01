@@ -27,6 +27,8 @@
       prowlarr_log = { };
       radarr = { };
       radarr_log = { };
+      sonarr = { };
+      sonarr_log = { };
     };
     users = {
       prowlarr = {
@@ -45,6 +47,14 @@
           "radarr_log"
         ];
       };
+      sonarr = {
+        ensureDBOwnership = true;
+        createdb = false;
+        databases = [
+          "sonarr"
+          "sonarr_log"
+        ];
+      };
     };
   };
 
@@ -58,6 +68,7 @@
         databases = [
           "prowlarr"
           "radarr"
+          "sonarr"
         ];
         pgdumpOptions = "-Fc -b";
         compression = "zstd";
@@ -71,6 +82,7 @@
         databases = [
           "prowlarr"
           "radarr"
+          "sonarr"
         ];
         pgdumpOptions = "-Fc -b";
         compression = "zstd";

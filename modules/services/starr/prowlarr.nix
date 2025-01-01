@@ -1,9 +1,15 @@
 {
   config,
+  lib,
   nodeCfg,
   cluster,
   ...
 }:
+let
+  owner = "prowlarr";
+  group = "starr";
+  dataDir = config.users.users.prowlarr.home;
+in
 {
   config = {
     sops.templates."prowlarr-config.xml" = {
@@ -15,7 +21,7 @@
           <Port>9696</Port>
           <SslPort>6969</SslPort>
           <EnableSsl>False</EnableSsl>
-          <LaunchBrowser>True</LaunchBrowser>
+          <LaunchBrowser>False</LaunchBrowser>
           <ApiKey>${config.sops.placeholder.prowlarr-api_key}</ApiKey>
           <AuthenticationMethod>Forms</AuthenticationMethod>
           <AuthenticationRequired>Enabled</AuthenticationRequired>
@@ -35,9 +41,9 @@
         </Config>
       '';
 
-      path = "/var/lib/prowlarr/config.xml";
-      owner = "prowlarr";
-      group = "prowlarr";
+      path = "${config.users.users.prowlarr.home}/config.xml";
+      owner = owner;
+      group = group;
       mode = "0660";
 
       restartUnits = [ "prowlarr.service" ];
@@ -46,6 +52,14 @@
     services.prowlarr = {
       enable = true;
       openFirewall = true;
+    };
+
+    systemd.services.prowlarr = {
+      serviceConfig = {
+        DynamicUser = lib.mkForce false;
+        User = lib.mkDefault owner;
+        Group = lib.mkDefault group;
+      };
     };
   };
 }
