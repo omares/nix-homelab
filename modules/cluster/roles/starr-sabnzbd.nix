@@ -1,35 +1,20 @@
 {
-  inputs,
-  config,
-  lib,
+  nodeCfg,
   ...
 }:
 {
+
   imports = [
-    inputs.sops-nix.nixosModules.sops
-    inputs.nix-sops-vault.nixosModules.sops-vault
-    ../../users/starr.nix
-    # ../../users/sabnzbd.nix
-    ../../services/sabnzbd
-    ../../storage/truenas.nix
+    ../../services/starr
   ];
 
-  cluster.storage.truenas.media = {
+  cluster.services.starr = {
     enable = true;
-  };
 
-  sops-vault.items = [
-    "starr"
-  ];
-
-  systemd.services.sabnzbd = {
-    wants = [
-      "sops-nix.service"
-      "mnt-media.mount"
-    ];
-    after = [
-      "sops-nix.service"
-      "mnt-media.mount"
-    ];
+    sabnzbd = {
+      enable = true;
+      mountStorage = true;
+      bindAddress = nodeCfg.host;
+    };
   };
 }

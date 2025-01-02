@@ -1,23 +1,19 @@
 {
   config,
   lib,
-  nodeCfg,
-  cluster,
   ...
 }:
 let
-  owner = "prowlarr";
-  group = "starr";
-  dataDir = config.users.users.prowlarr.home;
+  cfg = config.cluster.services.starr;
 in
 {
-  config = {
+  config = lib.mkIf (cfg.enable && cfg.prowlarr.enable) {
     sops.templates."prowlarr-config.xml" = {
       # lib.toXML creates weird XML that Prowlarr seems to have issues with.
       # I can't be bothered to convert this simple configuration to attributes.
       content = ''
         <Config>
-          <BindAddress>${nodeCfg.host}</BindAddress>
+          <BindAddress>${cfg.prowlarr.bindAddress}</BindAddress>
           <Port>9696</Port>
           <SslPort>6969</SslPort>
           <EnableSsl>False</EnableSsl>
@@ -34,16 +30,16 @@ in
           <AnalyticsEnabled>False</AnalyticsEnabled>
           <PostgresUser>prowlarr</PostgresUser>
           <PostgresPassword>${config.sops.placeholder.pgsql-prowlarr_password}</PostgresPassword>
-          <PostgresPort>${toString config.services.pgbouncer.settings.pgbouncer.listen_port}</PostgresPort>
-          <PostgresHost>${cluster.nodes.db-01.host}</PostgresHost>
+          <PostgresPort>${toString cfg.postgres.port}</PostgresPort>
+          <PostgresHost>${cfg.postgres.host}</PostgresHost>
           <PostgresMainDb>prowlarr</PostgresMainDb>
           <PostgresLogDb>prowlarr_log</PostgresLogDb>
         </Config>
       '';
 
       path = "${config.users.users.prowlarr.home}/config.xml";
-      owner = owner;
-      group = group;
+      owner = cfg.prowlarr.user;
+      group = cfg.group;
       mode = "0660";
 
       restartUnits = [ "prowlarr.service" ];
@@ -54,12 +50,25 @@ in
       openFirewall = true;
     };
 
+    cluster.storage.truenas.media = {
+      enable = cfg.prowlarr.mountStorage;
+    };
+
     systemd.services.prowlarr = {
       serviceConfig = {
         DynamicUser = lib.mkForce false;
-        User = lib.mkDefault owner;
-        Group = lib.mkDefault group;
+        User = lib.mkDefault cfg.prowlarr.user;
+        Group = lib.mkDefault cfg.group;
       };
+
+      wants = [
+        "sops-nix.service"
+        "mnt-media.mount"
+      ];
+      after = [
+        "sops-nix.service"
+        "mnt-media.mount"
+      ];
     };
   };
 }

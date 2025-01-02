@@ -1,18 +1,19 @@
 {
-  inputs,
+  nodeCfg,
   ...
 }:
 {
   imports = [
-    inputs.sops-nix.nixosModules.sops
-    inputs.nix-sops-vault.nixosModules.sops-vault
-    ../../users/starr.nix
-    ../../users/prowlarr.nix
-    ../../services/starr/prowlarr.nix
+    ../../services/starr
   ];
 
-  sops-vault.items = [
-    "starr"
-    "pgsql"
-  ];
+  cluster.services.starr = {
+    enable = true;
+
+    prowlarr = {
+      enable = true;
+      mountStorage = true;
+      bindAddress = nodeCfg.host;
+    };
+  };
 }

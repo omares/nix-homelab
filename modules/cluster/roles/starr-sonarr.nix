@@ -1,13 +1,10 @@
 {
-  inputs,
+  nodeCfg,
   ...
 }:
 {
   imports = [
-    inputs.sops-nix.nixosModules.sops
-    inputs.nix-sops-vault.nixosModules.sops-vault
-    ../../users/starr.nix
-    ../../services/starr/sonarr.nix
+    ../../services/starr
   ];
 
   # https://github.com/NixOS/nixpkgs/issues/360592
@@ -19,8 +16,13 @@
     "dotnet-sdk-wrapped-6.0.428"
   ];
 
-  sops-vault.items = [
-    "starr"
-    "pgsql"
-  ];
+  cluster.services.starr = {
+    enable = true;
+
+    sonarr = {
+      enable = true;
+      mountStorage = true;
+      bindAddress = nodeCfg.host;
+    };
+  };
 }

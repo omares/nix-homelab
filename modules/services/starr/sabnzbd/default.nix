@@ -2,10 +2,10 @@
   config,
   lib,
   pkgs,
-  nodeCfg,
   ...
 }:
 let
+  cfg = config.cluster.services.starr;
   toINI =
     { globalSection, sections }:
     lib.generators.toINIWithGlobalSection
@@ -175,27 +175,38 @@ let
   ];
 
   sabnzbdConfig = import ./config.nix {
-    inherit config nodeCfg scriptsDir;
+    inherit config cfg scriptsDir;
   };
 in
 {
-  config = {
-    ids.uids.sabnzbd = lib.mkDefault 380; # 38 is taken on TrueNAS
-
+  config = lib.mkIf (cfg.enable && cfg.sabnzbd.sabnzbd) {
     sops.templates."sabnzbd.ini" = {
       content = toINI sabnzbdConfig;
 
+      # The config file path appears to define Sabnzbd's working directory, which then causes errors.
+      # So we need to create a symlink for the configuration.
       path = config.services.sabnzbd.configFile;
-      owner = config.services.sabnzbd.user;
-      group = config.services.sabnzbd.group;
+      owner = cfg.sabnzbd.user;
+      group = cfg.group;
 
       restartUnits = [ "sabnzbd.service" ];
     };
 
     services.sabnzbd = {
       enable = true;
-      group = "starr";
+      group = cfg.group;
       openFirewall = true;
+    };
+
+    systemd.services.sabnzbd = {
+      wants = [
+        "sops-nix.service"
+        "mnt-media.mount"
+      ];
+      after = [
+        "sops-nix.service"
+        "mnt-media.mount"
+      ];
     };
   };
 }

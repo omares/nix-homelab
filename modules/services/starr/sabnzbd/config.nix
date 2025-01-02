@@ -1,7 +1,7 @@
 # having the config inline, seems to crash the vscode formatter
 {
   config,
-  nodeCfg,
+  cfg,
   scriptsDir,
 }:
 {
@@ -27,7 +27,7 @@
       auto_browser = 0;
       language = "en";
       enable_https_verification = 1;
-      host = nodeCfg.host;
+      host = cfg.sabnzbd.bindAddress;
       port = 8080;
       https_port = "";
       username = config.sops.placeholder.sabnzbd-username;

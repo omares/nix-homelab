@@ -1,21 +1,19 @@
 {
   config,
-  nodeCfg,
-  cluster,
+  lib,
   ...
 }:
 let
-  owner = "sonarr";
-  group = "starr";
+  cfg = config.cluster.services.starr;
 in
 {
-  config = {
+  config = lib.mkIf (cfg.enable && cfg.sonarr.enable) {
     sops.templates."sonarr-config.xml" = {
       # lib.toXML creates weird XML that radarr seems to have issues with.
       # I can't be bothered to convert this simple configuration to attributes.
       content = ''
         <Config>
-          <BindAddress>${nodeCfg.host}</BindAddress>
+          <BindAddress>${cfg.sonarr.bindAddress}</BindAddress>
           <Port>8989</Port>
           <SslPort>9898</SslPort>
           <EnableSsl>False</EnableSsl>
@@ -32,16 +30,16 @@ in
           <AnalyticsEnabled>False</AnalyticsEnabled>
           <PostgresUser>sonarr</PostgresUser>
           <PostgresPassword>${config.sops.placeholder.pgsql-sonarr_password}</PostgresPassword>
-          <PostgresPort>${toString config.services.pgbouncer.settings.pgbouncer.listen_port}</PostgresPort>
-          <PostgresHost>${cluster.nodes.db-01.host}</PostgresHost>
+          <PostgresPort>${toString cfg.postgres.port}</PostgresPort>
+          <PostgresHost>${cfg.postgres.host}</PostgresHost>
           <PostgresMainDb>sonarr</PostgresMainDb>
           <PostgresLogDb>sonarr_log</PostgresLogDb>
         </Config>
       '';
 
       path = "${config.services.sonarr.dataDir}/config.xml";
-      owner = owner;
-      group = group;
+      owner = cfg.sonarr.user;
+      group = cfg.group;
       mode = "0660";
 
       restartUnits = [ "sonarr.service" ];
@@ -49,9 +47,24 @@ in
 
     services.sonarr = {
       enable = true;
-      dataDir = "/var/lib/sonarr";
-      group = group;
+      dataDir = "${cfg.pathPrefix}/sonarr";
+      group = cfg.group;
       openFirewall = true;
+    };
+
+    cluster.storage.truenas.media = {
+      enable = cfg.sonarr.mountStorage;
+    };
+
+    systemd.services.sonarr = {
+      wants = [
+        "sops-nix.service"
+        "mnt-media.mount"
+      ];
+      after = [
+        "sops-nix.service"
+        "mnt-media.mount"
+      ];
     };
   };
 }
