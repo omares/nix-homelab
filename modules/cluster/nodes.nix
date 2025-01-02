@@ -79,6 +79,16 @@
         };
       };
 
+      starr-sonarr-01 = {
+        roles = [ config.flake.nixosModules.role-starr-sonarr ];
+        host = "192.168.20.206";
+
+        proxy = {
+          port = 8989;
+          subdomains = [ "sonarr" ];
+        };
+      };
+
       #
       # Unmanaged nodes
       #

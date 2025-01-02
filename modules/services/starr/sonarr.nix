@@ -4,6 +4,10 @@
   cluster,
   ...
 }:
+let
+  owner = "sonarr";
+  group = "starr";
+in
 {
   config = {
     sops.templates."sonarr-config.xml" = {
@@ -12,11 +16,11 @@
       content = ''
         <Config>
           <BindAddress>${nodeCfg.host}</BindAddress>
-          <Port>7878</Port>
+          <Port>8989</Port>
           <SslPort>9898</SslPort>
           <EnableSsl>False</EnableSsl>
-          <LaunchBrowser>True</LaunchBrowser>
-          <ApiKey>${config.sops.placeholder.radarr-api_key}</ApiKey>
+          <LaunchBrowser>False</LaunchBrowser>
+          <ApiKey>${config.sops.placeholder.sonarr-api_key}</ApiKey>
           <AuthenticationMethod>Forms</AuthenticationMethod>
           <AuthenticationRequired>Enabled</AuthenticationRequired>
           <Branch>master</Branch>
@@ -24,20 +28,20 @@
           <SslCertPath></SslCertPath>
           <SslCertPassword></SslCertPassword>
           <UrlBase></UrlBase>
-          <InstanceName>Radarr</InstanceName>
+          <InstanceName>Sonarr</InstanceName>
           <AnalyticsEnabled>False</AnalyticsEnabled>
-          <PostgresUser>radarr</PostgresUser>
-          <PostgresPassword>${config.sops.placeholder.pgsql-radarr_password}</PostgresPassword>
+          <PostgresUser>sonarr</PostgresUser>
+          <PostgresPassword>${config.sops.placeholder.pgsql-sonarr_password}</PostgresPassword>
           <PostgresPort>${toString config.services.pgbouncer.settings.pgbouncer.listen_port}</PostgresPort>
           <PostgresHost>${cluster.nodes.db-01.host}</PostgresHost>
-          <PostgresMainDb>radarr</PostgresMainDb>
-          <PostgresLogDb>radarr_log</PostgresLogDb>
+          <PostgresMainDb>sonarr</PostgresMainDb>
+          <PostgresLogDb>sonarr_log</PostgresLogDb>
         </Config>
       '';
 
       path = "${config.services.sonarr.dataDir}/config.xml";
-      owner = "radarr";
-      group = "starr";
+      owner = owner;
+      group = group;
       mode = "0660";
 
       restartUnits = [ "sonarr.service" ];
@@ -46,7 +50,7 @@
     services.sonarr = {
       enable = true;
       dataDir = "/var/lib/sonarr";
-      group = "starr";
+      group = group;
       openFirewall = true;
     };
   };
