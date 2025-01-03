@@ -179,12 +179,12 @@ let
   };
 in
 {
-  config = lib.mkIf (cfg.enable && cfg.sabnzbd.sabnzbd) {
+  config = lib.mkIf (cfg.enable && cfg.sabnzbd.enable) {
     sops.templates."sabnzbd.ini" = {
       content = toINI sabnzbdConfig;
 
       # The config file path appears to define Sabnzbd's working directory, which then causes errors.
-      # So we need to create a symlink for the configuration.
+      # So we need to symlink for the configuration.
       path = config.services.sabnzbd.configFile;
       owner = cfg.sabnzbd.user;
       group = cfg.group;

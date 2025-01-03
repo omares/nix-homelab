@@ -40,6 +40,8 @@
               networking.hostName = name;
             }
             config.flake.nixosModules.role-default
+            ../users/ids.nix
+
           ] ++ nodeCfg.roles;
         };
 

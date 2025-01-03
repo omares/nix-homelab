@@ -7,6 +7,7 @@
     ./options.nix
     ./prowlarr.nix
     ./radarr.nix
+    ./recyclarr.nix
     ./sabnzbd
     ./sonarr.nix
     ./sops.nix

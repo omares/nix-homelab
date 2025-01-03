@@ -82,5 +82,11 @@ in
       default = { };
       description = "Radarr service configuration";
     };
+
+    recyclarr = mkOption {
+      type = types.submodule arrServiceOpts;
+      default = { };
+      description = "Recyclarr service configuration";
+    };
   };
 }

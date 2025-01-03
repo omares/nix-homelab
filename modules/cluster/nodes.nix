@@ -89,6 +89,11 @@
         };
       };
 
+      starr-recyclarr-01 = {
+        roles = [ config.flake.nixosModules.role-starr-recyclarr ];
+        host = "192.168.20.181";
+      };
+
       #
       # Unmanaged nodes
       #

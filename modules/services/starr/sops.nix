@@ -5,16 +5,27 @@
 }:
 let
   cfg = config.cluster.services.starr;
-  enableArrs = cfg.prowlarr.enable || cfg.radarr.enable || cfg.sonarr.enable;
 in
 {
-  config = lib.mkIf (cfg.enable && (enableArrs || cfg.sabnzbd.enable)) {
-    sops-vault.items =
-      [
-        "starr"
-      ]
-      ++ lib.lists.optionals enableArrs [
-        "pgsql"
-      ];
-  };
+  config =
+    lib.mkIf
+      (
+        cfg.enable
+        && (
+          cfg.prowlarr.enable
+          || cfg.radarr.enable
+          || cfg.sonarr.enable
+          || cfg.recyclarr.enable
+          || cfg.sabnzbd.enable
+        )
+      )
+      {
+        sops-vault.items =
+          [
+            "starr"
+          ]
+          ++ lib.lists.optionals (cfg.prowlarr.enable || cfg.radarr.enable || cfg.sonarr.enable) [
+            "pgsql"
+          ];
+      };
 }
