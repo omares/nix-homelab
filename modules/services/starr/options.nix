@@ -88,5 +88,11 @@ in
       default = { };
       description = "Recyclarr service configuration";
     };
+
+    jellyfin = mkOption {
+      type = types.submodule arrServiceOpts;
+      default = { };
+      description = "Jellyfin service configuration";
+    };
   };
 }

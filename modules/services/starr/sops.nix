@@ -17,6 +17,7 @@ in
           || cfg.sonarr.enable
           || cfg.recyclarr.enable
           || cfg.sabnzbd.enable
+          || cfg.jellyfin.enable
         )
       )
       {

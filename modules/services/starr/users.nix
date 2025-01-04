@@ -10,7 +10,8 @@ let
     || cfg.radarr.enable
     || cfg.sabnzbd.enable
     || cfg.sonarr.enable
-    || cfg.recyclarr.enable;
+    || cfg.recyclarr.enable
+    || cfg.jellyfin.enable;
 in
 {
   config =

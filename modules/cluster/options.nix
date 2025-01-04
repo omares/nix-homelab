@@ -8,6 +8,16 @@ let
 in
 {
   options.cluster = {
+    lib = lib.mkOption {
+      type = lib.types.attrs;
+      default = {
+        # @todo Move the library to the module folder and refactor other usages to eliminate the import.
+        self = import ../../lib {
+          inherit lib;
+        };
+      };
+      description = "Custom library functions.";
+    };
     proxy = {
       domain = mkOption {
         type = types.str;

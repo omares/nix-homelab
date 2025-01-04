@@ -94,6 +94,16 @@
         host = "192.168.20.181";
       };
 
+      starr-jellyfin-01 = {
+        roles = [ config.flake.nixosModules.role-starr-jellyfin ];
+        host = "192.168.20.26";
+
+        proxy = {
+          port = 8096;
+          subdomains = [ "jellyfin" ];
+        };
+      };
+
       #
       # Unmanaged nodes
       #
