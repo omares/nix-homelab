@@ -105,6 +105,17 @@
         };
       };
 
+      starr-jellyseerr-01 = {
+        roles = [ config.flake.nixosModules.role-starr-jellyseerr ];
+        host = "192.168.20.147";
+
+        proxy = {
+          port = 5055;
+          subdomains = [ "jellyseerr" ];
+          websockets = true;
+        };
+      };
+
       #
       # Unmanaged nodes
       #

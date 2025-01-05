@@ -9,5 +9,6 @@
     prowlarr = 381;
     recyclarr = 382;
     jellyfin = 383;
+    jellyseerr = 384;
   };
 }

@@ -94,5 +94,11 @@ in
       default = { };
       description = "Jellyfin service configuration";
     };
+
+    jellyseerr = mkOption {
+      type = types.submodule arrServiceOpts;
+      default = { };
+      description = "Jellyseerr service configuration";
+    };
   };
 }

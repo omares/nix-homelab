@@ -29,6 +29,7 @@
       radarr_log = { };
       sonarr = { };
       sonarr_log = { };
+      jellyseerr = { };
     };
     users = {
       prowlarr = {
@@ -55,6 +56,13 @@
           "sonarr_log"
         ];
       };
+      jellyseerr = {
+        ensureDBOwnership = true;
+        createdb = false;
+        databases = [
+          "jellyseerr"
+        ];
+      };
     };
   };
 
@@ -69,6 +77,7 @@
           "prowlarr"
           "radarr"
           "sonarr"
+          "jellyseerr"
         ];
         pgdumpOptions = "-Fc -b";
         compression = "zstd";
@@ -83,6 +92,7 @@
           "prowlarr"
           "radarr"
           "sonarr"
+          "jellyseerr"
         ];
         pgdumpOptions = "-Fc -b";
         compression = "zstd";

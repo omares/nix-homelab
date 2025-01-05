@@ -1,6 +1,7 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs-master.url = "github:nixos/nixpkgs/master";
 
     flake-parts.url = "github:hercules-ci/flake-parts";
 
@@ -27,6 +28,7 @@
       self,
       flake-parts,
       nixpkgs,
+      nixpkgs-master,
       nixos-generators,
       deploy-rs,
       sops-nix,
@@ -38,9 +40,8 @@
     in
     flake-parts.lib.mkFlake { inherit inputs; } {
 
-      systems =
-        [
-        ];
+      systems = [
+      ];
 
       # Creates 'nixosModels', 'nixosConfigurations', 'deploy.nodes', and 'check' outputs
       # based on defined nodes in ./modules/cluster/nodes.nix and existing roles in ./modules/cluster/roles.

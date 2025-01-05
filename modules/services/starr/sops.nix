@@ -18,6 +18,7 @@ in
           || cfg.recyclarr.enable
           || cfg.sabnzbd.enable
           || cfg.jellyfin.enable
+          || cfg.jellyseerr.enable
         )
       )
       {
@@ -25,8 +26,10 @@ in
           [
             "starr"
           ]
-          ++ lib.lists.optionals (cfg.prowlarr.enable || cfg.radarr.enable || cfg.sonarr.enable) [
-            "pgsql"
-          ];
+          ++ lib.lists.optionals
+            (cfg.prowlarr.enable || cfg.radarr.enable || cfg.sonarr.enable || cfg.jellyseerr.enable)
+            [
+              "pgsql"
+            ];
       };
 }

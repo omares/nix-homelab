@@ -81,11 +81,11 @@
         "sops-nix": "sops-nix"
       },
       "locked": {
-        "lastModified": 1736018587,
-        "narHash": "sha256-4oIE3LRwfAnR81Q6opGdCyIw/K6RL5sKn9AoiSohZnc=",
+        "lastModified": 1736119159,
+        "narHash": "sha256-bnOGbnnJ9i2dGDOmRJg+9u2q9BiOrSlblGW5HlhK7ac=",
         "ref": "refs/heads/main",
-        "rev": "2665e4a13e420f271deefdd921ec3912a8930398",
-        "revCount": 20,
+        "rev": "f25d2637398c36e4a1bbd1e21f35665cf2526a9e",
+        "revCount": 21,
         "type": "git",
         "url": "ssh://git@github.com/omares/nix-sops-vault.git"
       },
@@ -170,6 +170,22 @@
         "url": "https://github.com/NixOS/nixpkgs/archive/5487e69da40cbd611ab2cadee0b4637225f7cfae.tar.gz"
       }
     },
+    "nixpkgs-master": {
+      "locked": {
+        "lastModified": 1736117870,
+        "narHash": "sha256-IpN6Guy4f421AIr7nnGH3MadtAbvb0hZG2gw5hOwAz8=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "945777b8ed999b7f170f393c4884a24102059974",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "master",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs_2": {
       "locked": {
         "lastModified": 1735617354,
@@ -193,6 +209,7 @@
         "nix-sops-vault": "nix-sops-vault",
         "nixos-generators": "nixos-generators",
         "nixpkgs": "nixpkgs_2",
+        "nixpkgs-master": "nixpkgs-master",
         "sops-nix": "sops-nix_2"
       }
     },
