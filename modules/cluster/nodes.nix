@@ -101,6 +101,7 @@
         proxy = {
           port = 8096;
           subdomains = [ "jellyfin" ];
+          websockets = true;
         };
       };
 

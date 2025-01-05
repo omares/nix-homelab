@@ -1,7 +1,7 @@
 {
   config,
+  pkgs,
   lib,
-  cluster,
   ...
 }:
 
@@ -11,42 +11,13 @@ in
 {
   config = lib.mkIf (cfg.enable && cfg.jellyfin.enable) {
 
-    sops.templates."jellyfin-network.xml" = {
-      content = cluster.lib.generators.toXML { } {
-        BaseUrl = "";
-        EnableHttps = false;
-        RequireHttps = false;
-        InternalHttpPort = 8096;
-        InternalHttpsPort = 8920;
-        PublicHttpPort = 8096;
-        PublicHttpsPort = 8920;
-        AutoDiscovery = true;
-        EnableUPnP = false;
-        EnableIPv4 = true;
-        EnableIPv6 = false;
-        EnableRemoteAccess = true;
-        LocalNetworkSubnets = [ ];
-        LocalNetworkAddresses = [
-          { string = "192.168.20.26"; }
-        ];
-        KnownProxies = [ ];
-        IgnoreVirtualInterfaces = true;
-        VirtualInterfaceNames = [
-          { string = "veth"; }
-        ];
-        EnablePublishedServerUriByRequest = false;
-        PublishedServerUriBySubnet = [ ];
-        RemoteIPFilter = [ ];
-        IsRemoteIPFilterBlacklist = false;
-      };
+    environment.systemPackages = [
+      pkgs.jellyfin
+      pkgs.jellyfin-web
+      pkgs.jellyfin-ffmpeg
+    ];
 
-      owner = cfg.jellyfin.user;
-      group = cfg.group;
-      mode = "0660";
-
-      restartUnits = [ "jellyfin.service" ];
-    };
-
+    # To view the passed configuration, check config.nix.
     services.jellyfin = {
       enable = true;
       dataDir = "${cfg.pathPrefix}/jellyfin";

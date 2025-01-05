@@ -1,38 +1,47 @@
 {
   concatStringsSep,
   mapAttrsToList,
-  strings,
+  fixedWidthString,
 }:
 
 {
   toXML =
     {
-      indent ? 2,
-      rootName ? "root",
+      spacing ? 2,
+      rootName ? "Root",
       xmlns ? {
         xsi = "http://www.w3.org/2001/XMLSchema-instance";
         xsd = "http://www.w3.org/2001/XMLSchema";
       },
     }:
     let
-      indentStr = level: strings.fixedWidthString (level * indent) " " "";
+      indent = level: fixedWidthString (level * spacing) " " "";
 
-      xmlnsString =
+      makeXmlns =
         if xmlns != { } then
           concatStringsSep " " (mapAttrsToList (name: value: ''xmlns:${name}="${value}"'') xmlns)
         else
           "";
 
-      valueToString =
+      escapeValue =
         value:
+        let
+          replaceAll =
+            str:
+            builtins.replaceStrings [ "&" "<" ">" "'" "\"" ] [ "&amp;" "&lt;" "&gt;" "&apos;" "&quot;" ] str;
+        in
+        if builtins.isString value then replaceAll value else value;
+
+      makeValue =
+        level: value:
         if builtins.isBool value then
           (if value then "true" else "false")
         else if builtins.isInt value then
           toString value
         else if builtins.isFloat value then
-          toString value
-        else if builtins.isString value then
           value
+        else if builtins.isString value then
+          escapeValue value
         else if builtins.isNull value then
           ""
         else if builtins.isPath value then
@@ -41,45 +50,56 @@
           if value == [ ] then
             ""
           else
-            "\n"
-            + concatStringsSep "\n" (
-              map (
-                v: if builtins.isAttrs v then attrsToXML 2 "" v else throw "List elements must be attribute sets"
-              ) value
-            )
-            + "\n"
-            + indentStr 1
+            ''
+
+              ${concatStringsSep "\n" (
+                map (
+                  value:
+                  if builtins.isAttrs value then
+                    attrsToXML (level + 1) "" value
+                  else
+                    throw "List elements must be attribute sets"
+                ) value
+              )}
+              ${indent level}''
         else
           throw "Unsupported type for value: ${builtins.typeOf value}";
 
-      attrsToXML =
-        level: name: value:
+      makeTag =
+        level: tagName: value:
         let
-          ind = indentStr level;
-
-          handleSet =
-            attrs:
-            concatStringsSep "\n" (
-              mapAttrsToList (
-                n: v:
-                if builtins.isAttrs v then
-                  attrsToXML (level + 1) n v
-                else
-                  "${ind}${indentStr 1}<${n}>${valueToString v}</${n}>"
-              ) attrs
-            );
+          val = makeValue level value;
+          ind = indent level;
         in
-        if builtins.isAttrs value then
+        if val == "" then "${ind}<${tagName} />" else "${ind}<${tagName}>${val}</${tagName}>";
+
+      makeElements =
+        level: attrs:
+        concatStringsSep "\n" (
+          mapAttrsToList (
+            tagName: value:
+            if builtins.isAttrs value then attrsToXML level tagName value else makeTag level tagName value
+          ) attrs
+        );
+
+      attrsToXML =
+        level: tagName: value:
+        let
+          ind = indent level;
+        in
+        if tagName == "" then
+          makeElements level value
+        else if builtins.isAttrs value then
           ''
-            ${ind}<${name}>
-            ${handleSet value}
-            ${ind}</${name}>''
+            ${ind}<${tagName}>
+            ${makeElements (level + 1) value}
+            ${ind}</${tagName}>''
         else
-          "${ind}<${name}>${valueToString value}</${name}>";
+          makeTag level tagName value;
     in
     attrs: ''
       <?xml version="1.0" encoding="utf-8"?>
-      <${rootName} ${xmlnsString}>
+      <${rootName} ${makeXmlns}>
       ${attrsToXML 1 "" attrs}
       </${rootName}>'';
 }
