@@ -532,40 +532,42 @@ let
     };
 in
 {
-  sops.templates = lib.mkMerge [
-    (makeXmlTemplate {
-      rootName = "BrandingOptions";
-      attrs = branding;
-      name = "branding";
-    })
+  config = lib.mkIf (cfg.enable && cfg.jellyfin.enable) {
+    sops.templates = lib.mkMerge [
+      (makeXmlTemplate {
+        rootName = "BrandingOptions";
+        attrs = branding;
+        name = "branding";
+      })
 
-    (makeXmlTemplate {
-      rootName = "EncodingOptions";
-      attrs = encoding;
-      name = "encoding";
-    })
+      (makeXmlTemplate {
+        rootName = "EncodingOptions";
+        attrs = encoding;
+        name = "encoding";
+      })
 
-    (makeXmlTemplate {
-      rootName = "MigrationOptions";
-      attrs = migrations;
-      name = "migrations";
-    })
+      (makeXmlTemplate {
+        rootName = "MigrationOptions";
+        attrs = migrations;
+        name = "migrations";
+      })
 
-    (makeXmlTemplate {
-      rootName = "NetworkConfiguration";
-      attrs = network;
-      name = "network";
-    })
+      (makeXmlTemplate {
+        rootName = "NetworkConfiguration";
+        attrs = network;
+        name = "network";
+      })
 
-    (makeXmlTemplate {
-      rootName = "ServerConfiguration";
-      attrs = system;
-      name = "system";
-    })
+      (makeXmlTemplate {
+        rootName = "ServerConfiguration";
+        attrs = system;
+        name = "system";
+      })
 
-    (makeJsonTemplate {
-      attrs = logging;
-      name = "logging.default";
-    })
-  ];
+      (makeJsonTemplate {
+        attrs = logging;
+        name = "logging.default";
+      })
+    ];
+  };
 }

@@ -15,6 +15,9 @@ let
   isAarch64 = pkgs.hostPlatform.isAarch64;
 in
 {
+
+  virtualisation.diskSize = lib.mkDefault 10240;
+
   proxmox = {
     qemuConf = {
       bios = "ovmf";
@@ -22,7 +25,6 @@ in
       memory = lib.mkDefault 2048;
       boot = "order=virtio0;net0";
       net0 = "virtio=00:00:00:00:00:00,bridge=vmbr0,firewall=0";
-      diskSize = lib.mkDefault 10240;
       scsihw = lib.mkIf isAarch64 "virtio-scsi-pci";
     };
 
