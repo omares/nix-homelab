@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  cluster,
   ...
 }:
 let
@@ -9,33 +10,35 @@ in
 {
   config = lib.mkIf (cfg.enable && cfg.prowlarr.enable) {
     sops.templates."prowlarr-config.xml" = {
-      # lib.toXML creates weird XML that Prowlarr seems to have issues with.
-      # I can't be bothered to convert this simple configuration to attributes.
-      content = ''
-        <Config>
-          <BindAddress>${cfg.prowlarr.bindAddress}</BindAddress>
-          <Port>9696</Port>
-          <SslPort>6969</SslPort>
-          <EnableSsl>False</EnableSsl>
-          <LaunchBrowser>False</LaunchBrowser>
-          <ApiKey>${config.sops.placeholder.prowlarr-api_key}</ApiKey>
-          <AuthenticationMethod>Forms</AuthenticationMethod>
-          <AuthenticationRequired>Enabled</AuthenticationRequired>
-          <Branch>master</Branch>
-          <LogLevel>debug</LogLevel>
-          <SslCertPath></SslCertPath>
-          <SslCertPassword></SslCertPassword>
-          <UrlBase></UrlBase>
-          <InstanceName>Prowlarr</InstanceName>
-          <AnalyticsEnabled>False</AnalyticsEnabled>
-          <PostgresUser>prowlarr</PostgresUser>
-          <PostgresPassword>${config.sops.placeholder.pgsql-prowlarr_password}</PostgresPassword>
-          <PostgresPort>${toString cfg.postgres.port}</PostgresPort>
-          <PostgresHost>${cfg.postgres.host}</PostgresHost>
-          <PostgresMainDb>prowlarr</PostgresMainDb>
-          <PostgresLogDb>prowlarr_log</PostgresLogDb>
-        </Config>
-      '';
+      content =
+        cluster.lib.generators.toXML
+          {
+            rootName = "Config";
+            xmlns = { };
+          }
+          {
+            BindAddress = "${cfg.prowlarr.bindAddress}";
+            Port = 9696;
+            SslPort = 6969;
+            EnableSsl = false;
+            LaunchBrowser = false;
+            ApiKey = config.sops.placeholder.prowlarr-api_key;
+            AuthenticationMethod = "Forms";
+            AuthenticationRequired = "Enabled";
+            Branch = "master";
+            LogLevel = "debug";
+            SslCertPath = "";
+            SslCertPassword = "";
+            UrlBase = "";
+            InstanceName = "Prowlarr";
+            AnalyticsEnabled = false;
+            PostgresUser = "prowlarr";
+            PostgresPassword = config.sops.placeholder.pgsql-prowlarr_password;
+            PostgresPort = "${toString cfg.postgres.port}";
+            PostgresHost = "${cfg.postgres.host}";
+            PostgresMainDb = "prowlarr";
+            PostgresLogDb = "prowlarr_log";
+          };
 
       path = "${config.users.users.prowlarr.home}/config.xml";
       owner = cfg.prowlarr.user;

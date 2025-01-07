@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  cluster,
   ...
 }:
 let
@@ -9,33 +10,35 @@ in
 {
   config = lib.mkIf (cfg.enable && cfg.sonarr.enable) {
     sops.templates."sonarr-config.xml" = {
-      # lib.toXML creates weird XML that radarr seems to have issues with.
-      # I can't be bothered to convert this simple configuration to attributes.
-      content = ''
-        <Config>
-          <BindAddress>${cfg.sonarr.bindAddress}</BindAddress>
-          <Port>8989</Port>
-          <SslPort>9898</SslPort>
-          <EnableSsl>False</EnableSsl>
-          <LaunchBrowser>False</LaunchBrowser>
-          <ApiKey>${config.sops.placeholder.sonarr-api_key}</ApiKey>
-          <AuthenticationMethod>Forms</AuthenticationMethod>
-          <AuthenticationRequired>Enabled</AuthenticationRequired>
-          <Branch>master</Branch>
-          <LogLevel>debug</LogLevel>
-          <SslCertPath></SslCertPath>
-          <SslCertPassword></SslCertPassword>
-          <UrlBase></UrlBase>
-          <InstanceName>Sonarr</InstanceName>
-          <AnalyticsEnabled>False</AnalyticsEnabled>
-          <PostgresUser>sonarr</PostgresUser>
-          <PostgresPassword>${config.sops.placeholder.pgsql-sonarr_password}</PostgresPassword>
-          <PostgresPort>${toString cfg.postgres.port}</PostgresPort>
-          <PostgresHost>${cfg.postgres.host}</PostgresHost>
-          <PostgresMainDb>sonarr</PostgresMainDb>
-          <PostgresLogDb>sonarr_log</PostgresLogDb>
-        </Config>
-      '';
+      content =
+        cluster.lib.generators.toXML
+          {
+            rootName = "Config";
+            xmlns = { };
+          }
+          {
+            BindAddress = "${cfg.sonarr.bindAddress}";
+            Port = 8989;
+            SslPort = 9898;
+            EnableSsl = false;
+            LaunchBrowser = false;
+            ApiKey = "${config.sops.placeholder.sonarr-api_key}";
+            AuthenticationMethod = "Forms";
+            AuthenticationRequired = "Enabled";
+            Branch = "master";
+            LogLevel = "debug";
+            SslCertPath = "";
+            SslCertPassword = "";
+            UrlBase = "";
+            InstanceName = "Sonarr";
+            AnalyticsEnabled = false;
+            PostgresUser = "sonarr";
+            PostgresPassword = "${config.sops.placeholder.pgsql-sonarr_password}";
+            PostgresPort = "${toString cfg.postgres.port}";
+            PostgresHost = "${cfg.postgres.host}";
+            PostgresMainDb = "sonarr";
+            PostgresLogDb = "sonarr_log";
+          };
 
       path = "${config.services.sonarr.dataDir}/config.xml";
       owner = cfg.sonarr.user;

@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  cluster,
   ...
 }:
 
@@ -10,33 +11,35 @@ in
 {
   config = lib.mkIf (cfg.enable && cfg.radarr.enable) {
     sops.templates."radarr-config.xml" = {
-      # lib.toXML creates weird XML that radarr seems to have issues with.
-      # I can't be bothered to convert this simple configuration to attributes.
-      content = ''
-        <Config>
-          <BindAddress>${cfg.radarr.bindAddress}</BindAddress>
-          <Port>7878</Port>
-          <SslPort>9898</SslPort>
-          <EnableSsl>False</EnableSsl>
-          <LaunchBrowser>False</LaunchBrowser>
-          <ApiKey>${config.sops.placeholder.radarr-api_key}</ApiKey>
-          <AuthenticationMethod>Forms</AuthenticationMethod>
-          <AuthenticationRequired>Enabled</AuthenticationRequired>
-          <Branch>master</Branch>
-          <LogLevel>debug</LogLevel>
-          <SslCertPath></SslCertPath>
-          <SslCertPassword></SslCertPassword>
-          <UrlBase></UrlBase>
-          <InstanceName>Radarr</InstanceName>
-          <AnalyticsEnabled>False</AnalyticsEnabled>
-          <PostgresUser>radarr</PostgresUser>
-          <PostgresPassword>${config.sops.placeholder.pgsql-radarr_password}</PostgresPassword>
-          <PostgresPort>${toString cfg.postgres.port}</PostgresPort>
-          <PostgresHost>${cfg.postgres.host}</PostgresHost>
-          <PostgresMainDb>radarr</PostgresMainDb>
-          <PostgresLogDb>radarr_log</PostgresLogDb>
-        </Config>
-      '';
+      content =
+        cluster.lib.generators.toXML
+          {
+            rootName = "Config";
+            xmlns = { };
+          }
+          {
+            BindAddress = "${cfg.radarr.bindAddress}";
+            Port = 7878;
+            SslPort = 9898;
+            EnableSsl = false;
+            LaunchBrowser = false;
+            ApiKey = "${config.sops.placeholder.radarr-api_key}";
+            AuthenticationMethod = "Forms";
+            AuthenticationRequired = "Enabled";
+            Branch = "master";
+            LogLevel = "debug";
+            SslCertPath = "";
+            SslCertPassword = "";
+            UrlBase = "";
+            InstanceName = "Radarr";
+            AnalyticsEnabled = false;
+            PostgresUser = "radarr";
+            PostgresPassword = "${config.sops.placeholder.pgsql-radarr_password}";
+            PostgresPort = "${toString cfg.postgres.port}";
+            PostgresHost = "${cfg.postgres.host}";
+            PostgresMainDb = "radarr";
+            PostgresLogDb = "radarr_log";
+          };
 
       path = "${config.services.radarr.dataDir}/config.xml";
       owner = cfg.radarr.user;

@@ -9,7 +9,7 @@
     ./options.nix
     ./prowlarr.nix
     ./radarr.nix
-    ./recyclarr.nix
+    ./recyclarr
     ./sabnzbd
     ./sonarr.nix
     ./sops.nix

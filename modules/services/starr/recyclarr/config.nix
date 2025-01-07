@@ -1,7 +1,8 @@
 {
-  config,
   lib,
   pkgs,
+  config,
+  cluster,
   ...
 }:
 
@@ -10,16 +11,12 @@ let
   toYaml = pkgs.formats.yaml { };
 in
 {
-  imports = [
-    ../recyclarr.nix
-  ];
-
   config = lib.mkIf (cfg.enable && cfg.recyclarr.enable) {
     sops.templates."recyclarr.yaml" = {
       file = toYaml.generate "recyclarr-config" {
         sonarr = {
           starr-sonarr-01 = {
-            base_url = "https://sonarr.mares.id";
+            base_url = "https://sonarr.${cluster.proxy.domain}";
             api_key = config.sops.placeholder.sonarr-api_key;
 
             delete_old_custom_formats = true;
@@ -43,9 +40,8 @@ in
 
             quality_profiles = [
               {
-                name = "SD";
+                name = "WEB-2160p";
                 reset_unmatched_scores = {
-                  enabled = true;
                   except = [
                     "Language: German + Original"
                     "ML"
@@ -121,7 +117,7 @@ in
         };
         radarr = {
           starr-radarr-01 = {
-            base_url = "https://radarr.mares.id";
+            base_url = "https://radarr.${cluster.proxy.domain}";
             api_key = config.sops.placeholder.radarr-api_key;
 
             delete_old_custom_formats = true;
@@ -137,25 +133,57 @@ in
 
             include = [
               { template = "radarr-quality-definition-movie"; }
-              { template = "radarr-quality-profile-uhd-bluray-web"; }
-              { template = "radarr-custom-formats-uhd-bluray-web"; }
+              { template = "radarr-custom-formats-uhd-remux-web-german"; }
             ];
 
             quality_profiles = [
               {
-                name = "SD";
+                name = "Remux + WEB 2160p (GER)";
                 reset_unmatched_scores = {
-                  enabled = true;
-                  except = [
-                    "Language: German + Original"
-                    "ML"
-                    "DL"
-                  ];
+                  enabled = false;
                 };
+                upgrade = {
+                  allowed = true;
+                  until_quality = "Merged QPs";
+                  until_score = 25000;
+                };
+                min_format_score = 0; # Get English Releases and Upgrade to German when available
+                # min_format_score = 10000;  # Skip English Releases
+                quality_sort = "top";
+                qualities = [
+                  {
+                    name = "Merged QPs";
+                    qualities = [
+                      "Remux-2160p"
+                      "WEBDL-2160p"
+                      "WEBRip-2160p"
+                      "Bluray-2160p"
+                      # "Bluray-1080p"
+                      "WEBRip-1080p"
+                      "WEBDL-1080p"
+                      # "Bluray-720p"
+                      # "WEBDL-720p"
+                      # "WEBRip-720p"
+                    ];
+                  }
+                ];
               }
             ];
 
             custom_formats = [
+              # Downgrade German Audio only
+              {
+                trash_ids = [
+                  "86bc3115eb4e9873ac96904a4a68e19e" # German
+                ];
+                assign_scores_to = [
+                  {
+                    name = "Remux + WEB 2160p (GER)";
+                    score = -10000;
+                  }
+                ];
+              }
+
               # Audio
               {
                 trash_ids = [
@@ -176,7 +204,7 @@ in
                   # "c2998bd0d90ed5621d8df281e839436e" # DD
                 ];
                 assign_scores_to = [
-                  { name = "UHD Bluray + WEB"; }
+                  { name = "Remux + WEB 2160p (GER)"; }
                 ];
               }
 
@@ -186,7 +214,8 @@ in
                   "eca37840c13c6ef2dd0262b141a5482f" # 4K Remaster
                   "eecf3a857724171f968a66cb5719e152" # IMAX
                   "9f6cbff8cfe4ebbc1bde14c7b7bec0de" # IMAX Enhanced
-                  # Uncomment to prefer these versions
+                  # Uncomment any of the following lines to prefer these movie versions
+                  # "0f12c086e289cf966fa5948eac571f44" # Hybrid
                   # "570bc9ebecd92723d2d21500f4be314c" # Remaster
                   # "e0c07d59beb37348e975a930d5e50319" # Criterion Collection
                   # "9d27d9d2181838f76dee150882bdc58c" # Masters of Cinema
@@ -194,7 +223,7 @@ in
                   # "957d0f44b592285f26449575e8b1167e" # Special Edition
                 ];
                 assign_scores_to = [
-                  { name = "UHD Bluray + WEB"; }
+                  { name = "Remux + WEB 2160p (GER)"; }
                 ];
               }
 
@@ -208,9 +237,19 @@ in
                   "f537cf427b64c38c8e36298f657e4828" # Scene
                 ];
                 assign_scores_to = [
-                  { name = "UHD Bluray + WEB"; }
+                  { name = "Remux + WEB 2160p (GER)"; }
                 ];
               }
+
+              # {
+              #   trash_ids = [
+              #     "e6886871085226c3da1830830146846c" # Generated Dynamic HDR
+              #   ];
+              #   assign_scores_to = [{
+              #     name = "Remux + WEB 2160p (GER)";
+              #     score = 0;
+              #   }];
+              # }
 
               {
                 trash_ids = [
@@ -218,7 +257,7 @@ in
                   # "dc98083864ea246d05a42df0d05f81cc" # x265 (HD)
                 ];
                 assign_scores_to = [
-                  { name = "UHD Bluray + WEB"; }
+                  { name = "Remux + WEB 2160p (GER)"; }
                 ];
               }
 
@@ -233,7 +272,7 @@ in
                 ];
                 assign_scores_to = [
                   {
-                    name = "UHD Bluray + WEB";
+                    name = "Remux + WEB 2160p (GER)";
                   }
                 ];
               }
@@ -248,7 +287,7 @@ in
                 ];
                 assign_scores_to = [
                   {
-                    name = "UHD Bluray + WEB";
+                    name = "Remux + WEB 2160p (GER)";
                   }
                 ];
               }
@@ -262,22 +301,6 @@ in
       group = cfg.group;
 
       restartUnits = [ "recyclarr.service" ];
-    };
-
-    cluster.services.recyclarr = {
-      enable = true;
-      configFile = config.sops.templates."recyclarr.yaml".path;
-      user = cfg.recyclarr.user;
-      group = cfg.group;
-    };
-
-    systemd.services.recyclarr = {
-      wants = [
-        "sops-nix.service"
-      ];
-      after = [
-        "sops-nix.service"
-      ];
     };
   };
 }

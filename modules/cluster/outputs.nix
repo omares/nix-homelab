@@ -31,7 +31,6 @@
               name
               ;
             inherit (config) cluster;
-            homelabLib = config.flake.lib;
             modulesPath = toString inputs.nixpkgs + "/nixos/modules";
           };
 

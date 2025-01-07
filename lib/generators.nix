@@ -2,6 +2,10 @@
   concatStringsSep,
   mapAttrsToList,
   fixedWidthString,
+  isAttrs,
+  toINIWithGlobalSection,
+  mkKeyValueDefault,
+  isString,
 }:
 
 {
@@ -25,12 +29,10 @@
 
       escapeValue =
         value:
-        let
-          replaceAll =
-            str:
-            builtins.replaceStrings [ "&" "<" ">" "'" "\"" ] [ "&amp;" "&lt;" "&gt;" "&apos;" "&quot;" ] str;
-        in
-        if builtins.isString value then replaceAll value else value;
+        if (builtins.match ".*<SOPS:.*:PLACEHOLDER>.*" value) != null then
+          value
+        else
+          builtins.replaceStrings [ "&" "<" ">" "'" "\"" ] [ "&amp;" "&lt;" "&gt;" "&apos;" "&quot;" ] value;
 
       makeValue =
         level: value:
@@ -102,4 +104,21 @@
       <${rootName} ${makeXmlns}>
       ${attrsToXML 1 "" attrs}
       </${rootName}>'';
+
+  toINI =
+    { globalSection, sections }:
+    toINIWithGlobalSection
+      {
+        mkKeyValue =
+          k: v:
+          if isAttrs v then
+            "[[${k}]]\n" + toINIWithGlobalSection { } { globalSection = v; }
+          else
+            mkKeyValueDefault {
+              mkValueString = v: if isString v then "${v}" else toString v;
+            } "=" k v;
+      }
+      {
+        inherit globalSection sections;
+      };
 }
