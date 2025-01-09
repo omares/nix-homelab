@@ -82,6 +82,22 @@
                 config.nixosModules.role-builder
               ];
             };
+
+            scrypted = import ./modules/packages/scrypted.nix {
+              inherit (pkgs)
+                lib
+                buildNpmPackage
+                fetchFromGitHub
+                nodejs_20
+                python3
+                ffmpeg
+                gst_all_1
+                cairo
+                gobject-introspection
+                pkg-config
+                node-gyp
+                ;
+            };
           };
 
           devShells.${system} = {
