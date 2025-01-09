@@ -8,12 +8,21 @@ let
 in
 {
   options.cluster = {
+    lib = lib.mkOption {
+      type = lib.types.attrs;
+      default = import ../../lib {
+        inherit lib;
+      };
+      description = "Custom library functions.";
+    };
+
     proxy = {
       domain = mkOption {
         type = types.str;
         description = "Base domain for all services";
       };
     };
+
     nodes = mkOption {
       type = types.attrsOf (
         types.submodule {

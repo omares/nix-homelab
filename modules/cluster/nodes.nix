@@ -44,6 +44,81 @@
         host = "192.168.20.44";
       };
 
+      db-01 = {
+        roles = [ config.flake.nixosModules.role-db ];
+        host = "192.168.20.28";
+      };
+
+      starr-sabnzbd-01 = {
+        roles = [ config.flake.nixosModules.role-starr-sabnzbd ];
+        host = "192.168.20.219";
+
+        proxy = {
+          port = 8080;
+          subdomains = [ "sabnzbd" ];
+        };
+      };
+
+      starr-prowlarr-01 = {
+        roles = [ config.flake.nixosModules.role-starr-prowlarr ];
+        host = "192.168.20.153";
+
+        proxy = {
+          port = 9696;
+          subdomains = [ "prowlarr" ];
+        };
+      };
+
+      starr-radarr-01 = {
+        roles = [ config.flake.nixosModules.role-starr-radarr ];
+        host = "192.168.20.58";
+
+        proxy = {
+          port = 7878;
+          subdomains = [ "radarr" ];
+        };
+      };
+
+      starr-sonarr-01 = {
+        roles = [ config.flake.nixosModules.role-starr-sonarr ];
+        host = "192.168.20.206";
+
+        proxy = {
+          port = 8989;
+          subdomains = [ "sonarr" ];
+        };
+      };
+
+      starr-recyclarr-01 = {
+        roles = [ config.flake.nixosModules.role-starr-recyclarr ];
+        host = "192.168.20.181";
+      };
+
+      starr-jellyfin-01 = {
+        roles = [ config.flake.nixosModules.role-starr-jellyfin ];
+        host = "192.168.20.26";
+
+        proxy = {
+          port = 8096;
+          subdomains = [ "jellyfin" ];
+          websockets = true;
+        };
+      };
+
+      starr-jellyseerr-01 = {
+        roles = [ config.flake.nixosModules.role-starr-jellyseerr ];
+        host = "192.168.20.147";
+
+        proxy = {
+          port = 5055;
+          subdomains = [ "jellyseerr" ];
+          websockets = true;
+        };
+      };
+
+      #
+      # Unmanaged nodes
+      #
       unifi = {
         managed = false;
 

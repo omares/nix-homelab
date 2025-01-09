@@ -31,7 +31,6 @@
               name
               ;
             inherit (config) cluster;
-            homelabLib = config.flake.lib;
             modulesPath = toString inputs.nixpkgs + "/nixos/modules";
           };
 
@@ -39,9 +38,9 @@
             {
               networking.hostName = name;
             }
-            inputs.sops-nix.nixosModules.sops
-            inputs.nix-sops-vault.nixosModules.sops-vault
             config.flake.nixosModules.role-default
+            ../users/ids.nix
+
           ] ++ nodeCfg.roles;
         };
 
