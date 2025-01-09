@@ -9,6 +9,7 @@
   cairo,
   gobject-introspection,
   pkg-config,
+  node-gyp,
   cacert,
   ...
 }:
@@ -36,27 +37,26 @@ buildNpmPackage rec {
     python3
     gobject-introspection
     cacert
+    node-gyp
   ];
 
-  buildInputs =
-    [
-      ffmpeg
-      cairo
-      python3.pkgs.pip
-      python3.pkgs.setuptools
-      python3.pkgs.wheel
-      python3.pkgs.debugpy
+  buildInputs = [
+    ffmpeg
+    cairo
 
-    ]
-    ++ (with gst_all_1; [
-      gstreamer
-      gst-plugins-base
-      gst-plugins-good
-      gst-plugins-bad
-      gst-libav
-      # gst-vaapi
-      python3.pkgs.gst-python
-    ]);
+    python3.pkgs.pip
+    python3.pkgs.setuptools
+    python3.pkgs.wheel
+    python3.pkgs.debugpy
+    python3.pkgs.gst-python
+
+    gst_all_1.gstreamer
+    gst_all_1.gst-plugins-base
+    gst_all_1.gst-plugins-good
+    gst_all_1.gst-plugins-bad
+    gst_all_1.gst-libav
+    gst_all_1.gst-vaapi
+  ];
 
   postInstall = ''
     cp ${
