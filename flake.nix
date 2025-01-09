@@ -95,7 +95,7 @@
                 cairo
                 gobject-introspection
                 pkg-config
-                node-gyp
+                cacert
                 ;
             };
           };

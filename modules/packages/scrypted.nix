@@ -9,6 +9,8 @@
   cairo,
   gobject-introspection,
   pkg-config,
+  cacert,
+  ...
 }:
 
 buildNpmPackage rec {
@@ -33,6 +35,7 @@ buildNpmPackage rec {
     nodejs_20
     python3
     gobject-introspection
+    cacert
   ];
 
   buildInputs =
@@ -43,6 +46,7 @@ buildNpmPackage rec {
       python3.pkgs.setuptools
       python3.pkgs.wheel
       python3.pkgs.debugpy
+
     ]
     ++ (with gst_all_1; [
       gstreamer
