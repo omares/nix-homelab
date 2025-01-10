@@ -95,7 +95,7 @@
                   lib
                   buildNpmPackage
                   fetchFromGitHub
-                  nodejs_20
+                  nodejs
                   python3
                   ffmpeg
                   gst_all_1
@@ -103,7 +103,7 @@
                   gobject-introspection
                   pkg-config
                   node-gyp
-                  cacert
+                  callPackage
                   ;
               };
             };

@@ -2,7 +2,7 @@
   lib,
   buildNpmPackage,
   fetchFromGitHub,
-  nodejs_20,
+  nodejs,
   python3,
   ffmpeg,
   gst_all_1,
@@ -10,34 +10,34 @@
   gobject-introspection,
   pkg-config,
   node-gyp,
-  cacert,
+  callPackage,
   ...
 }:
-
+let
+  npmHooks = callPackage ./hooks.nix { };
+in
 buildNpmPackage rec {
   pname = "scrypted";
   version = "0.126.0";
 
   src = fetchFromGitHub {
     owner = "koush";
-    repo = "scrypted";
+    repo = "${pname}";
     rev = "v${version}";
-    sha256 = "sha256-T4LeNn9+dl+TyWyCpaIPZpMwH71TEh1JcREP2qPbY3E=";
+    hash = "sha256-T4LeNn9+dl+TyWyCpaIPZpMwH71TEh1JcREP2qPbY3E=";
   };
 
   npmDepsHash = "sha256-EX46ViI21KODYeuL8bR9aiT1/Z7rvmGZJN9RWZF0dVs=";
 
-  sourceRoot = "${src.name}/server";
+  npmConfigHook = npmHooks.customConfigHook;
 
-  makeCacheWritable = true;
+  sourceRoot = "${src.name}/server";
 
   nativeBuildInputs = [
     pkg-config
-    nodejs_20
+    nodejs
     python3
     gobject-introspection
-    cacert
-    node-gyp
   ];
 
   buildInputs = [
@@ -65,15 +65,13 @@ buildNpmPackage rec {
   '';
 
   meta = {
-    lib.description = ''
+    description = ''
       Scrypted is a high performance home video integration platform and NVR with smart detections.
     '';
-    lib.homepage = "https://github.com/koush/scrypted";
-    lib.license = lib.licenses.mixed [
-      lib.licenses.mit
-      lib.licenses.gpl3
-    ];
-    lib.platforms = lib.platforms.linux ++ lib.platforms.darwin;
-    lib.maintainers = lib.maintainers [ ];
+    mainProgram = "scrypted-serve";
+    homepage = "https://github.com/koush/scrypted";
+    license = lib.licenses.mit;
+    platforms = lib.platforms.linux;
+    # maintainers = lib.maintainers [ ];
   };
 }
