@@ -2,21 +2,15 @@
   lib,
   buildNpmPackage,
   fetchFromGitHub,
-  nodejs,
-  python3,
-  ffmpeg,
-  gst_all_1,
-  cairo,
-  gobject-introspection,
-  pkg-config,
-  node-gyp,
+  nodejs_20,
   callPackage,
-  ...
+  nix-update-script,
 }:
 let
   npmHooks = callPackage ./hooks.nix { };
+  nodejs = nodejs_20;
 in
-buildNpmPackage rec {
+(buildNpmPackage.override { inherit nodejs; }) rec {
   pname = "scrypted";
   version = "0.126.0";
 
@@ -29,40 +23,22 @@ buildNpmPackage rec {
 
   npmDepsHash = "sha256-EX46ViI21KODYeuL8bR9aiT1/Z7rvmGZJN9RWZF0dVs=";
 
+  # A custom npm hook is required to skip the npm rebuild phase
   npmConfigHook = npmHooks.customConfigHook;
 
   sourceRoot = "${src.name}/server";
 
-  nativeBuildInputs = [
-    pkg-config
-    nodejs
-    python3
-    gobject-introspection
-  ];
+  nativeBuildInputs = [ nodejs ];
 
-  buildInputs = [
-    ffmpeg
-    cairo
-
-    python3.pkgs.pip
-    python3.pkgs.setuptools
-    python3.pkgs.wheel
-    python3.pkgs.debugpy
-    python3.pkgs.gst-python
-
-    gst_all_1.gstreamer
-    gst_all_1.gst-plugins-base
-    gst_all_1.gst-plugins-good
-    gst_all_1.gst-plugins-bad
-    gst_all_1.gst-libav
-    gst_all_1.gst-vaapi
-  ];
+  makeWrapperArgs = [ "--set NODE_ENV production" ];
 
   postInstall = ''
     cp ${
       lib.escapeShellArg (builtins.toFile "install.json" (builtins.toJSON { inherit version; }))
     } $out/install.json
   '';
+
+  passthru.updateScript = nix-update-script { };
 
   meta = {
     description = ''
@@ -71,7 +47,7 @@ buildNpmPackage rec {
     mainProgram = "scrypted-serve";
     homepage = "https://github.com/koush/scrypted";
     license = lib.licenses.mit;
-    platforms = lib.platforms.linux;
+    platforms = lib.platforms.all;
     # maintainers = lib.maintainers [ ];
   };
 }

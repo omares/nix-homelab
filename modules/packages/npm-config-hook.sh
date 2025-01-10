@@ -102,6 +102,13 @@ npmConfigHook() {
 
     patchShebangs node_modules
 
+    # npm rebuild currently fails due to issues with node-addon-api.
+    # See https://github.com/NixOS/nixpkgs/issues/372605.
+    # The inability to build the @scrypted/node-pty npm package prevents scrypted's
+    # terminal feature from functioning, while all other features remain available.
+    # Although I don't view this as a downside, as terminal access through a Node
+    # app could be considered a security risk.
+
     # npm rebuild $npmRebuildFlags "${npmRebuildFlagsArray[@]}" $npmFlags "${npmFlagsArray[@]}"
 
     patchShebangs node_modules

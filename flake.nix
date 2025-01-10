@@ -95,14 +95,7 @@
                   lib
                   buildNpmPackage
                   fetchFromGitHub
-                  nodejs
-                  python3
-                  ffmpeg
-                  gst_all_1
-                  cairo
-                  gobject-introspection
-                  pkg-config
-                  node-gyp
+                  nodejs_20
                   callPackage
                   ;
               };

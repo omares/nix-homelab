@@ -116,6 +116,11 @@
         };
       };
 
+      cam-01 = {
+        roles = [ config.flake.nixosModules.role-scrypted ];
+        host = "192.168.20.90";
+      };
+
       #
       # Unmanaged nodes
       #
