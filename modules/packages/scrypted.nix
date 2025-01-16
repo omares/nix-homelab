@@ -3,60 +3,34 @@
   buildNpmPackage,
   fetchFromGitHub,
   nodejs_20,
-  python3,
-  ffmpeg,
-  gst_all_1,
-  cairo,
-  gobject-introspection,
-  pkg-config,
-  node-gyp,
-  cacert,
-  ...
+  callPackage,
+  nix-update-script,
 }:
-
-buildNpmPackage rec {
+let
+  npmHooks = callPackage ./hooks.nix { };
+  nodejs = nodejs_20;
+in
+(buildNpmPackage.override { inherit nodejs; }) rec {
   pname = "scrypted";
   version = "0.126.0";
 
   src = fetchFromGitHub {
     owner = "koush";
-    repo = "scrypted";
+    repo = "${pname}";
     rev = "v${version}";
-    sha256 = "sha256-T4LeNn9+dl+TyWyCpaIPZpMwH71TEh1JcREP2qPbY3E=";
+    hash = "sha256-T4LeNn9+dl+TyWyCpaIPZpMwH71TEh1JcREP2qPbY3E=";
   };
 
   npmDepsHash = "sha256-EX46ViI21KODYeuL8bR9aiT1/Z7rvmGZJN9RWZF0dVs=";
 
+  # A custom npm hook is required to skip the npm rebuild phase
+  npmConfigHook = npmHooks.customConfigHook;
+
   sourceRoot = "${src.name}/server";
 
-  makeCacheWritable = true;
+  nativeBuildInputs = [ nodejs ];
 
-  nativeBuildInputs = [
-    pkg-config
-    nodejs_20
-    python3
-    gobject-introspection
-    cacert
-    node-gyp
-  ];
-
-  buildInputs = [
-    ffmpeg
-    cairo
-
-    python3.pkgs.pip
-    python3.pkgs.setuptools
-    python3.pkgs.wheel
-    python3.pkgs.debugpy
-    python3.pkgs.gst-python
-
-    gst_all_1.gstreamer
-    gst_all_1.gst-plugins-base
-    gst_all_1.gst-plugins-good
-    gst_all_1.gst-plugins-bad
-    gst_all_1.gst-libav
-    gst_all_1.gst-vaapi
-  ];
+  makeWrapperArgs = [ "--set NODE_ENV production" ];
 
   postInstall = ''
     cp ${
@@ -64,16 +38,16 @@ buildNpmPackage rec {
     } $out/install.json
   '';
 
+  passthru.updateScript = nix-update-script { };
+
   meta = {
-    lib.description = ''
+    description = ''
       Scrypted is a high performance home video integration platform and NVR with smart detections.
     '';
-    lib.homepage = "https://github.com/koush/scrypted";
-    lib.license = lib.licenses.mixed [
-      lib.licenses.mit
-      lib.licenses.gpl3
-    ];
-    lib.platforms = lib.platforms.linux ++ lib.platforms.darwin;
-    lib.maintainers = lib.maintainers [ ];
+    mainProgram = "scrypted-serve";
+    homepage = "https://github.com/koush/scrypted";
+    license = lib.licenses.mit;
+    platforms = lib.platforms.all;
+    # maintainers = lib.maintainers [ ];
   };
 }

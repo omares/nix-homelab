@@ -96,14 +96,7 @@
                   buildNpmPackage
                   fetchFromGitHub
                   nodejs_20
-                  python3
-                  ffmpeg
-                  gst_all_1
-                  cairo
-                  gobject-introspection
-                  pkg-config
-                  node-gyp
-                  cacert
+                  callPackage
                   ;
               };
             };
