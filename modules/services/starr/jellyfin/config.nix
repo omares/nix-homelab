@@ -53,8 +53,8 @@ let
     EnableDecodingColorDepth12HevcRext = false;
     EnableEnhancedNvdecDecoder = true;
     PreferSystemNativeHwDecoder = true;
-    EnableIntelLowPowerH264HwEncoder = true;
-    EnableIntelLowPowerHevcHwEncoder = true;
+    EnableIntelLowPowerH264HwEncoder = false; # not available in virtualized environment
+    EnableIntelLowPowerHevcHwEncoder = false; # not available in virtualized environment
     EnableHardwareEncoding = true;
     AllowHevcEncoding = true;
     AllowAv1Encoding = false;
