@@ -141,10 +141,16 @@
           id = 1;
         }
         {
-          enabled = true;
+          enabled = false;
           url = "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts";
           name = "StevenBlack's Unified Hosts";
           id = 2;
+        }
+        {
+          enabled = true;
+          url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt";
+          name = "HaGeZi's Pro DNS Blocklist";
+          id = 3;
         }
       ];
       whitelist_filters = [ ];
