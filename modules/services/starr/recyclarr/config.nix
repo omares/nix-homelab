@@ -1,6 +1,5 @@
 {
   lib,
-  pkgs,
   config,
   cluster,
   ...
@@ -8,16 +7,18 @@
 
 let
   cfg = config.cluster.services.starr;
-  toYaml = pkgs.formats.yaml { };
 in
 {
   config = lib.mkIf (cfg.enable && cfg.recyclarr.enable) {
-    sops.templates."recyclarr.yaml" = {
-      file = toYaml.generate "recyclarr-config" {
+
+    services.recyclarr = {
+      configuration = {
         sonarr = {
           starr-sonarr-01 = {
             base_url = "https://sonarr.${cluster.proxy.domain}";
-            api_key = config.sops.placeholder.sonarr-api_key;
+            api_key = {
+              _secret = "/run/credentials/recyclarr.service/sonarr-api_key";
+            };
 
             delete_old_custom_formats = true;
             replace_existing_custom_formats = true;
@@ -118,7 +119,9 @@ in
         radarr = {
           starr-radarr-01 = {
             base_url = "https://radarr.${cluster.proxy.domain}";
-            api_key = config.sops.placeholder.radarr-api_key;
+            api_key = {
+              _secret = "/run/credentials/recyclarr.service/radarr-api_key";
+            };
 
             delete_old_custom_formats = true;
             replace_existing_custom_formats = true;
@@ -296,11 +299,8 @@ in
           };
         };
       };
-
-      owner = cfg.recyclarr.user;
+      user = cfg.recyclarr.user;
       group = cfg.group;
-
-      restartUnits = [ "recyclarr.service" ];
     };
   };
 }
