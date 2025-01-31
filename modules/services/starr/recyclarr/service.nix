@@ -9,11 +9,19 @@ let
 in
 {
   config = lib.mkIf (cfg.enable && cfg.recyclarr.enable) {
-    cluster.services.recyclarr = {
+    services.recyclarr = {
       enable = true;
-      configFile = config.sops.templates."recyclarr.yaml".path;
       user = cfg.recyclarr.user;
       group = cfg.group;
+    };
+
+    systemd.services.recyclarr = {
+      serviceConfig = {
+        LoadCredential = [
+          "sonarr-api_key:${config.sops.secrets.sonarr-api_key.path}"
+          "radarr-api_key:${config.sops.secrets.radarr-api_key.path}"
+        ];
+      };
     };
 
     systemd.services.recyclarr = {
