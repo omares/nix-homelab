@@ -56,6 +56,7 @@
         proxy = {
           port = 8080;
           subdomains = [ "sabnzbd" ];
+          websockets = true;
         };
       };
 
@@ -66,6 +67,7 @@
         proxy = {
           port = 9696;
           subdomains = [ "prowlarr" ];
+          websockets = true;
         };
       };
 
@@ -76,6 +78,7 @@
         proxy = {
           port = 7878;
           subdomains = [ "radarr" ];
+          websockets = true;
         };
       };
 
@@ -86,6 +89,7 @@
         proxy = {
           port = 8989;
           subdomains = [ "sonarr" ];
+          websockets = true;
         };
       };
 
