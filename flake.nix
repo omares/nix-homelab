@@ -66,6 +66,13 @@
               system = "x86_64-linux";
             };
 
+            # x86_64 VM template
+            proxmox-x86-custom = import ./modules/virtualisation/proxmox-generator-custom.nix {
+              inherit nixos-generators nixpkgs;
+              homelabLib = self.lib;
+              system = "x86_64-linux";
+            };
+
             # aarch64 VM template
             proxmox-arm = import ./modules/virtualisation/proxmox-generator.nix {
               inherit nixos-generators nixpkgs;
