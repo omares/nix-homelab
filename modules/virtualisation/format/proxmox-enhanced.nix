@@ -1,28 +1,23 @@
 /*
-  Based on the nixpkgs Proxmox image (nixpkgs/nixos/modules/virtualisation/proxmox-image.nix):
+  Based on the [nixpkgs Proxmox image](https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/virtualisation/proxmox-image.nix#L1):
 
-  Changes:
+  1. Added the option `diskType`, which allows specification of the bus/device for the main disk, enabling the creation of SCSI disks.
+  2. Renamed the `virtio0` setting to `mainDisk`, making the option name more generic, as the disk type now controls the type.
+     Use "local-lvm:vm-9999-disk-0,discard=on,ssd=1,iothread=1" and "scsi" diskTye when using a NVMe M.2 disk.
+  3. EFI disk is automatically created when using OVMF/EFI partition types.
+  4. Additional kernel modules can be added via `extraModules` and `extraInitrdModules`.
+  5. Enabled the boot loader screen to display for 1 second.
 
-  1. Storage Configuration:
-     - Changed from VirtIO disk to SCSI
-     - Added SCSI-specific options: discard=on, iothread=1, ssd=1
-
-  2. EFI/OVMF Configuration:
-     - Pre-creates EFI disk for OVMF support
-     - Note: After importing template, EFI disk needs to be manually recreated due to secure boot limitations
-
-  3. Kernel Module Configuration:
-     - Added modules for SCSI, USB, and basic VirtIO functionality
-
-  Manual Steps to Apply After Import:
-  1. Remove existing EFI disk
-  2. Re-add EFI disk with "pre-enrolled keys" unchecked
+  Unfortunately, I did not achieve creating an EFI disk without pre-enrolled keys.
+  To resolve issues when starting the imported VM, the existing EFI disk must be removed,
+  and a new one has to be created through the Proxmox interface without pre-enrolled keys.
 */
+
 {
+  inputs,
   config,
   pkgs,
   lib,
-  nixpkgs,
   modulesPath,
   ...
 }:
@@ -45,7 +40,38 @@
     })
   ];
 
-  options.proxmox-custom = {
+  options.proxmox-enhanced = {
+    diskType = lib.mkOption {
+      type = lib.types.enum [
+        "virtio"
+        "scsi"
+        "ide"
+        "sata"
+      ];
+      default = "virtio";
+      description = ''
+        Type of disk to use. When using SCSI, optimized settings (discard=on, ssd=1, iothread=1) are applied.
+      '';
+    };
+
+    kernelModules = {
+      extraModules = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        description = ''
+          Additional kernel modules to include in the image
+        '';
+      };
+
+      extraInitrdModules = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        description = ''
+          Additional initrd modules to include in the image
+        '';
+      };
+    };
+
     qemuConf = {
       # essential configs
       boot = lib.mkOption {
@@ -56,6 +82,7 @@
           Default boot device. PVE will try all devices in its default order if this value is empty.
         '';
       };
+
       scsihw = lib.mkOption {
         type = lib.types.str;
         default = "virtio-scsi-single";
@@ -65,22 +92,15 @@
           <https://pve.proxmox.com/wiki/Qemu/KVM_Virtual_Machines>
         '';
       };
-      scsi0 = lib.mkOption {
+
+      mainDisk = lib.mkOption {
         type = lib.types.str;
-        default = "local-lvm:vm-9999-disk-0,discard=on,ssd=1,iothread=1";
-        example = "ceph:vm-123-disk-0";
+        default = "local-lvm:vm-9999-disk-0";
         description = ''
-          Configuration for the default SCSI disk. It can be used as a cue for PVE to autodetect the target storage.
-          This parameter is required by PVE even if it isn't used.
+          Configuration for the main disk. When using SCSI disk type, optimized settings are applied.
         '';
       };
-      efidisk0 = lib.mkOption {
-        type = lib.types.str;
-        default = "local-lvm:vm-9999-efidisk-0,efitype=4m,size=4M,pre-enrolled-keys=0";
-        description = ''
-          EFI disk configuration. pre-enrolled-keys=0 disables secure boot keys.
-        '';
-      };
+
       ostype = lib.mkOption {
         type = lib.types.str;
         default = "l26";
@@ -88,6 +108,7 @@
           Guest OS type
         '';
       };
+
       cores = lib.mkOption {
         type = lib.types.ints.positive;
         default = 1;
@@ -95,6 +116,7 @@
           Guest core count
         '';
       };
+
       memory = lib.mkOption {
         type = lib.types.ints.positive;
         default = 1024;
@@ -102,6 +124,7 @@
           Guest memory in MB
         '';
       };
+
       bios = lib.mkOption {
         type = lib.types.enum [
           "seabios"
@@ -112,6 +135,7 @@
           Select BIOS implementation (seabios = Legacy BIOS, ovmf = UEFI).
         '';
       };
+
       # optional configs
       name = lib.mkOption {
         type = lib.types.str;
@@ -120,6 +144,7 @@
           VM name
         '';
       };
+
       additionalSpace = lib.mkOption {
         type = lib.types.str;
         default = "512M";
@@ -129,6 +154,7 @@
           is used.
         '';
       };
+
       bootSize = lib.mkOption {
         type = lib.types.str;
         default = "256M";
@@ -138,6 +164,7 @@
           either "efi" or "hybrid".
         '';
       };
+
       net0 = lib.mkOption {
         type = lib.types.commas;
         default = "virtio=00:00:00:00:00:00,bridge=vmbr0,firewall=1";
@@ -146,6 +173,7 @@
           "unique" box to ensure device mac is randomized.
         '';
       };
+
       serial0 = lib.mkOption {
         type = lib.types.str;
         default = "socket";
@@ -155,6 +183,7 @@
           or create a unix socket on the host side (use qm terminal to open a terminal connection).
         '';
       };
+
       agent = lib.mkOption {
         type = lib.types.bool;
         apply = x: if x then "1" else "0";
@@ -164,6 +193,7 @@
         '';
       };
     };
+
     qemuExtraConf = lib.mkOption {
       type =
         with lib.types;
@@ -182,6 +212,7 @@
         Additional options appended to qemu-server.conf
       '';
     };
+
     partitionTableType = lib.mkOption {
       type = lib.types.enum [
         "efi"
@@ -191,16 +222,17 @@
       ];
       description = ''
         Partition table type to use. See make-disk-image.nix partitionTableType for details.
-        Defaults to 'legacy' for 'proxmox.qemuConf.bios="seabios"' (default), other bios values defaults to 'efi'.
+        Defaults to 'legacy' for 'proxmox-enhanced.qemuConf.bios="seabios"' (default), other bios values defaults to 'efi'.
         Use 'hybrid' to build grub-based hybrid bios+efi images.
       '';
-      default = if config.proxmox-custom.qemuConf.bios == "seabios" then "legacy" else "efi";
-      defaultText = lib.literalExpression ''if config.proxmox-custom.qemuConf.bios == "seabios" then "legacy" else "efi"'';
+      default = if config.proxmox-enhanced.qemuConf.bios == "seabios" then "legacy" else "efi";
+      defaultText = lib.literalExpression ''if config.proxmox-enhanced.qemuConf.bios == "seabios" then "legacy" else "efi"'';
       example = "hybrid";
     };
+
     filenameSuffix = lib.mkOption {
       type = lib.types.str;
-      default = config.proxmox-custom.qemuConf.name;
+      default = config.proxmox-enhanced.qemuConf.name;
       example = "999-nixos_template";
       description = ''
         Filename of the image will be vzdump-qemu-''${filenameSuffix}.vma.zstd.
@@ -209,6 +241,7 @@
         any specific VMID.
       '';
     };
+
     cloudInit = {
       enable = lib.mkOption {
         type = lib.types.bool;
@@ -217,6 +250,7 @@
           Whether the VM should accept cloud init configurations from PVE.
         '';
       };
+
       defaultStorage = lib.mkOption {
         default = "local-lvm";
         example = "tank";
@@ -225,6 +259,7 @@
           Default storage name for cloud init drive.
         '';
       };
+
       device = lib.mkOption {
         default = "ide2";
         example = "scsi0";
@@ -238,21 +273,15 @@
 
   config =
     let
-      cfg = config.proxmox-custom;
+      cfg = config.proxmox-enhanced;
+
+      diskDevice = "${cfg.diskType}0";
+      diskStorage = builtins.head (builtins.split ":" cfg.qemuConf.mainDisk);
+
       cfgLine = name: value: ''
         ${name}: ${builtins.toString value}
       '';
-      scsi0Storage = builtins.head (builtins.split ":" cfg.qemuConf.scsi0);
-      cfgFile =
-        fileName: properties:
-        pkgs.writeTextDir fileName ''
-          # generated by NixOS
-          ${lib.concatStrings (lib.mapAttrsToList cfgLine properties)}
-          #qmdump#map:scsi0:drive-scsi0:${scsi0Storage}:raw:
-          ${lib.optionalString (cfg.qemuConf.bios == "ovmf")
-            "#qmdump#map:efidisk0:drive-efidisk0:${builtins.head (builtins.split ":" cfg.qemuConf.efidisk0)}:raw:"
-          }
-        '';
+
       inherit (cfg) partitionTableType;
       supportEfi = partitionTableType == "efi" || partitionTableType == "hybrid";
       supportBios =
@@ -261,31 +290,44 @@
         || partitionTableType == "legacy+gpt";
       hasBootPartition = partitionTableType == "efi" || partitionTableType == "hybrid";
       hasNoFsPartition = partitionTableType == "hybrid" || partitionTableType == "legacy+gpt";
+
+      cfgFile =
+        fileName: properties:
+        pkgs.writeTextDir fileName ''
+          # generated by NixOS
+          ${lib.concatStrings (lib.mapAttrsToList cfgLine properties)}
+          #qmdump#map:${diskDevice}:drive-${diskDevice}:${diskStorage}:raw:
+          ${lib.optionalString supportEfi "#qmdump#map:efidisk0:drive-efidisk0:${builtins.head (builtins.split ":" "local-lvm:vm-9999-efidisk-0")}:raw:"}
+        '';
+
     in
     {
       assertions = [
         {
-          assertion = config.boot.loader.systemd-boot.enable -> config.proxmox-custom.qemuConf.bios == "ovmf";
+          assertion =
+            config.boot.loader.systemd-boot.enable -> config.proxmox-enhanced.qemuConf.bios == "ovmf";
           message = "systemd-boot requires 'ovmf' bios";
         }
         {
-          assertion = partitionTableType == "efi" -> config.proxmox-custom.qemuConf.bios == "ovmf";
+          assertion = partitionTableType == "efi" -> config.proxmox-enhanced.qemuConf.bios == "ovmf";
           message = "'efi' disk partitioning requires 'ovmf' bios";
         }
         {
-          assertion = partitionTableType == "legacy" -> config.proxmox-custom.qemuConf.bios == "seabios";
+          assertion = partitionTableType == "legacy" -> config.proxmox-enhanced.qemuConf.bios == "seabios";
           message = "'legacy' disk partitioning requires 'seabios' bios";
         }
         {
-          assertion = partitionTableType == "legacy+gpt" -> config.proxmox-custom.qemuConf.bios == "seabios";
+          assertion =
+            partitionTableType == "legacy+gpt" -> config.proxmox-enhanced.qemuConf.bios == "seabios";
           message = "'legacy+gpt' disk partitioning requires 'seabios' bios";
         }
       ];
+
       image.baseName = lib.mkDefault "vzdump-qemu-${cfg.filenameSuffix}";
       image.extension = "vma.zst";
       system.build.image = config.system.build.VMA;
 
-      system.build.VMA = import "${nixpkgs}/nixos/lib/make-disk-image.nix" {
+      system.build.VMA = import "${toString inputs.nixpkgs}/nixos/lib/make-disk-image.nix" {
         name = "proxmox-${cfg.filenameSuffix}";
         baseName = config.image.baseName;
         inherit (cfg) partitionTableType;
@@ -331,24 +373,35 @@
 
                   buildInputs = super.buildInputs ++ [ pkgs.libuuid ];
                   nativeBuildInputs = super.nativeBuildInputs ++ [ pkgs.perl ];
-
                 });
           in
           ''
-            # Create empty EFI disk if using OVMF
-            ${lib.optionalString (cfg.qemuConf.bios == "ovmf") ''
-              # Create empty EFI disk
+            ${lib.optionalString supportEfi ''
               ${pkgs.qemu}/bin/qemu-img create -f raw $out/efidisk.raw 4M
             ''}
 
             ${vma}/bin/vma create "${config.image.baseName}.vma" \
               -c ${
-                cfgFile "qemu-server.conf" (cfg.qemuConf // cfg.qemuExtraConf)
-              }/qemu-server.conf drive-scsi0=$diskImage \
-              ${lib.optionalString (cfg.qemuConf.bios == "ovmf") "drive-efidisk0=$out/efidisk.raw"}
+                cfgFile "qemu-server.conf" (
+                  removeAttrs cfg.qemuConf [
+                    "additionalSpace"
+                    "bootSize"
+                    "mainDisk"
+                  ]
+                  // {
+                    "${cfg.diskType}0" = cfg.qemuConf.mainDisk;
+                  }
+                  // lib.optionalAttrs supportEfi {
+                    "efidisk0" = "local-lvm:vm-9999-efidisk-0,efitype=4m,pre-enrolled-keys=0,size=4M";
+                  }
+                  // cfg.qemuExtraConf
+                )
+              }/qemu-server.conf \
+              drive-${diskDevice}=$diskImage \
+              ${lib.optionalString supportEfi "drive-efidisk0=$out/efidisk.raw"}
 
             rm $diskImage
-            ${lib.optionalString (cfg.qemuConf.bios == "ovmf") ''
+            ${lib.optionalString supportEfi ''
               rm $out/efidisk.raw
             ''}
 
@@ -358,6 +411,7 @@
             mkdir -p $out/nix-support
             echo "file vma $out/${config.image.fileName}" > $out/nix-support/hydra-build-products
           '';
+
         inherit (cfg.qemuConf) additionalSpace bootSize;
         inherit (config.virtualisation) diskSize;
         format = "raw";
@@ -366,7 +420,7 @@
 
       boot = {
         growPartition = true;
-        kernelParams = [ "console=tty0" ];
+        kernelParams = [ "console=ttyS0" ];
         loader.grub = {
           device = lib.mkDefault (
             if (hasNoFsPartition || supportBios) then
@@ -381,37 +435,14 @@
           efiInstallAsRemovable = lib.mkDefault supportEfi;
         };
 
-        loader.timeout = 3;
-        initrd = {
-          availableKernelModules = [
-            "virtio_pci"
-            "virtio_blk"
-            "virtio_net"
+        loader.timeout = 1;
+        initrd.availableKernelModules = [
+          "uas"
+          "virtio_blk"
+          "virtio_pci"
+        ] ++ cfg.kernelModules.extraModules;
 
-            "virtio_scsi" # VirtIO SCSI support
-            "scsi_mod" # Core SCSI support
-            "sd_mod" # SCSI disk support
-
-            "ata_piix" # IDE/SATA support
-            "ahci" # SATA support
-
-            "uas" # USB Attached SCSI
-            "usb_storage" # USB storage support
-            "usbcore" # Core USB support
-            "ehci_pci" # USB 2.0 support
-            "xhci_pci" # USB 3.0 support
-
-            "ext4"
-          ];
-          kernelModules = [
-            "virtio_scsi"
-            "virtio_balloon"
-            "virtio_console"
-            "virtio_rng"
-            "scsi_mod"
-            "sd_mod"
-          ];
-        };
+        initrd.kernelModules = cfg.kernelModules.extraInitrdModules;
       };
 
       fileSystems."/" = {
@@ -419,6 +450,7 @@
         autoResize = true;
         fsType = "ext4";
       };
+
       fileSystems."/boot" = lib.mkIf hasBootPartition {
         device = "/dev/disk/by-label/ESP";
         fsType = "vfat";
@@ -438,10 +470,7 @@
         qemuGuest.enable = true;
       };
 
-      proxmox-custom.qemuExtraConf.${cfg.cloudInit.device} =
+      proxmox-enhanced.qemuExtraConf.${cfg.cloudInit.device} =
         "${cfg.cloudInit.defaultStorage}:vm-9999-cloudinit,media=cdrom";
-
-      formatAttr = "VMA";
-      fileExtension = ".vma.zst";
     };
 }

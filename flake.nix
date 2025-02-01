@@ -41,16 +41,16 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
 
       systems = [
+        "x86_64-linux"
+        "aarch64-darwin"
       ];
 
-      # Creates 'nixosModels', 'nixosConfigurations', 'deploy.nodes', and 'check' outputs
-      # based on defined nodes in ./modules/cluster/nodes.nix and existing roles in ./modules/cluster/roles.
       imports = [
         ./modules/cluster
       ];
 
       flake =
-        { config, ... }:
+        { config, modulesPath, ... }:
         {
 
           lib = import ./lib {
@@ -58,38 +58,31 @@
           };
 
           # todo: Move packages to own module
-          packages.${system} = {
-            # x86_64 VM template
-            proxmox-x86 = import ./modules/virtualisation/proxmox-generator.nix {
-              inherit nixos-generators nixpkgs;
-              homelabLib = self.lib;
-              system = "x86_64-linux";
-            };
+          # packages.${system} = {
+          #   # x86_64 VM template
+          #   proxmox-x86 = import ./modules/virtualisation/proxmox-generator.nix {
+          #     inherit nixos-generators nixpkgs;
+          #     homelabLib = self.lib;
+          #     system = "x86_64-linux";
+          #   };
 
-            # x86_64 VM template
-            proxmox-x86-custom = import ./modules/virtualisation/proxmox-generator-custom.nix {
-              inherit nixos-generators nixpkgs;
-              homelabLib = self.lib;
-              system = "x86_64-linux";
-            };
+          #   # aarch64 VM template
+          #   proxmox-arm = import ./modules/virtualisation/proxmox-generator.nix {
+          #     inherit nixos-generators nixpkgs;
+          #     homelabLib = self.lib;
+          #     system = "aarch64-linux";
+          #   };
 
-            # aarch64 VM template
-            proxmox-arm = import ./modules/virtualisation/proxmox-generator.nix {
-              inherit nixos-generators nixpkgs;
-              homelabLib = self.lib;
-              system = "aarch64-linux";
-            };
-
-            # Builder VM (x86_64) with arm support
-            proxmox-builder = import ./modules/virtualisation/proxmox-generator.nix {
-              inherit nixos-generators nixpkgs;
-              homelabLib = self.lib;
-              system = "x86_64-linux";
-              extraModules = [
-                config.nixosModules.role-builder
-              ];
-            };
-          };
+          #   # Builder VM (x86_64) with arm support
+          #   proxmox-builder = import ./modules/virtualisation/proxmox-generator.nix {
+          #     inherit nixos-generators nixpkgs;
+          #     homelabLib = self.lib;
+          #     system = "x86_64-linux";
+          #     extraModules = [
+          #       config.nixosModules.role-builder
+          #     ];
+          #   };
+          # };
 
           packages.x86_64-linux =
             let

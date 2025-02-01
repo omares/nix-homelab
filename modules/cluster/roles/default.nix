@@ -1,16 +1,16 @@
 {
-  modulesPath,
   ...
 }:
+
 {
   imports = [
-    "${toString modulesPath}/virtualisation/proxmox-image.nix"
-    ../../virtualisation/proxmox-default.nix
+    ../../virtualisation/vm-profile.nix
     ../../_all.nix
   ];
 
-  # After a clean first-boot network setup managed by cloud-init,
-  # we want to disable cloud-init for managed nodes.
-  proxmox.cloudInit.enable = false;
+  # On the first boot, cloud-init manages the network setup to retrieve a proper DHCP address.
+  # After applying any role (which always includes this default) to the node,
+  # cloud-init should be disabled as the node is now fully managed by our Nix code base.
+  proxmox-enhanced.cloudInit.enable = false;
   services.cloud-init.enable = false;
 }
