@@ -100,8 +100,8 @@ in
           }
           (lib.mkIf isAarch64 {
             arch = "aarch64";
-            cpu = "host";
-            machine = "virt";
+            cpu = lib.mkForce "host";
+            machine = lib.mkForce "virt";
           })
         ];
 

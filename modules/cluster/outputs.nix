@@ -71,39 +71,4 @@ in
       system: deployLib: deployLib.deployChecks config.flake.deploy
     ) inputs.deploy-rs.lib;
   };
-
-  config.perSystem = {
-    packages = {
-
-      # x86_64 VM template
-      proxmox-x86-optimized = inputs.nixos-generators.nixosGenerate {
-        system = "x86_64-linux";
-
-        modules = [
-          { nix.registry.nixpkgs.flake = inputs.nixpkgs; }
-          top.self.nixosModules.role-default
-          {
-            # Ensure that cloud-init is enabled for the generated VMs.
-            proxmox-enhanced.cloudInit.enable = lib.mkForce true;
-            services.cloud-init.enable = lib.mkForce true;
-          }
-        ];
-
-        specialArgs = {
-          homelabLib = lib;
-          inherit inputs;
-        };
-
-        customFormats = {
-          "proxmox-enhanced" = {
-            imports = [ ../virtualisation/format/proxmox-enhanced.nix ];
-
-            formatAttr = "VMA";
-            fileExtension = ".vma.zst";
-          };
-        };
-        format = "proxmox-enhanced";
-      };
-    };
-  };
 }

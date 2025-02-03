@@ -49,66 +49,37 @@
         ./modules/cluster
       ];
 
-      flake =
-        { config, modulesPath, ... }:
-        {
+      flake = {
 
-          lib = import ./lib {
-            inherit (nixpkgs) lib;
+        lib = import ./lib {
+          inherit (nixpkgs) lib;
+        };
+
+        packages.x86_64-linux =
+          let
+            x86pkgs = nixpkgs.legacyPackages."x86_64-linux";
+          in
+          {
+            scrypted = import ./modules/packages/scrypted.nix {
+
+              inherit (x86pkgs)
+                lib
+                buildNpmPackage
+                fetchFromGitHub
+                nodejs_20
+                callPackage
+                ;
+            };
           };
 
-          # todo: Move packages to own module
-          # packages.${system} = {
-          #   # x86_64 VM template
-          #   proxmox-x86 = import ./modules/virtualisation/proxmox-generator.nix {
-          #     inherit nixos-generators nixpkgs;
-          #     homelabLib = self.lib;
-          #     system = "x86_64-linux";
-          #   };
-
-          #   # aarch64 VM template
-          #   proxmox-arm = import ./modules/virtualisation/proxmox-generator.nix {
-          #     inherit nixos-generators nixpkgs;
-          #     homelabLib = self.lib;
-          #     system = "aarch64-linux";
-          #   };
-
-          #   # Builder VM (x86_64) with arm support
-          #   proxmox-builder = import ./modules/virtualisation/proxmox-generator.nix {
-          #     inherit nixos-generators nixpkgs;
-          #     homelabLib = self.lib;
-          #     system = "x86_64-linux";
-          #     extraModules = [
-          #       config.nixosModules.role-builder
-          #     ];
-          #   };
-          # };
-
-          packages.x86_64-linux =
-            let
-              x86pkgs = nixpkgs.legacyPackages."x86_64-linux";
-            in
-            {
-              scrypted = import ./modules/packages/scrypted.nix {
-
-                inherit (x86pkgs)
-                  lib
-                  buildNpmPackage
-                  fetchFromGitHub
-                  nodejs_20
-                  callPackage
-                  ;
-              };
-            };
-
-          devShells.${system} = {
-            default = pkgs.mkShell {
-              packages = with pkgs; [
-                deploy-rs.packages.${system}.deploy-rs
-                nixfmt-rfc-style
-              ];
-            };
+        devShells.${system} = {
+          default = pkgs.mkShell {
+            packages = with pkgs; [
+              deploy-rs.packages.${system}.deploy-rs
+              nixfmt-rfc-style
+            ];
           };
         };
+      };
     };
 }
