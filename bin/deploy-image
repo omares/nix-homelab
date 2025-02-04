@@ -21,6 +21,7 @@ typeset PROXMOX_HOST="192.168.20.114"
 typeset PROXMOX_USER="root"
 typeset PROXMOX_PATH="/var/lib/vz/dump"
 typeset IMAGE_PATH="result"
+typeset STORAGE="pond"
 
 usage() {
   $CAT <<EOF
@@ -86,6 +87,21 @@ IMAGE_FILE=$image_files[1]
 SSH_CONTROL_DIR=$($MKTEMP -d)
 SSH_CONTROL_PATH="$SSH_CONTROL_DIR/socket"
 
+ssh_execute() {
+    local command=$1
+    local error_message=${2:-"SSH command failed"}
+
+    if ! $SSH -o ControlMaster=auto \
+            -o ControlPath="$SSH_CONTROL_PATH" \
+            -o ControlPersist=60 \
+            "$PROXMOX_USER@$PROXMOX_HOST" "$command"; then
+        print -P "%F{red}Error:%f $error_message"
+        $RM -rf $SSH_CONTROL_DIR
+        exit 1
+    fi
+}
+
+
 print -P "Deploying image %F{blue}${IMAGE_FILE:t}%f to %F{cyan}$PROXMOX_USER%f@%F{yellow}$PROXMOX_HOST%f:%F{green}$PROXMOX_PATH%f"
 
 # Check if we can connect
@@ -99,14 +115,8 @@ if ! $SSH -o ControlMaster=yes \
 fi
 
 # Check if remote directory exists
-if ! $SSH -o ControlMaster=auto \
-        -o ControlPath="$SSH_CONTROL_PATH" \
-        -o ControlPersist=5m \
-        "$PROXMOX_USER@$PROXMOX_HOST" "[ -d $PROXMOX_PATH ]"; then
-  print -P "%F{red}Error:%f Remote directory $PROXMOX_PATH does not exist"
-  $RM -rf $SSH_CONTROL_DIR
-  exit 1
-fi
+ssh_execute "[ -d $PROXMOX_PATH ]" "Remote directory $PROXMOX_PATH does not exist"
+
 # Copy the file
 print -P "%F{blue}Copying image file...%f"
 if $SCP -o ControlMaster=auto \
@@ -131,16 +141,17 @@ if $SCP -o ControlMaster=auto \
   fi
 
   print -P "%F{blue}Restoring VM with ID $VM_ID...%f"
-  if ! $SSH -o ControlMaster=auto \
-          -o ControlPath="$SSH_CONTROL_PATH" \
-          -o ControlPersist=60 \
-          "$PROXMOX_USER@$PROXMOX_HOST" "qmrestore $PROXMOX_PATH/${IMAGE_FILE:t} $VM_ID --unique true --storage pond"; then
-    print -P "%F{red}Error:%f Failed to restore VM"
-    $RM -rf $SSH_CONTROL_DIR
-    exit 1
-  fi
-
+  ssh_execute "qmrestore $PROXMOX_PATH/${IMAGE_FILE:t} $VM_ID --unique true --storage $STORAGE" "Failed to restore VM"
   print -P "%F{green}Successfully restored VM $VM_ID%f"
+
+  print -P "%F{blue}Configuring EFI disk...%f"
+  ssh_execute "
+    qm set $VM_ID --delete efidisk0 &&
+    qm set $VM_ID --efidisk0 $STORAGE:1,format=raw,efitype=4m,pre-enrolled-keys=0 &&
+    qm set $VM_ID --delete unused0 || true
+  " "Failed to configure EFI disk"
+  print -P "%F{green}Successfully configured EFI disk%f"
+
 else
   print -P "%F{red}Error:%f Failed to copy image to Proxmox"
   $RM -rf $SSH_CONTROL_DIR

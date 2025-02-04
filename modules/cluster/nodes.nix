@@ -10,18 +10,23 @@
     };
     nodes = {
       build-01 = {
-        roles = [ config.flake.nixosModules.role-builder ];
-        host = "192.168.20.224";
+        roles = [ config.flake.nixosModules.role-proxmox-builder ];
+        host = "192.168.20.92";
       };
 
       build-02 = {
-        roles = [ config.flake.nixosModules.role-builder ];
+        roles = [
+          config.flake.nixosModules.role-proxmox-arm
+        ];
         host = "192.168.20.46";
         system = "aarch64-linux";
       };
 
       dns-01 = {
-        roles = [ config.flake.nixosModules.role-dns ];
+        roles = [
+          config.flake.nixosModules.role-dns
+          config.flake.nixosModules.role-proxmox-legacy
+        ];
         host = "192.168.20.29";
 
         proxy = {
@@ -30,7 +35,10 @@
       };
 
       dns-02 = {
-        roles = [ config.flake.nixosModules.role-dns ];
+        roles = [
+          config.flake.nixosModules.role-dns
+          config.flake.nixosModules.role-proxmox-legacy
+        ];
         host = "192.168.20.192";
         system = "aarch64-linux";
 
@@ -40,17 +48,26 @@
       };
 
       proxy-01 = {
-        roles = [ config.flake.nixosModules.role-proxy ];
+        roles = [
+          config.flake.nixosModules.role-proxy
+          config.flake.nixosModules.role-proxmox-legacy
+        ];
         host = "192.168.20.44";
       };
 
       db-01 = {
-        roles = [ config.flake.nixosModules.role-db ];
+        roles = [
+          config.flake.nixosModules.role-db
+          config.flake.nixosModules.role-proxmox-legacy
+        ];
         host = "192.168.20.28";
       };
 
       starr-sabnzbd-01 = {
-        roles = [ config.flake.nixosModules.role-starr-sabnzbd ];
+        roles = [
+          config.flake.nixosModules.role-starr-sabnzbd
+          config.flake.nixosModules.role-proxmox-legacy
+        ];
         host = "192.168.20.219";
 
         proxy = {
@@ -61,7 +78,10 @@
       };
 
       starr-prowlarr-01 = {
-        roles = [ config.flake.nixosModules.role-starr-prowlarr ];
+        roles = [
+          config.flake.nixosModules.role-starr-prowlarr
+          config.flake.nixosModules.role-proxmox-legacy
+        ];
         host = "192.168.20.153";
 
         proxy = {
@@ -72,7 +92,10 @@
       };
 
       starr-radarr-01 = {
-        roles = [ config.flake.nixosModules.role-starr-radarr ];
+        roles = [
+          config.flake.nixosModules.role-starr-radarr
+          config.flake.nixosModules.role-proxmox-legacy
+        ];
         host = "192.168.20.58";
 
         proxy = {
@@ -83,7 +106,10 @@
       };
 
       starr-sonarr-01 = {
-        roles = [ config.flake.nixosModules.role-starr-sonarr ];
+        roles = [
+          config.flake.nixosModules.role-starr-sonarr
+          config.flake.nixosModules.role-proxmox-legacy
+        ];
         host = "192.168.20.206";
 
         proxy = {
@@ -94,12 +120,18 @@
       };
 
       starr-recyclarr-01 = {
-        roles = [ config.flake.nixosModules.role-starr-recyclarr ];
+        roles = [
+          config.flake.nixosModules.role-starr-recyclarr
+          config.flake.nixosModules.role-proxmox-legacy
+        ];
         host = "192.168.20.181";
       };
 
       starr-jellyfin-01 = {
-        roles = [ config.flake.nixosModules.role-starr-jellyfin ];
+        roles = [
+          config.flake.nixosModules.role-starr-jellyfin
+          config.flake.nixosModules.role-proxmox-legacy
+        ];
         host = "192.168.20.26";
 
         proxy = {
@@ -110,7 +142,10 @@
       };
 
       starr-jellyseerr-01 = {
-        roles = [ config.flake.nixosModules.role-starr-jellyseerr ];
+        roles = [
+          config.flake.nixosModules.role-starr-jellyseerr
+          config.flake.nixosModules.role-proxmox-legacy
+        ];
         host = "192.168.20.147";
 
         proxy = {
@@ -121,7 +156,10 @@
       };
 
       cam-01 = {
-        roles = [ config.flake.nixosModules.role-scrypted ];
+        roles = [
+          config.flake.nixosModules.role-scrypted
+          config.flake.nixosModules.role-proxmox-legacy
+        ];
         host = "192.168.20.90";
       };
 
