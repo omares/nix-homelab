@@ -39,10 +39,7 @@ in
   options.services.scrypted = {
     enable = lib.mkEnableOption "Scrypted home automation server";
 
-    package = lib.mkOption {
-      type = lib.types.package;
-      description = "The scrypted package to use";
-    };
+    package = lib.mkPackageOption pkgs "scrypted" { };
 
     openFirewall = lib.mkOption {
       type = lib.types.bool;
@@ -78,13 +75,11 @@ in
       type = lib.types.attrsOf lib.types.str;
       default = { };
       description = "Additional environment variables for scrypted";
-      example = lib.literalExpression ''
-        {
-          SCRYPTED_NVR_VOLUME = "/var/lib/scrypted/nvr";
-          SCRYPTED_SECURE_PORT = 443;
-          SCRYPTED_INSECURE_PORT = 8080;
-        }
-      '';
+      example = {
+        SCRYPTED_NVR_VOLUME = "/var/lib/scrypted/nvr";
+        SCRYPTED_SECURE_PORT = 443;
+        SCRYPTED_INSECURE_PORT = 8080;
+      };
     };
   };
 

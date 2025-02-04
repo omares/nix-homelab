@@ -158,9 +158,8 @@
       cam-01 = {
         roles = [
           config.flake.nixosModules.role-scrypted
-          config.flake.nixosModules.role-proxmox-legacy
         ];
-        host = "192.168.20.90";
+        host = "192.168.20.229";
       };
 
       #

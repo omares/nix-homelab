@@ -2,10 +2,6 @@
 {
 
   config = {
-    ids.uids = {
-      prowlarr = 381;
-    };
-
     users.users = {
       prowlarr = {
         home = "/var/lib/prowlarr";
