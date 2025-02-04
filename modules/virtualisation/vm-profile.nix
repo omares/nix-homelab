@@ -36,13 +36,13 @@ in
   config =
 
     let
-      isOptimized = cfg.template == "proxmox-optimized";
-      isAarch64 = cfg.template == "proxmox-arm";
       isBuilder = cfg.template == "proxmox-builder";
+      isOptimized = cfg.template == "proxmox-optimized" || isBuilder;
+      isAarch64 = cfg.template == "proxmox-arm";
 
       diskSize = if isBuilder then 51200 else 10240;
       cores = if isBuilder then 4 else 2;
-      memory = if isBuilder then (6 * 1024) else (2 * 1024);
+      memory = if isBuilder then (16 * 1024) else (2 * 1024);
 
     in
     {

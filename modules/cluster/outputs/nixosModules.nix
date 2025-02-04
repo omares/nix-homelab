@@ -13,7 +13,7 @@ let
   };
 in
 {
-  config.flake = {
+  flake = {
     nixosModules = lib.mapAttrs' mkModule roles;
   };
 }

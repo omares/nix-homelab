@@ -2,16 +2,17 @@
 
 ## Proxmox VM Templates
 
-A few Proxmox VM templates generated using [nixos-generators](https://github.com/nix-community/nixos-generators) are available.
-The resulting `vma` files can be directly imported into Proxmox and used, eliminating the need to install NixOS and configure a VM manually.
+The flake offers packages that generate Proxmox VM templates using [nixos-generators](https://github.com/nix-community/nixos-generators).
+The resulting `vma` files can be directly imported into Proxmox and used, eliminating the need to manually configure a VM and install NixOS.
 Please note the EFI secure boot complications that need to be handled when not using the [deploy-image](bin/deploy-image) script.
 
 ### Available Templates
 
+The templates use an [enhanced format](./modules/virtualisation/format/proxmox-enhanced.nix) based on the Nixpkgs [Proxmox image](https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/virtualisation/proxmox-image.nix#L1). This enhanced template enables the creation of SCSI disks and other smaller improvements.
+
 #### proxmox-x86-optimized
 Optimized VM template for x86_64 systems that aligns with the hardware of my main Proxmox host.
 
-- Custom NixOS generator format based on the Nixpkgs [Proxmox image](https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/virtualisation/proxmox-image.nix#L1)
 - Machine: q35 (PCIe-based architecture)
 - Storage: SCSI with optimizations (discard, I/O thread, SSD) for optimal M.2 storage usage
 - Cloud-init enabled
@@ -23,14 +24,21 @@ Optimized VM template for x86_64 systems that aligns with the hardware of my mai
   - USB: Full stack (1.1 through 3.0) support
 
 
-#### proxmox-x86 (Legacy)
+#### proxmox-x86-legacy (Legacy)
 Default VM template for x86_64 systems, provides highest compatibility.
 I started with the template, so a few of my VMs are still running on it.
 
-- Vanilla [Proxmox image](https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/virtualisation/proxmox-image.nix#L1)
 - Machine: i440fx
 - Storage: VirtIO-based
 - Cloud-init enabled
+
+#### proxmox-x86-builder
+Specialized template for Nix remote builders.
+
+- Based on proxmox-x86-optimized
+- Includes builder-specific configurations
+- Includes remote builder role configuration
+- Supports building ARM packages, but it is very slow. Helpful for getting started with ARM systems until a host-specific ARM builder can be booted.
 
 #### proxmox-arm
 Template used for virtual machines running on my Raspberry Pi using [Proxmox-Port](https://github.com/jiangcuo/Proxmox-Port).
@@ -38,14 +46,6 @@ Template used for virtual machines running on my Raspberry Pi using [Proxmox-Por
 - Based on standard nixpkgs image
 - Configured according to [Proxmox ARM port specifications](https://github.com/jiangcuo/Proxmox-Port/wiki/Qemu-VM)
 - Suitable for ARM-based Proxmox installations
-
-#### proxmox-builder
-Specialized template for Nix remote builders.
-
-- Based on proxmox-x86-optimized
-- Includes builder-specific configurations
-- Includes remote builder role configuration
-- Supports building ARM packages, but it is very slow. Helpful for getting started with ARM systems until a host-specific ARM builder can be booted.
 
 ### Building and deployment
 Templates can be built using the standard Nix commands:

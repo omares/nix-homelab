@@ -27,14 +27,12 @@ let
           networking.hostName = name;
         }
         config.flake.nixosModules.role-default
-        ../../users/ids.nix
-
       ] ++ nodeCfg.roles;
     };
 
 in
 {
-  config.flake = {
+  flake = {
     nixosConfigurations = lib.mapAttrs mkSystem managedNodes;
   };
 }

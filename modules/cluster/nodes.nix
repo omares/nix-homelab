@@ -11,7 +11,7 @@
     nodes = {
       build-01 = {
         roles = [ config.flake.nixosModules.role-proxmox-builder ];
-        host = "192.168.20.224";
+        host = "192.168.20.92";
       };
 
       build-02 = {

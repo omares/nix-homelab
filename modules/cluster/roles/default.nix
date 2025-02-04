@@ -5,7 +5,15 @@
 {
   imports = [
     ../../virtualisation/vm-profile.nix
-    ../../_all.nix
+    ../../users/ids.nix
+    ../../editors
+    ../../environment
+    ../../networking
+    ../../nix
+    ../../security
+    ../../shell
+    ../../system
+    ../../users
   ];
 
   # On the first boot, cloud-init manages the network setup to retrieve a proper DHCP address.

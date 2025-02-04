@@ -34,10 +34,6 @@
       sops-nix,
       nix-sops-vault,
     }:
-    let
-      system = "aarch64-darwin";
-      pkgs = nixpkgs.legacyPackages.${system};
-    in
     flake-parts.lib.mkFlake { inherit inputs; } {
 
       systems = [
@@ -48,38 +44,5 @@
       imports = [
         ./modules/cluster
       ];
-
-      flake = {
-
-        lib = import ./lib {
-          inherit (nixpkgs) lib;
-        };
-
-        packages.x86_64-linux =
-          let
-            x86pkgs = nixpkgs.legacyPackages."x86_64-linux";
-          in
-          {
-            scrypted = import ./modules/packages/scrypted.nix {
-
-              inherit (x86pkgs)
-                lib
-                buildNpmPackage
-                fetchFromGitHub
-                nodejs_20
-                callPackage
-                ;
-            };
-          };
-
-        devShells.${system} = {
-          default = pkgs.mkShell {
-            packages = with pkgs; [
-              deploy-rs.packages.${system}.deploy-rs
-              nixfmt-rfc-style
-            ];
-          };
-        };
-      };
     };
 }

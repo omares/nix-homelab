@@ -25,7 +25,7 @@ let
 in
 {
 
-  config.flake = {
+  flake = {
     deploy.nodes = lib.mapAttrs mkDeployNode managedNodes;
   };
 }
