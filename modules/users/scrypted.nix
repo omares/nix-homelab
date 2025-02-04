@@ -9,7 +9,6 @@
     users.users = {
       scrypted = {
         uid = config.ids.uids.scrypted;
-        group = "starr";
       };
     };
   };

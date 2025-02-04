@@ -157,9 +157,16 @@
 
       cam-01 = {
         roles = [
-          config.flake.nixosModules.role-scrypted
+          config.flake.nixosModules.role-scrypted-server
         ];
         host = "192.168.20.229";
+      };
+
+      cam-client-01 = {
+        roles = [
+          config.flake.nixosModules.role-scrypted-server
+        ];
+        host = "192.168.20.182";
       };
 
       #
