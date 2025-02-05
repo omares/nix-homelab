@@ -83,11 +83,17 @@ in
         enable = isOpenvinoClient;
       };
 
-      users.users.scrypted = lib.mkIf isOpenvinoClient {
-        extraGroups = [
-          "video"
-          "render"
-        ];
+      users.users.scrypted = {
+        extraGroups =
+          [
+          ]
+          ++ lib.optionals isOpenvinoClient [
+            "video"
+            "render"
+          ]
+          ++ lib.optionals isTensorflowClient [
+            "coral"
+          ];
       };
 
       systemd.services.scrypted = lib.mkIf isOpenvinoClient {
@@ -99,6 +105,15 @@ in
           ];
         };
       };
+
+      hardware.coral = {
+        usb.enable = isTensorflowClient;
+      };
+
+      services.udev.extraRules = lib.mkIf isTensorflowClient ''
+        SUBSYSTEM=="usb", ATTRS{idVendor}=="1a6e", ATTRS{idProduct}=="089a", GROUP="coral", MODE="0666"
+        SUBSYSTEM=="usb", ATTRS{idVendor}=="18d1", ATTRS{idProduct}=="9302", GROUP="coral", MODE="0666"
+      '';
 
       # Used for communication between cluster servers and clients.
       networking.firewall = {

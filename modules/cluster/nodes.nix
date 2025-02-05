@@ -155,18 +155,25 @@
         };
       };
 
-      cam-01 = {
+      nvr-server-01 = {
         roles = [
           config.flake.nixosModules.role-scrypted-server
         ];
         host = "192.168.30.229";
       };
 
-      cam-client-01 = {
+      nvr-client-01 = {
         roles = [
-          config.flake.nixosModules.role-scrypted-client
+          config.flake.nixosModules.role-scrypted-client-openvino
         ];
         host = "192.168.30.181";
+      };
+
+      nvr-client-02 = {
+        roles = [
+          config.flake.nixosModules.role-scrypted-client-tensorflow
+        ];
+        host = "192.168.30.211";
       };
 
       #

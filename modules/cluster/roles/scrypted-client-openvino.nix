@@ -1,5 +1,6 @@
 {
-  nodeCfg,
+  name,
+  cluster,
   ...
 }:
 {
@@ -9,7 +10,8 @@
 
   cluster.automation.scrypted = {
     enable = true;
-    role = "server";
-    serverHost = nodeCfg.host;
+    role = "client-openvino";
+    serverHost = cluster.nodes.nvr-server-01.host;
+    workerName = name;
   };
 }
