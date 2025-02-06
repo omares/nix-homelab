@@ -12,6 +12,7 @@ in
     ../hardware/intel-graphics.nix
     ../services/scrypted.nix
     ../users/scrypted.nix
+    ../storage/truenas.nix
   ];
 
   options.cluster.automation.scrypted = {
@@ -52,6 +53,18 @@ in
         "client-openvino" = "compute,transcode,@scrypted/openvino";
         "client-tensorflow" = "compute,transcode,@scrypted/tensorflow-lite";
       };
+
+      environment = {
+        SCRYPTED_CLUSTER_SECRET = "dummy";
+        SCRYPTED_CLUSTER_LABELS = clusterLabels.${cfg.role};
+
+        SCRYPTED_CLUSTER_MODE = if isServer then "server" else "client";
+        SCRYPTED_CLUSTER_ADDRESS = lib.mkIf isServer cfg.serverHost;
+
+        # SCRYPTED_CLUSTER_SERVER = lib.mkIf isClient cfg.serverHost;
+        SCRYPTED_CLUSTER_SERVER = lib.mkIf isClient cfg.serverHost;
+        SCRYPTED_CLUSTER_WORKER_NAME = lib.mkIf isClient cfg.workerName;
+      };
     in
     lib.mkIf cfg.enable {
 
@@ -69,7 +82,6 @@ in
 
           SCRYPTED_CLUSTER_SERVER = lib.mkIf isClient cfg.serverHost;
           SCRYPTED_CLUSTER_WORKER_NAME = lib.mkIf isClient cfg.workerName;
-
         };
       };
 
@@ -79,9 +91,8 @@ in
         fsType = "ext4";
       };
 
-      cluster.hardware.intel-graphics = {
-        enable = isOpenvinoClient;
-      };
+      cluster.storage.truenas.scrypted-large.enable = isServer;
+      cluster.hardware.intel-graphics.enable = isOpenvinoClient;
 
       users.users.scrypted = {
         extraGroups =
@@ -114,6 +125,8 @@ in
         SUBSYSTEM=="usb", ATTRS{idVendor}=="1a6e", ATTRS{idProduct}=="089a", GROUP="coral", MODE="0666"
         SUBSYSTEM=="usb", ATTRS{idVendor}=="18d1", ATTRS{idProduct}=="9302", GROUP="coral", MODE="0666"
       '';
+
+      networking.firewall.enable = lib.mkForce false;
 
       # Used for communication between cluster servers and clients.
       networking.firewall = {

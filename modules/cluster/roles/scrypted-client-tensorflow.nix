@@ -1,4 +1,5 @@
 {
+  pkgs,
   name,
   cluster,
   ...
@@ -14,4 +15,9 @@
     serverHost = cluster.nodes.nvr-server-01.host;
     workerName = name;
   };
+
+  environment.systemPackages = [
+    pkgs.usbutils
+    pkgs.libedgetpu
+  ];
 }
