@@ -6,7 +6,7 @@
 }:
 {
   imports = [
-    ../../automation/scrypted.nix
+    ../../automation/scrypted
   ];
 
   cluster.automation.scrypted = {
