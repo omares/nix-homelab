@@ -160,6 +160,13 @@
           config.flake.nixosModules.role-scrypted-server
         ];
         host = "192.168.30.229";
+
+        proxy = {
+          port = 38655;
+          protocol = "https";
+          subdomains = [ "scrypted" ];
+          websockets = true;
+        };
       };
 
       nvr-client-01 = {
