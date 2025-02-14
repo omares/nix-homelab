@@ -3,8 +3,10 @@
   imports = [
     inputs.sops-nix.nixosModules.sops
     inputs.nix-sops-vault.nixosModules.sops-vault
-    ./scrypted.nix
+    ./common.nix
+    ./server.nix
     ./client-tensorflow.nix
+    ./client-openvino.nix
     ../../services/scrypted.nix
     ../../users/scrypted.nix
     ../../hardware/intel-graphics.nix
