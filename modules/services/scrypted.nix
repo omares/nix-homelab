@@ -102,10 +102,14 @@ in
       description = "Group account under which scrypted runs";
     };
 
-    environmentFile = lib.mkOption {
-      type = lib.types.nullOr lib.types.path;
-      default = null;
-      description = "Environment file to load additional environment variables from";
+    environmentFiles = lib.mkOption {
+      type = lib.types.listOf lib.types.path;
+      default = [ ];
+      description = "Environment files to pass to service.";
+      example = [
+        /path/to/.env
+        /path/to/.env.secret
+      ];
     };
 
     extraEnvironment = lib.mkOption {
@@ -172,38 +176,34 @@ in
         pkgs.gobject-introspection
       ] ++ gstPlugins;
 
-      serviceConfig =
-        {
-          ExecStart = "${lib.getExe cfg.package}";
-          Restart = "always";
-          RestartSec = "3";
+      serviceConfig = {
+        ExecStart = "${lib.getExe cfg.package}";
+        Restart = "always";
+        RestartSec = "3";
 
-          User = cfg.user;
-          Group = cfg.group;
+        User = cfg.user;
+        Group = cfg.group;
 
-          StateDirectory = "scrypted";
-          StateDirectoryMode = "0750";
+        StateDirectory = "scrypted";
+        StateDirectoryMode = "0750";
 
-          ProtectSystem = "strict";
-          ProtectHome = true;
-          WorkingDirectory = cfg.installPath;
-          ReadWritePaths = [ cfg.installPath ];
-          PrivateDevices = false;
-          PrivateTmp = true;
-          NoNewPrivileges = true;
-          RestrictRealtime = true;
+        ProtectSystem = "strict";
+        ProtectHome = true;
+        WorkingDirectory = cfg.installPath;
+        ReadWritePaths = [ cfg.installPath ];
+        PrivateDevices = false;
+        PrivateTmp = true;
+        NoNewPrivileges = true;
+        RestrictRealtime = true;
 
-          RestrictAddressFamilies = [
-            "AF_INET"
-            "AF_INET6"
-            "AF_NETLINK"
-          ];
+        RestrictAddressFamilies = [
+          "AF_INET"
+          "AF_INET6"
+          "AF_NETLINK"
+        ];
 
-        }
-        // lib.optionalAttrs (cfg.environmentFile != null) {
-          EnvironmentFile = cfg.environmentFile;
-        };
-
+        EnvironmentFile = cfg.environmentFiles;
+      };
     };
 
     users.users = lib.mkIf (cfg.user == "scrypted") {

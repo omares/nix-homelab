@@ -48,7 +48,6 @@ in
       };
 
       environment = {
-        SCRYPTED_CLUSTER_SECRET = "dummy";
         SCRYPTED_CLUSTER_LABELS = clusterLabels.${cfg.role};
 
         SCRYPTED_CLUSTER_MODE = if isServer then "server" else "client";
@@ -91,12 +90,17 @@ in
           "coral"
         ];
 
+      sops-vault.items = [
+        "scrypted"
+      ];
+
       services.scrypted = lib.mkIf (isServer || isOpenvinoClient) {
         enable = true;
         package = pkgs.callPackage ../packages/scrypted.nix { };
         openFirewall = true;
 
         extraEnvironment = environment;
+        environmentFiles = [ config.sops.secrets.SCRYPTED_CLUSTER_SECRET.path ];
       };
 
       #
@@ -157,8 +161,10 @@ in
         SUBSYSTEM=="usb", ATTRS{idVendor}=="18d1", ATTRS{idProduct}=="9302", GROUP="coral", MODE="0666", TAG+="uaccess
       '';
 
-      virtualisation.oci-containers.containers."scrypted".environment =
-        lib.mkIf isTensorflowClient environment;
+      virtualisation.oci-containers.containers."scrypted" = lib.mkIf isTensorflowClient {
+        environment = environment;
+        environmentFiles = [ config.sops.secrets.SCRYPTED_CLUSTER_SECRET.path ];
+      };
 
     };
 }
