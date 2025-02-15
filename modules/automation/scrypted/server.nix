@@ -10,14 +10,13 @@ let
 in
 {
   config = lib.mkIf (cfg.enable && isServer) {
-    networking.firewall.allowedTCPPorts = [ 10556 ];
 
     services.scrypted = {
       enable = true;
       package = pkgs.callPackage ../../packages/scrypted.nix { };
       openFirewall = true;
       extraEnvironment = {
-        SCRYPTED_CLUSTER_LABELS = "storage,";
+        SCRYPTED_CLUSTER_LABELS = "storage";
         SCRYPTED_CLUSTER_MODE = "server";
         SCRYPTED_CLUSTER_ADDRESS = cfg.serverHost;
       };
@@ -40,7 +39,7 @@ in
       ];
     };
 
-    fileSystems."/scrypted-fast" = {
+    fileSystems."/mnt/scrypted-fast" = {
       device = "/dev/disk/by-label/scrypted-fast";
       autoResize = true;
       fsType = "ext4";

@@ -33,13 +33,31 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    networking.firewall.enable = lib.mkForce false;
-    networking.firewall.allowedTCPPortRanges = [
-      {
-        from = 32768;
-        to = 60999;
-      }
-    ];
+    # networking.firewall.enable = lib.mkForce false;
+    networking.firewall = {
+      allowedTCPPorts = lib.mkAfter [
+        80
+        443
+        10443
+        10556
+      ];
+
+      # WebRTC TCP ports
+      allowedTCPPortRanges = lib.mkAfter [
+        {
+          from = 30000;
+          to = 60999;
+        }
+      ];
+
+      # WebRTC UDP ports
+      allowedUDPPortRanges = lib.mkAfter [
+        {
+          from = 30000;
+          to = 60999;
+        }
+      ];
+    };
 
     sops.secrets.scrypted-environment = {
       owner = config.services.scrypted.user;
