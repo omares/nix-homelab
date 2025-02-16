@@ -2,8 +2,6 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-master.url = "github:nixos/nixpkgs/master";
-    # nixpkgs 22.11 allows building Python 3.9 with TensorFlow without needing to override all dependent packages.
-    nixpkgs-2211.url = "github:nixos/nixpkgs/nixos-22.11";
 
     flake-parts.url = "github:hercules-ci/flake-parts";
 
@@ -31,7 +29,6 @@
       flake-parts,
       nixpkgs,
       nixpkgs-master,
-      nixpkgs-2211,
       nixos-generators,
       deploy-rs,
       sops-nix,
