@@ -2,10 +2,6 @@
 {
 
   config = {
-    ids.uids = {
-      omares = 3002;
-    };
-
     users = {
       defaultUserShell = pkgs.zsh;
       mutableUsers = false;

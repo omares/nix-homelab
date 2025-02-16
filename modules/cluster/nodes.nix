@@ -155,12 +155,32 @@
         };
       };
 
-      cam-01 = {
+      nvr-server-01 = {
         roles = [
-          config.flake.nixosModules.role-scrypted
-          config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-scrypted-server
         ];
-        host = "192.168.20.90";
+        host = "192.168.30.229";
+
+        proxy = {
+          port = 38655;
+          protocol = "https";
+          subdomains = [ "scrypted" ];
+          websockets = true;
+        };
+      };
+
+      nvr-client-01 = {
+        roles = [
+          config.flake.nixosModules.role-scrypted-client-openvino
+        ];
+        host = "192.168.30.181";
+      };
+
+      nvr-client-02 = {
+        roles = [
+          config.flake.nixosModules.role-scrypted-client-tensorflow
+        ];
+        host = "192.168.30.211";
       };
 
       #

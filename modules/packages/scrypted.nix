@@ -12,16 +12,16 @@ let
 in
 (buildNpmPackage.override { inherit nodejs; }) rec {
   pname = "scrypted";
-  version = "0.126.0";
+  version = "0.137.0";
 
   src = fetchFromGitHub {
     owner = "koush";
     repo = "${pname}";
     rev = "v${version}";
-    hash = "sha256-T4LeNn9+dl+TyWyCpaIPZpMwH71TEh1JcREP2qPbY3E=";
+    hash = "sha256-se1v3vGBw8HilQFLw/cPsqhQwyi/5UOYnXdpDsslEoo=";
   };
 
-  npmDepsHash = "sha256-EX46ViI21KODYeuL8bR9aiT1/Z7rvmGZJN9RWZF0dVs=";
+  npmDepsHash = "sha256-7X9wKiNltbTzgZwC7QGMl8tbQQRR2SUVRq0V+PKGyVc=";
 
   # A custom npm hook is required to skip the npm rebuild phase
   npmConfigHook = npmHooks.customConfigHook;
