@@ -23,6 +23,7 @@ in
 
   npmDepsHash = "sha256-7X9wKiNltbTzgZwC7QGMl8tbQQRR2SUVRq0V+PKGyVc=";
 
+  makeCacheWritable = true;
   # A custom npm hook is required to skip the npm rebuild phase
   npmConfigHook = npmHooks.customConfigHook;
 

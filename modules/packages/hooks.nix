@@ -12,7 +12,7 @@
   customConfigHook = makeSetupHook {
     name = "custom-npm-config-hook";
     substitutions = {
-      nodeSrc = srcOnly nodejs;
+      nodeSrc = nodejs;
       nodeGyp = "${nodejs}/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js";
       diff = "${diffutils}/bin/diff";
       jq = "${jq}/bin/jq";

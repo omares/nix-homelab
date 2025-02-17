@@ -109,7 +109,7 @@ npmConfigHook() {
     # Although I don't view this as a downside, as terminal access through a Node
     # app could be considered a security risk.
 
-    # npm rebuild $npmRebuildFlags "${npmRebuildFlagsArray[@]}" $npmFlags "${npmFlagsArray[@]}"
+    npm rebuild $npmRebuildFlags "${npmRebuildFlagsArray[@]}" $npmFlags "${npmFlagsArray[@]}"
 
     patchShebangs node_modules
 
