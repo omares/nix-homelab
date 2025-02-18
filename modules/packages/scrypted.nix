@@ -29,7 +29,7 @@ in
 
   sourceRoot = "${src.name}/server";
 
-  nativeBuildInputs = [ nodejs ];
+  nativeBuildInputs = [ nodejs_20 ];
 
   makeWrapperArgs = [ "--set NODE_ENV production" ];
 
