@@ -1,12 +1,13 @@
 {
   inputs,
   config,
-  cluster,
   nodeCfg,
   pkgs,
-  lib,
   ...
 }:
+let
+  dataDir = "/mnt/postgres-data/${config.services.postgresql.package.psqlSchema}";
+in
 {
   imports = [
     inputs.sops-nix.nixosModules.sops
@@ -15,6 +16,26 @@
     ../../services/postgres
   ];
 
+  fileSystems."/mnt/postgres-data" = {
+    device = "/dev/disk/by-label/postgres";
+    fsType = "ext4";
+    options = [
+      "defaults"
+      "noatime"
+    ];
+  };
+  systemd.tmpfiles.settings = {
+    "postgresql-data" = {
+      "${dataDir}" = {
+        d = {
+          user = "postgres";
+          group = "postgres";
+          mode = "0700";
+        };
+      };
+    };
+  };
+
   cluster.storage.truenas.postgres-backup = {
     enable = true;
   };
@@ -22,6 +43,7 @@
   cluster.db.postgres = {
     enable = true;
     listenAddress = nodeCfg.host;
+    dataDir = "${dataDir}";
     databases = {
       prowlarr = { };
       prowlarr_log = { };

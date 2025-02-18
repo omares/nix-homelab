@@ -27,12 +27,13 @@ usage() {
   $CAT <<EOF
 Usage: $0 [options]
 Options:
-  -h, --host    Proxmox host (default: $PROXMOX_HOST)
-  -u, --user    SSH user (default: $PROXMOX_USER)
-  -p, --path    Remote path (default: $PROXMOX_PATH)
-  -i, --vmid    VM ID for restore (will prompt if not provided)
-      --apply   Execute the deployment
-      --help    Show this help message
+  -h, --host     Proxmox host (default: $PROXMOX_HOST)
+  -u, --user     SSH user (default: $PROXMOX_USER)
+  -p, --path     Remote path (default: $PROXMOX_PATH)
+  -s, --storage  Storage location (default: $STORAGE)
+  -i, --vmid     VM ID for restore (will prompt if not provided)
+      --apply    Execute the deployment
+      --help     Show this help message
 EOF
 }
 
@@ -49,6 +50,7 @@ if ! zparseopts -D -E -F -A opts \
   u:=user -user:=user \
   p:=path -path:=path \
   i:=vmid -vmid:=vmid \
+  s:=storage -storage:=storage \
   -apply=apply \
   -help=help 2>/dev/null; then
     print -P "%F{red}Error:%f Invalid option provided"
@@ -73,6 +75,7 @@ fi
 [[ -n "${host[-1]}" ]] && PROXMOX_HOST="${host[-1]}"
 [[ -n "${user[-1]}" ]] && PROXMOX_USER="${user[-1]}"
 [[ -n "${path[-1]}" ]] && PROXMOX_PATH="${path[-1]}"
+[[ -n "${storage[-1]}" ]] && STORAGE="${storage[-1]}"
 
 # Find the image file using zsh globbing
 setopt NULL_GLOB
@@ -102,7 +105,7 @@ ssh_execute() {
 }
 
 
-print -P "Deploying image %F{blue}${IMAGE_FILE:t}%f to %F{cyan}$PROXMOX_USER%f@%F{yellow}$PROXMOX_HOST%f:%F{green}$PROXMOX_PATH%f"
+print -P "Deploying image %F{blue}${IMAGE_FILE:t}%f to %F{cyan}$PROXMOX_USER%f@%F{yellow}$PROXMOX_HOST%f:%F{green}$PROXMOX_PATH%f using storage %F{magenta}$STORAGE%f"
 
 # Check if we can connect
 if ! $SSH -o ControlMaster=yes \

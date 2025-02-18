@@ -11,14 +11,14 @@
     nodes = {
       build-01 = {
         roles = [ config.flake.nixosModules.role-proxmox-builder ];
-        host = "192.168.20.92";
+        host = "10.10.22.122";
       };
 
       build-02 = {
         roles = [
           config.flake.nixosModules.role-proxmox-arm
         ];
-        host = "192.168.20.46";
+        host = "10.10.22.201";
         system = "aarch64-linux";
       };
 
@@ -27,7 +27,7 @@
           config.flake.nixosModules.role-dns
           config.flake.nixosModules.role-proxmox-legacy
         ];
-        host = "192.168.20.29";
+        host = "10.10.22.163";
 
         proxy = {
           port = 3000;
@@ -39,7 +39,7 @@
           config.flake.nixosModules.role-dns
           config.flake.nixosModules.role-proxmox-legacy
         ];
-        host = "192.168.20.192";
+        host = "10.10.22.112";
         system = "aarch64-linux";
 
         proxy = {
@@ -52,15 +52,14 @@
           config.flake.nixosModules.role-proxy
           config.flake.nixosModules.role-proxmox-legacy
         ];
-        host = "192.168.20.44";
+        host = "10.10.22.103";
       };
 
       db-01 = {
         roles = [
           config.flake.nixosModules.role-db
-          config.flake.nixosModules.role-proxmox-legacy
         ];
-        host = "192.168.20.28";
+        host = "10.10.22.102";
       };
 
       starr-sabnzbd-01 = {
@@ -68,7 +67,7 @@
           config.flake.nixosModules.role-starr-sabnzbd
           config.flake.nixosModules.role-proxmox-legacy
         ];
-        host = "192.168.20.219";
+        host = "10.10.22.233";
 
         proxy = {
           port = 8080;
@@ -82,7 +81,7 @@
           config.flake.nixosModules.role-starr-prowlarr
           config.flake.nixosModules.role-proxmox-legacy
         ];
-        host = "192.168.20.153";
+        host = "10.10.22.147";
 
         proxy = {
           port = 9696;
@@ -96,7 +95,7 @@
           config.flake.nixosModules.role-starr-radarr
           config.flake.nixosModules.role-proxmox-legacy
         ];
-        host = "192.168.20.58";
+        host = "10.10.22.172";
 
         proxy = {
           port = 7878;
@@ -110,7 +109,7 @@
           config.flake.nixosModules.role-starr-sonarr
           config.flake.nixosModules.role-proxmox-legacy
         ];
-        host = "192.168.20.206";
+        host = "10.10.22.235";
 
         proxy = {
           port = 8989;
@@ -124,7 +123,7 @@
           config.flake.nixosModules.role-starr-recyclarr
           config.flake.nixosModules.role-proxmox-legacy
         ];
-        host = "192.168.20.181";
+        host = "10.10.22.115";
       };
 
       starr-jellyfin-01 = {
@@ -132,7 +131,7 @@
           config.flake.nixosModules.role-starr-jellyfin
           config.flake.nixosModules.role-proxmox-legacy
         ];
-        host = "192.168.20.26";
+        host = "10.10.22.211";
 
         proxy = {
           port = 8096;
@@ -146,7 +145,7 @@
           config.flake.nixosModules.role-starr-jellyseerr
           config.flake.nixosModules.role-proxmox-legacy
         ];
-        host = "192.168.20.147";
+        host = "10.10.22.141";
 
         proxy = {
           port = 5055;
@@ -202,7 +201,7 @@
       truenas = {
         managed = false;
 
-        host = "192.168.20.108";
+        host = "10.10.22.10";
 
         proxy = {
           port = 80;
@@ -213,7 +212,7 @@
       pve-01 = {
         managed = false;
 
-        host = "192.168.20.114";
+        host = "192.168.20.21";
 
         proxy = {
           port = 8006;

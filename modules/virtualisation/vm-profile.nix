@@ -31,6 +31,7 @@ in
       example = "proxmox-optimized";
       default = "proxmox-optimized";
     };
+
   };
 
   config =
@@ -85,7 +86,7 @@ in
           cores = lib.mkDefault cores;
           memory = lib.mkDefault memory;
           boot = "order=scsi0";
-          net0 = "virtio=00:00:00:00:00:00,bridge=vmbr0,firewall=0";
+          net0 = "virtio=00:00:00:00:00:00,bridge=iot,firewall=0";
           scsihw = lib.mkIf isAarch64 "virtio-scsi-pci";
           mainDisk = lib.mkIf isOptimized "local-lvm:vm-9999-disk-0,discard=on,ssd=1,iothread=1";
         };

@@ -64,7 +64,7 @@
           "hostname.bind"
         ];
         trusted_proxies = [
-          "192.168.20.44/32"
+          "10.10.22.103/32"
           "127.0.0.0/8"
           "::1/128"
         ];
@@ -89,12 +89,11 @@
         private_networks = [ ];
         use_private_ptr_resolvers = true;
         local_ptr_upstreams = [
-          "1.1.1.1:53"
-          "1.0.0.1:53"
           "[/20.168.192.in-addr.arpa/]192.168.20.1"
           "[/30.168.192.in-addr.arpa/]192.168.30.1"
           "[/40.168.192.in-addr.arpa/]192.168.40.1"
           "[/50.168.192.in-addr.arpa/]192.168.50.1"
+          "[/22.10.10.in-addr.arpa/]10.10.22.1"
         ];
         use_dns64 = false;
         dns64_prefixes = [ ];
@@ -203,7 +202,7 @@
         rewrites = [
           {
             domain = "*.mares.id";
-            answer = "192.168.20.44";
+            answer = "10.10.22.103";
           }
         ];
         safebrowsing_cache_size = 1048576;
