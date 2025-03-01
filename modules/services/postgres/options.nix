@@ -98,5 +98,12 @@
       description = "IP address where PostgreSQL and PgBouncer will listen and allow connections from by default";
       example = "192.168.1.10";
     };
+
+    dataDir = lib.mkOption {
+      type = lib.types.path;
+      defaultText = lib.literalExpression ''"/var/lib/postgresql/''${config.services.postgresql.package.psqlSchema}"'';
+      example = "/var/lib/postgresql/15";
+      description = "The data directory for PostgreSQL.";
+    };
   };
 }

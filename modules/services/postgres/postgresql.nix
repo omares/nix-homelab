@@ -15,6 +15,7 @@ in
     services.postgresql = {
       enable = true;
       package = pkgs.postgresql_16;
+      dataDir = cfg.dataDir;
       enableTCPIP = true;
 
       identMap = ''
