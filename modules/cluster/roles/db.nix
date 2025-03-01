@@ -52,6 +52,7 @@ in
       sonarr = { };
       sonarr_log = { };
       jellyseerr = { };
+      atuin = { };
     };
     users = {
       prowlarr = {
@@ -85,6 +86,16 @@ in
           "jellyseerr"
         ];
       };
+      atuin = {
+        ensureDBOwnership = true;
+        createdb = false;
+        databases = [
+          "atuin"
+        ];
+        pgbouncerParams = {
+          pool_mode = "session";
+        };
+      };
     };
   };
 
@@ -100,6 +111,7 @@ in
           "radarr"
           "sonarr"
           "jellyseerr"
+          "atuin"
         ];
         pgdumpOptions = "-Fc -b";
         compression = "zstd";
@@ -115,6 +127,7 @@ in
           "radarr"
           "sonarr"
           "jellyseerr"
+          "atuin"
         ];
         pgdumpOptions = "-Fc -b";
         compression = "zstd";

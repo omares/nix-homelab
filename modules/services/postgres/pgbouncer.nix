@@ -36,7 +36,18 @@ in
           name: _: "host=${cfg.listenAddress} port=5432 dbname=${name}"
         ) cfg.databases;
 
-        users = lib.mapAttrs (name: _: "pool_mode=transaction max_user_connections=50") cfg.users;
+        users = lib.mapAttrs (
+          name: userConfig:
+          lib.concatStringsSep " " (
+            lib.mapAttrsToList (k: v: "${k}=${v}") (
+              {
+                pool_mode = "transaction";
+                max_user_connections = "50";
+              }
+              // userConfig.pgbouncerParams
+            )
+          )
+        ) cfg.users;
       };
     };
 

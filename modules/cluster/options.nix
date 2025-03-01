@@ -2,10 +2,6 @@
   lib,
   ...
 }:
-with lib;
-let
-
-in
 {
   options.cluster = {
     lib = lib.mkOption {
@@ -17,24 +13,24 @@ in
     };
 
     proxy = {
-      domain = mkOption {
-        type = types.str;
+      domain = lib.mkOption {
+        type = lib.types.str;
         description = "Base domain for all services";
       };
     };
 
-    nodes = mkOption {
-      type = types.attrsOf (
-        types.submodule {
+    nodes = lib.mkOption {
+      type = lib.types.attrsOf (
+        lib.types.submodule {
           options = {
-            managed = mkOption {
-              type = types.bool;
+            managed = lib.mkOption {
+              type = lib.types.bool;
               default = true;
               description = "Whether this node is managed by the deployment tool";
             };
 
-            system = mkOption {
-              type = types.enum [
+            system = lib.mkOption {
+              type = lib.types.enum [
                 "x86_64-linux"
                 "aarch64-linux"
               ];
@@ -42,11 +38,12 @@ in
               description = "Nodes system architecture";
             };
 
-            roles = mkOption {
-              type = types.listOf (
-                types.attrs
+            roles = lib.mkOption {
+              type = lib.types.listOf (
+                lib.types.attrs
                 // {
-                  check = val: isFunction val || isAttrs val && (val ? imports || val ? config || val ? options);
+                  check =
+                    val: lib.isFunction val || lib.isAttrs val && (val ? imports || val ? config || val ? options);
                   description = "valid NixOS module";
                 }
               );
@@ -60,34 +57,34 @@ in
               '';
             };
 
-            host = mkOption {
-              type = types.str;
+            host = lib.mkOption {
+              type = lib.types.str;
               description = "IP address of the node";
             };
 
-            user = mkOption {
-              type = types.str;
+            user = lib.mkOption {
+              type = lib.types.str;
               default = "omares";
               description = "User to deploy as";
             };
 
-            proxy = mkOption {
-              type = types.nullOr (
-                types.submodule {
+            proxy = lib.mkOption {
+              type = lib.types.nullOr (
+                lib.types.submodule {
                   options = {
-                    port = mkOption {
-                      type = types.port;
+                    port = lib.mkOption {
+                      type = lib.types.port;
                       description = "Target port";
                     };
 
-                    subdomains = mkOption {
-                      type = types.listOf types.str;
+                    subdomains = lib.mkOption {
+                      type = lib.types.listOf lib.types.str;
                       default = [ ];
                       description = "Additional subdomains for this service";
                     };
 
-                    protocol = mkOption {
-                      type = types.enum [
+                    protocol = lib.mkOption {
+                      type = lib.types.enum [
                         "http"
                         "https"
                       ];
@@ -95,20 +92,20 @@ in
                       description = "Protocol to use in proxy address";
                     };
 
-                    websockets = mkOption {
-                      type = types.bool;
+                    websockets = lib.mkOption {
+                      type = lib.types.bool;
                       default = false;
                       description = "Whether to support proxying websocket connections with HTTP/1.1.";
                     };
 
-                    ssl = mkOption {
-                      type = types.bool;
+                    ssl = lib.mkOption {
+                      type = lib.types.bool;
                       default = true;
                       description = "Enable SSL for this service";
                     };
 
-                    extraConfig = mkOption {
-                      type = types.lines;
+                    extraConfig = lib.mkOption {
+                      type = lib.types.lines;
                       default = "";
                       description = "Additional nginx configuration for this virtual host";
                     };
