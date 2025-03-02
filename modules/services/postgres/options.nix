@@ -47,6 +47,16 @@
                 [ "prowlarr" "prowlarr_log" ]
               '';
             };
+
+            pgbouncerParams = lib.mkOption {
+              type = lib.types.attrsOf lib.types.str;
+              default = { };
+              description = "Extra PgBouncer parameters for this user";
+              example = {
+                pool_mode = "session";
+                max_db_connections = "10";
+              };
+            };
           };
         }
       );
@@ -79,12 +89,10 @@
       );
       default = { };
       description = "Attribute set of databases to create";
-      example = lib.literalExpression ''
-        {
-          prowlarr = {};
-          radarr = {};
-        }
-      '';
+      example = {
+        prowlarr = { };
+        radarr = { };
+      };
     };
 
     adminUser = lib.mkOption {

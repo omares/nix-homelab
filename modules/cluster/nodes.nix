@@ -9,6 +9,16 @@
       domain = "mares.id";
     };
     nodes = {
+      atuin-01 = {
+        roles = [ config.flake.nixosModules.role-atuin-server ];
+        host = "10.10.22.247";
+
+        proxy = {
+          port = 8888;
+          subdomains = [ "atuin" ];
+        };
+      };
+
       build-01 = {
         roles = [ config.flake.nixosModules.role-proxmox-builder ];
         host = "10.10.22.122";
