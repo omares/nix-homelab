@@ -12,8 +12,8 @@ in
   imports = [
     inputs.sops-nix.nixosModules.sops
     inputs.nix-sops-vault.nixosModules.sops-vault
-    ../../storage/truenas.nix
-    ../../services/postgres
+    ../modules/storage/truenas.nix
+    ../modules/services/postgres
   ];
 
   fileSystems."/mnt/postgres-data" = {

@@ -1,17 +1,23 @@
 {
+  pkgs,
   name,
   cluster,
   ...
 }:
 {
   imports = [
-    ../../automation/scrypted
+    ../modules/automation/scrypted
   ];
 
   cluster.automation.scrypted = {
     enable = true;
-    role = "client-openvino";
+    role = "client-tensorflow";
     serverHost = cluster.nodes.nvr-server-01.host;
     workerName = name;
   };
+
+  environment.systemPackages = [
+    pkgs.usbutils
+    pkgs.libedgetpu
+  ];
 }

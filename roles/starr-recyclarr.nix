@@ -3,15 +3,14 @@
   ...
 }:
 {
-
   imports = [
-    ../../services/starr
+    ../modules/services/starr
   ];
 
   cluster.services.starr = {
     enable = true;
 
-    jellyseerr = {
+    recyclarr = {
       enable = true;
       bindAddress = nodeCfg.host;
     };

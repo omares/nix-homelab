@@ -4,7 +4,7 @@
 }:
 {
   imports = [
-    ../../services/starr
+    ../modules/services/starr
   ];
 
   # https://github.com/NixOS/nixpkgs/issues/360592

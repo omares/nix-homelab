@@ -4,7 +4,7 @@
 }:
 {
   imports = [
-    ../../users/builder-root.nix
+    ../modules/users/builder-root.nix
   ];
 
   nix.settings = {

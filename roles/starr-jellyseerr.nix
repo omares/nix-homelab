@@ -5,15 +5,14 @@
 {
 
   imports = [
-    ../../services/starr
+    ../modules/services/starr
   ];
 
   cluster.services.starr = {
     enable = true;
 
-    sabnzbd = {
+    jellyseerr = {
       enable = true;
-      mountStorage = true;
       bindAddress = nodeCfg.host;
     };
   };

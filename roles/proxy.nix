@@ -37,7 +37,7 @@ in
 
     inputs.sops-nix.nixosModules.sops
     inputs.nix-sops-vault.nixosModules.sops-vault
-    ../../security/acme.nix
+    ../modules/security/acme.nix
   ];
   config = {
     networking.firewall = {

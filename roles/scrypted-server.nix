@@ -4,7 +4,7 @@
 }:
 {
   imports = [
-    ../../automation/scrypted
+    ../modules/automation/scrypted
   ];
 
   cluster.automation.scrypted = {

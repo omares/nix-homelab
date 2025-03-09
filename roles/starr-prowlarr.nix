@@ -4,13 +4,13 @@
 }:
 {
   imports = [
-    ../../services/starr
+    ../modules/services/starr
   ];
 
   cluster.services.starr = {
     enable = true;
 
-    radarr = {
+    prowlarr = {
       enable = true;
       mountStorage = true;
       bindAddress = nodeCfg.host;

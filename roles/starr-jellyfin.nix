@@ -6,7 +6,7 @@
 {
 
   imports = [
-    ../../services/starr
+    ../modules/services/starr
   ];
 
   hardware.graphics = {
