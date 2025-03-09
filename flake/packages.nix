@@ -75,7 +75,7 @@ in
         };
 
         # scrypted package
-        scrypted = import ../modules/packages/scrypted.nix {
+        scrypted = import ../packages/scrypted.nix {
 
           inherit (pkgs)
             lib
