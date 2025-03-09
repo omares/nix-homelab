@@ -42,6 +42,7 @@
       ];
 
       imports = [
+        ./flake
         ./modules/cluster
       ];
     };

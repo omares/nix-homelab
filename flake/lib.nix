@@ -5,7 +5,7 @@
 {
 
   flake = {
-    lib = import ../../../lib {
+    lib = import ../lib {
       inherit (nixpkgs) lib;
     };
   };

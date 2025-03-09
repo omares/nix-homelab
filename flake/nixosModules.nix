@@ -4,12 +4,12 @@
 }:
 let
   roles = lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".nix" name) (
-    builtins.readDir ../roles
+    builtins.readDir ../modules/cluster/roles
   );
 
   mkModule = file: _: {
     name = "role-${lib.removeSuffix ".nix" file}";
-    value = import (../roles + "/${file}");
+    value = import (../modules/cluster/roles + "/${file}");
   };
 in
 {

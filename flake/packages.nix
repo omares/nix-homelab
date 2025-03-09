@@ -33,7 +33,7 @@ let
 
       customFormats = {
         "proxmox-enhanced" = {
-          imports = [ ../../virtualisation/format/proxmox-enhanced.nix ];
+          imports = [ ../modules/virtualisation/format/proxmox-enhanced.nix ];
 
           formatAttr = "VMA";
           fileExtension = ".vma.zst";
@@ -74,8 +74,8 @@ in
           extraModules = [ top.self.nixosModules.role-proxmox-arm ];
         };
 
-        # temporary output to test scrypted package
-        scrypted = import ../../packages/scrypted.nix {
+        # scrypted package
+        scrypted = import ../modules/packages/scrypted.nix {
 
           inherit (pkgs)
             lib
