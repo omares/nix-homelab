@@ -4,7 +4,7 @@
   ...
 }:
 let
-  cfg = config.cluster.services.starr;
+  cfg = config.mares.services.starr;
 in
 {
   config = lib.mkIf (cfg.enable && cfg.sabnzbd.enable) {
@@ -15,7 +15,7 @@ in
       openFirewall = true;
     };
 
-    cluster.storage.truenas.media = {
+    mares.storage.truenas.media = {
       enable = cfg.sabnzbd.mountStorage;
     };
 

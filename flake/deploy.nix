@@ -5,7 +5,7 @@
   ...
 }:
 let
-  managedNodes = lib.filterAttrs (_: node: node.managed or false) config.cluster.nodes;
+  managedNodes = lib.filterAttrs (_: node: node.managed or false) config.mares.nodes;
 
   mkDeployNode = name: nodeCfg: {
 

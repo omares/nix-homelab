@@ -4,5 +4,5 @@
 }:
 
 {
-  cluster.vm-profile.template = lib.mkDefault "proxmox-arm";
+  mares.vm-profile.template = lib.mkDefault "proxmox-arm";
 }

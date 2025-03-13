@@ -5,7 +5,7 @@
   ...
 }:
 let
-  managedNodes = lib.filterAttrs (_: node: node.managed or false) config.cluster.nodes;
+  managedNodes = lib.filterAttrs (_: node: node.managed or false) config.mares.nodes;
 
   mkSystem =
     name: nodeCfg:
@@ -18,7 +18,7 @@ let
           nodeCfg
           name
           ;
-        inherit (config) cluster;
+        inherit (config) mares;
         modulesPath = toString inputs.nixpkgs + "/nixos/modules";
       };
 

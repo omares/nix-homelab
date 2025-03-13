@@ -5,7 +5,7 @@
   ...
 }:
 let
-  cfg = config.cluster.automation.scrypted;
+  cfg = config.mares.automation.scrypted;
   isOpenvinoClient = cfg.role == "client-openvino";
 in
 {

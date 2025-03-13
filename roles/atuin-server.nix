@@ -1,12 +1,12 @@
 {
   inputs,
   nodeCfg,
-  cluster,
+  mares,
   config,
   ...
 }:
 let
-  dbAddress = "${cluster.nodes.db-01.host}:${toString config.services.pgbouncer.settings.pgbouncer.listen_port}";
+  dbAddress = "${mares.nodes.db-01.host}:${toString config.services.pgbouncer.settings.pgbouncer.listen_port}";
 in
 {
   imports = [

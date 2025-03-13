@@ -17,5 +17,5 @@
     ];
   };
 
-  cluster.vm-profile.template = lib.mkForce "proxmox-builder";
+  mares.vm-profile.template = lib.mkForce "proxmox-builder";
 }

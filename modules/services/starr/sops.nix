@@ -4,7 +4,7 @@
   ...
 }:
 let
-  cfg = config.cluster.services.starr;
+  cfg = config.mares.services.starr;
 in
 {
   config =

@@ -3,7 +3,7 @@
   ...
 }:
 {
-  options.cluster = {
+  options.mares = {
     lib = lib.mkOption {
       type = lib.types.attrs;
       default = import ../../lib {

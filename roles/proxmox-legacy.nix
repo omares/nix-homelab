@@ -4,5 +4,5 @@
 }:
 
 {
-  cluster.vm-profile.template = lib.mkDefault "proxmox-legacy";
+  mares.vm-profile.template = lib.mkDefault "proxmox-legacy";
 }

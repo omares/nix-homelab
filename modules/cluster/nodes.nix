@@ -4,7 +4,7 @@
 }:
 {
 
-  cluster = {
+  mares = {
     proxy = {
       domain = "mares.id";
     };

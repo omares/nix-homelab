@@ -1,19 +1,19 @@
 {
   inputs,
   lib,
-  cluster,
+  mares,
   ...
 }:
 
 let
-  proxyNodes = lib.filterAttrs (_: node: node.proxy != null) cluster.nodes;
+  proxyNodes = lib.filterAttrs (_: node: node.proxy != null) mares.nodes;
 
   mkVhost = name: nodeCfg: {
     enableACME = true;
     forceSSL = nodeCfg.proxy.ssl;
     acmeRoot = null;
-    serverName = "${name}.${cluster.proxy.domain}";
-    serverAliases = map (subdomain: "${subdomain}.${toString cluster.proxy.domain}") (
+    serverName = "${name}.${mares.proxy.domain}";
+    serverAliases = map (subdomain: "${subdomain}.${toString mares.proxy.domain}") (
       nodeCfg.proxy.subdomains
     );
     locations."/" = {

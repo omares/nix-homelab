@@ -4,7 +4,7 @@
   ...
 }:
 let
-  cfg = config.cluster.automation.scrypted;
+  cfg = config.mares.automation.scrypted;
   isTensorflowClient = cfg.role == "client-tensorflow";
 in
 {

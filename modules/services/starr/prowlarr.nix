@@ -1,17 +1,17 @@
 {
   config,
   lib,
-  cluster,
+  mares,
   ...
 }:
 let
-  cfg = config.cluster.services.starr;
+  cfg = config.mares.services.starr;
 in
 {
   config = lib.mkIf (cfg.enable && cfg.prowlarr.enable) {
     sops.templates."prowlarr-config.xml" = {
       content =
-        cluster.lib.generators.toXML
+        mares.lib.generators.toXML
           {
             rootName = "Config";
             xmlns = { };
@@ -53,7 +53,7 @@ in
       openFirewall = true;
     };
 
-    cluster.storage.truenas.media = {
+    mares.storage.truenas.media = {
       enable = cfg.prowlarr.mountStorage;
     };
 

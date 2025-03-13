@@ -29,7 +29,7 @@
     powertop.enable = true;
   };
 
-  cluster.services.starr = {
+  mares.services.starr = {
     enable = true;
 
     jellyfin = {

@@ -1,6 +1,6 @@
 {
   name,
-  cluster,
+  mares,
   ...
 }:
 {
@@ -8,10 +8,10 @@
     ../modules/automation/scrypted
   ];
 
-  cluster.automation.scrypted = {
+  mares.automation.scrypted = {
     enable = true;
     role = "client-openvino";
-    serverHost = cluster.nodes.nvr-server-01.host;
+    serverHost = mares.nodes.nvr-server-01.host;
     workerName = name;
   };
 }

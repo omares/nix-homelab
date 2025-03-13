@@ -16,7 +16,7 @@
     "dotnet-sdk-wrapped-6.0.428"
   ];
 
-  cluster.services.starr = {
+  mares.services.starr = {
     enable = true;
 
     sonarr = {

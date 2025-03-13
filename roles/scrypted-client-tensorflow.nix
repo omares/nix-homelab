@@ -1,7 +1,7 @@
 {
   pkgs,
   name,
-  cluster,
+  mares,
   ...
 }:
 {
@@ -9,10 +9,10 @@
     ../modules/automation/scrypted
   ];
 
-  cluster.automation.scrypted = {
+  mares.automation.scrypted = {
     enable = true;
     role = "client-tensorflow";
-    serverHost = cluster.nodes.nvr-server-01.host;
+    serverHost = mares.nodes.nvr-server-01.host;
     workerName = name;
   };
 

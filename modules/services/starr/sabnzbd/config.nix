@@ -2,11 +2,11 @@
   lib,
   pkgs,
   config,
-  cluster,
+  mares,
   ...
 }:
 let
-  cfg = config.cluster.services.starr;
+  cfg = config.mares.services.starr;
 
   scriptsDir = pkgs.linkFarm "sabnzbdScript" [
     {
@@ -423,7 +423,7 @@ in
 
   config = lib.mkIf (cfg.enable && cfg.sabnzbd.enable) {
     sops.templates."sabnzbd.ini" = {
-      content = cluster.lib.generators.toINI settings;
+      content = mares.lib.generators.toINI settings;
 
       # The config file path appears to define Sabnzbd's working directory, which then causes errors.
       # So we need to symlink for the configuration.

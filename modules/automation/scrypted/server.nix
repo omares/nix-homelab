@@ -5,7 +5,7 @@
   ...
 }:
 let
-  cfg = config.cluster.automation.scrypted;
+  cfg = config.mares.automation.scrypted;
   isServer = cfg.role == "server";
 in
 {
@@ -45,6 +45,6 @@ in
       fsType = "ext4";
     };
 
-    cluster.storage.truenas.scrypted-large.enable = true;
+    mares.storage.truenas.scrypted-large.enable = true;
   };
 }

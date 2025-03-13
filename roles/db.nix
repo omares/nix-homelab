@@ -36,11 +36,11 @@ in
     };
   };
 
-  cluster.storage.truenas.postgres-backup = {
+  mares.storage.truenas.postgres-backup = {
     enable = true;
   };
 
-  cluster.db.postgres = {
+  mares.db.postgres = {
     enable = true;
     listenAddress = nodeCfg.host;
     dataDir = "${dataDir}";
@@ -99,9 +99,9 @@ in
     };
   };
 
-  cluster.db.postgres.backup =
+  mares.db.postgres.backup =
     let
-      mountPoint = config.cluster.storage.truenas.postgres-backup.mountPoint;
+      mountPoint = config.mares.storage.truenas.postgres-backup.mountPoint;
     in
     {
       dbs-daily = {

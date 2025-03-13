@@ -3,7 +3,7 @@
   ...
 }:
 {
-  options.cluster.db.postgres = {
+  options.mares.db.postgres = {
     enable = lib.mkEnableOption "PostgreSQL and PgBouncer setup";
 
     users = lib.mkOption {

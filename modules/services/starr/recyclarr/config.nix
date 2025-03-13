@@ -1,12 +1,12 @@
 {
   lib,
   config,
-  cluster,
+  mares,
   ...
 }:
 
 let
-  cfg = config.cluster.services.starr;
+  cfg = config.mares.services.starr;
 in
 {
   config = lib.mkIf (cfg.enable && cfg.recyclarr.enable) {
@@ -15,7 +15,7 @@ in
       configuration = {
         radarr = {
           starr-radarr-01 = {
-            base_url = "https://radarr.${cluster.proxy.domain}";
+            base_url = "https://radarr.${mares.proxy.domain}";
             api_key._secret = "/run/credentials/recyclarr.service/radarr-api_key";
 
             delete_old_custom_formats = true;
@@ -230,7 +230,7 @@ in
 
         sonarr = {
           starr-sonarr-01 = {
-            base_url = "https://sonarr.${cluster.proxy.domain}";
+            base_url = "https://sonarr.${mares.proxy.domain}";
             api_key._secret = "/run/credentials/recyclarr.service/sonarr-api_key";
 
             delete_old_custom_formats = true;

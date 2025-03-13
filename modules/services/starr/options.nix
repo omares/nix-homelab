@@ -1,7 +1,7 @@
 {
   lib,
   config,
-  cluster,
+  mares,
   ...
 }:
 
@@ -30,7 +30,7 @@ let
 
 in
 {
-  options.cluster.services.starr = {
+  options.mares.services.starr = {
     enable = mkEnableOption "Enable starr services";
 
     group = mkOption {
@@ -48,7 +48,7 @@ in
     postgres = {
       host = lib.mkOption {
         type = lib.types.str;
-        default = cluster.nodes.db-01.host;
+        default = mares.nodes.db-01.host;
         description = "PostgreSQL host address";
       };
 

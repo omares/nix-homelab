@@ -7,7 +7,7 @@
     ../modules/services/starr
   ];
 
-  cluster.services.starr = {
+  mares.services.starr = {
     enable = true;
 
     recyclarr = {

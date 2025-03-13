@@ -7,7 +7,7 @@
 }:
 
 let
-  cfg = config.cluster.services.starr;
+  cfg = config.mares.services.starr;
 in
 {
   config = lib.mkIf (cfg.enable && cfg.jellyseerr.enable) {

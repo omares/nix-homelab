@@ -4,10 +4,10 @@
   ...
 }:
 let
-  cfg = config.cluster.automation.scrypted;
+  cfg = config.mares.automation.scrypted;
 in
 {
-  options.cluster.automation.scrypted = {
+  options.mares.automation.scrypted = {
     enable = lib.mkEnableOption "Enable scrypted";
 
     role = lib.mkOption {

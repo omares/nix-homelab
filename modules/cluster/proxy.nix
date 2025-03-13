@@ -1,14 +1,14 @@
 { config, lib, ... }:
 
 let
-  proxyNodes = lib.filterAttrs (_: node: node.proxy != null) config.cluster.nodes;
+  proxyNodes = lib.filterAttrs (_: node: node.proxy != null) config.mares.nodes;
 
   mkVhost = name: nodeCfg: {
     enableACME = true;
     forceSSL = nodeCfg.proxy.ssl;
     acmeRoot = null;
-    serverName = "${name}.${config.cluster.proxy.domain}";
-    serverAliases = map (subdomain: "${subdomain}.${toString config.cluster.proxy.domain}") (
+    serverName = "${name}.${config.mares.proxy.domain}";
+    serverAliases = map (subdomain: "${subdomain}.${toString config.mares.proxy.domain}") (
       nodeCfg.proxy.subdomains
     );
     locations."/" = {

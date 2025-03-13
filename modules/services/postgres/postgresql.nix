@@ -6,7 +6,7 @@
 }:
 
 let
-  cfg = config.cluster.db.postgres;
+  cfg = config.mares.db.postgres;
 
   formatIp = ip: if lib.hasInfix "/" ip then ip else "${ip}/32";
 in
