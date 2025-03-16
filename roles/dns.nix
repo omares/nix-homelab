@@ -3,8 +3,8 @@
   imports = [
     inputs.sops-nix.nixosModules.sops
     inputs.nix-sops-vault.nixosModules.sops-vault
-    ../modules/services/resolved.nix
-    ../modules/services/adguard-home.nix
+    ../modules/networking/resolved.nix
+    ../modules/networking/adguard-home.nix
   ];
 
   networking.firewall = {

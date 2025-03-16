@@ -4,10 +4,10 @@
 }:
 {
   imports = [
-    ../modules/services/starr
+    ../modules/starr
   ];
 
-  mares.services.starr = {
+  mares.starr = {
     enable = true;
 
     radarr = {

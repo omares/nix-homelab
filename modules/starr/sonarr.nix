@@ -5,11 +5,11 @@
   ...
 }:
 let
-  cfg = config.mares.services.starr;
+  cfg = config.mares.starr;
 in
 {
-  config = lib.mkIf (cfg.enable && cfg.prowlarr.enable) {
-    sops.templates."prowlarr-config.xml" = {
+  config = lib.mkIf (cfg.enable && cfg.sonarr.enable) {
+    sops.templates."sonarr-config.xml" = {
       content =
         mares.lib.generators.toXML
           {
@@ -17,12 +17,12 @@ in
             xmlns = { };
           }
           {
-            BindAddress = "${cfg.prowlarr.bindAddress}";
-            Port = 9696;
-            SslPort = 6969;
+            BindAddress = "${cfg.sonarr.bindAddress}";
+            Port = 8989;
+            SslPort = 9898;
             EnableSsl = false;
             LaunchBrowser = false;
-            ApiKey = config.sops.placeholder.prowlarr-api_key;
+            ApiKey = "${config.sops.placeholder.sonarr-api_key}";
             AuthenticationMethod = "Forms";
             AuthenticationRequired = "Enabled";
             Branch = "master";
@@ -30,40 +30,36 @@ in
             SslCertPath = "";
             SslCertPassword = "";
             UrlBase = "";
-            InstanceName = "Prowlarr";
+            InstanceName = "Sonarr";
             AnalyticsEnabled = false;
-            PostgresUser = "prowlarr";
-            PostgresPassword = config.sops.placeholder.pgsql-prowlarr_password;
+            PostgresUser = "sonarr";
+            PostgresPassword = "${config.sops.placeholder.pgsql-sonarr_password}";
             PostgresPort = "${toString cfg.postgres.port}";
             PostgresHost = "${cfg.postgres.host}";
-            PostgresMainDb = "prowlarr";
-            PostgresLogDb = "prowlarr_log";
+            PostgresMainDb = "sonarr";
+            PostgresLogDb = "sonarr_log";
           };
 
-      path = "${config.users.users.prowlarr.home}/config.xml";
-      owner = cfg.prowlarr.user;
+      path = "${config.services.sonarr.dataDir}/config.xml";
+      owner = cfg.sonarr.user;
       group = cfg.group;
       mode = "0660";
 
-      restartUnits = [ "prowlarr.service" ];
+      restartUnits = [ "sonarr.service" ];
     };
 
-    services.prowlarr = {
+    services.sonarr = {
       enable = true;
+      dataDir = "${cfg.pathPrefix}/sonarr";
+      group = cfg.group;
       openFirewall = true;
     };
 
     mares.storage.truenas.media = {
-      enable = cfg.prowlarr.mountStorage;
+      enable = cfg.sonarr.mountStorage;
     };
 
-    systemd.services.prowlarr = {
-      serviceConfig = {
-        DynamicUser = lib.mkForce false;
-        User = lib.mkDefault cfg.prowlarr.user;
-        Group = lib.mkDefault cfg.group;
-      };
-
+    systemd.services.sonarr = {
       wants = [
         "sops-nix.service"
         "mnt-media.mount"

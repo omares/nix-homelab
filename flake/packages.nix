@@ -21,7 +21,7 @@ let
         top.self.nixosModules.role-default
         {
           # Ensure that cloud-init is enabled for the generated VMs.
-          proxmox-enhanced.cloudInit.enable = lib.mkForce true;
+          mares.proxmox-enhanced.cloudInit.enable = lib.mkForce true;
           services.cloud-init.enable = lib.mkForce true;
         }
       ] ++ extraModules;

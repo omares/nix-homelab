@@ -4,7 +4,7 @@
 }:
 {
   imports = [
-    ../modules/services/starr
+    ../modules/starr
   ];
 
   # https://github.com/NixOS/nixpkgs/issues/360592
@@ -16,7 +16,7 @@
     "dotnet-sdk-wrapped-6.0.428"
   ];
 
-  mares.services.starr = {
+  mares.starr = {
     enable = true;
 
     sonarr = {

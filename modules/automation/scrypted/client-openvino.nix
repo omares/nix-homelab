@@ -15,7 +15,7 @@ in
       "render"
     ];
 
-    services.scrypted = {
+    mares.services.scrypted = {
       enable = true;
       package = pkgs.callPackage ../../../packages/scrypted.nix { };
       openFirewall = true;

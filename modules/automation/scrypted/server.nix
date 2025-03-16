@@ -11,7 +11,7 @@ in
 {
   config = lib.mkIf (cfg.enable && isServer) {
 
-    services.scrypted = {
+    mares.services.scrypted = {
       enable = true;
       package = pkgs.callPackage ../../packages/scrypted.nix { };
       openFirewall = true;

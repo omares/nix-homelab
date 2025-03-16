@@ -4,7 +4,7 @@
   ...
 }:
 let
-  cfg = config.mares.services.starr;
+  cfg = config.mares.starr;
   enableArrs =
     cfg.prowlarr.enable
     || cfg.radarr.enable

@@ -3,7 +3,7 @@
   ...
 }:
 {
-  options.mares.db.postgres = {
+  options.mares.database.postgres = {
     enable = lib.mkEnableOption "PostgreSQL and PgBouncer setup";
 
     users = lib.mkOption {

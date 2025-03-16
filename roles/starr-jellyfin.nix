@@ -6,7 +6,7 @@
 {
 
   imports = [
-    ../modules/services/starr
+    ../modules/starr
   ];
 
   hardware.graphics = {
@@ -29,7 +29,7 @@
     powertop.enable = true;
   };
 
-  mares.services.starr = {
+  mares.starr = {
     enable = true;
 
     jellyfin = {

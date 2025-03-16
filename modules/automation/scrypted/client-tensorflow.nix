@@ -13,8 +13,8 @@ in
   config = lib.mkIf (cfg.enable && isTensorflowClient) {
     users.users.scrypted = {
       isSystemUser = true;
-      group = config.services.scrypted.group;
-      home = config.services.scrypted.installPath;
+      group = config.mares.services.scrypted.group;
+      home = config.mares.services.scrypted.installPath;
       createHome = true;
       description = "Scrypted service user";
       extraGroups = [
@@ -23,7 +23,7 @@ in
       ];
     };
 
-    users.groups.${config.services.scrypted.group} = { };
+    users.groups.${config.mares.services.scrypted.group} = { };
 
     hardware.coral.usb.enable = true;
 

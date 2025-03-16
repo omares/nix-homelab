@@ -8,12 +8,12 @@
 
 let
   tomlFormat = pkgs.formats.toml { };
-  cfg = config.services.atuin-client;
+  cfg = config.mares.services.atuin-client;
   userInfo = config.users.users.${cfg.owner};
   configDir = "${userInfo.home}/.config/atuin";
 in
 {
-  options.services.atuin-client = {
+  options.mares.services.atuin-client = {
     enable = lib.mkEnableOption "Atuin shell history client";
 
     package = lib.mkOption {

@@ -60,8 +60,8 @@ in
     };
 
     sops.secrets.scrypted-environment = {
-      owner = config.services.scrypted.user;
-      group = config.services.scrypted.group;
+      owner = config.mares.services.scrypted.user;
+      group = config.mares.services.scrypted.group;
     };
 
     sops-vault.items = [ "scrypted" ];

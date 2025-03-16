@@ -40,7 +40,7 @@
     })
   ];
 
-  options.proxmox-enhanced = {
+  options.mares.proxmox-enhanced = {
     diskType = lib.mkOption {
       type = lib.types.enum [
         "virtio"
@@ -225,14 +225,14 @@
         Defaults to 'legacy' for 'proxmox-enhanced.qemuConf.bios="seabios"' (default), other bios values defaults to 'efi'.
         Use 'hybrid' to build grub-based hybrid bios+efi images.
       '';
-      default = if config.proxmox-enhanced.qemuConf.bios == "seabios" then "legacy" else "efi";
-      defaultText = lib.literalExpression ''if config.proxmox-enhanced.qemuConf.bios == "seabios" then "legacy" else "efi"'';
+      default = if config.mares.proxmox-enhanced.qemuConf.bios == "seabios" then "legacy" else "efi";
+      defaultText = lib.literalExpression ''if config.mares.proxmox-enhanced.qemuConf.bios == "seabios" then "legacy" else "efi"'';
       example = "hybrid";
     };
 
     filenameSuffix = lib.mkOption {
       type = lib.types.str;
-      default = config.proxmox-enhanced.qemuConf.name;
+      default = config.mares.proxmox-enhanced.qemuConf.name;
       example = "999-nixos_template";
       description = ''
         Filename of the image will be vzdump-qemu-''${filenameSuffix}.vma.zstd.
@@ -273,7 +273,7 @@
 
   config =
     let
-      cfg = config.proxmox-enhanced;
+      cfg = config.mares.proxmox-enhanced;
 
       diskDevice = "${cfg.diskType}0";
       diskStorage = builtins.head (builtins.split ":" cfg.qemuConf.mainDisk);
@@ -305,20 +305,21 @@
       assertions = [
         {
           assertion =
-            config.boot.loader.systemd-boot.enable -> config.proxmox-enhanced.qemuConf.bios == "ovmf";
+            config.boot.loader.systemd-boot.enable -> config.mares.proxmox-enhanced.qemuConf.bios == "ovmf";
           message = "systemd-boot requires 'ovmf' bios";
         }
         {
-          assertion = partitionTableType == "efi" -> config.proxmox-enhanced.qemuConf.bios == "ovmf";
+          assertion = partitionTableType == "efi" -> config.mares.proxmox-enhanced.qemuConf.bios == "ovmf";
           message = "'efi' disk partitioning requires 'ovmf' bios";
         }
         {
-          assertion = partitionTableType == "legacy" -> config.proxmox-enhanced.qemuConf.bios == "seabios";
+          assertion =
+            partitionTableType == "legacy" -> config.mares.proxmox-enhanced.qemuConf.bios == "seabios";
           message = "'legacy' disk partitioning requires 'seabios' bios";
         }
         {
           assertion =
-            partitionTableType == "legacy+gpt" -> config.proxmox-enhanced.qemuConf.bios == "seabios";
+            partitionTableType == "legacy+gpt" -> config.mares.proxmox-enhanced.qemuConf.bios == "seabios";
           message = "'legacy+gpt' disk partitioning requires 'seabios' bios";
         }
       ];
@@ -470,7 +471,7 @@
         qemuGuest.enable = true;
       };
 
-      proxmox-enhanced.qemuExtraConf.${cfg.cloudInit.device} =
+      mares.proxmox-enhanced.qemuExtraConf.${cfg.cloudInit.device} =
         "${cfg.cloudInit.defaultStorage}:vm-9999-cloudinit,media=cdrom";
     };
 }

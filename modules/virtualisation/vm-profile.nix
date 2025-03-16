@@ -50,7 +50,7 @@ in
 
       virtualisation.diskSize = lib.mkDefault diskSize;
 
-      proxmox-enhanced = {
+      mares.proxmox-enhanced = {
         diskType = if isOptimized then "scsi" else "virtio";
 
         kernelModules = {

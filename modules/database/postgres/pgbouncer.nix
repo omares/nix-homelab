@@ -6,7 +6,7 @@
 }:
 
 let
-  cfg = config.mares.db.postgres;
+  cfg = config.mares.database.postgres;
 in
 {
   config = lib.mkIf cfg.enable {

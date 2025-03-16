@@ -30,7 +30,7 @@ let
 
 in
 {
-  options.mares.services.starr = {
+  options.mares.starr = {
     enable = mkEnableOption "Enable starr services";
 
     group = mkOption {

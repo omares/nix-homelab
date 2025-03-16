@@ -13,7 +13,8 @@ in
     inputs.sops-nix.nixosModules.sops
     inputs.nix-sops-vault.nixosModules.sops-vault
     ../modules/storage/truenas.nix
-    ../modules/services/postgres
+    ../modules/database/postgres
+    ../modules/services/postgresql-backup.nix
   ];
 
   fileSystems."/mnt/postgres-data" = {
@@ -40,7 +41,7 @@ in
     enable = true;
   };
 
-  mares.db.postgres = {
+  mares.database.postgres = {
     enable = true;
     listenAddress = nodeCfg.host;
     dataDir = "${dataDir}";
@@ -99,7 +100,7 @@ in
     };
   };
 
-  mares.db.postgres.backup =
+  mares.services.postgresql-backup =
     let
       mountPoint = config.mares.storage.truenas.postgres-backup.mountPoint;
     in
