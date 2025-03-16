@@ -4,6 +4,7 @@
 
 {
   imports = [
+    ../modules/cluster
     ../modules/virtualisation/vm-profile.nix
     ../modules/users/ids.nix
     ../modules/editors

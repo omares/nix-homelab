@@ -1,6 +1,8 @@
 { config, lib, ... }:
 
 let
+  cfg = config.mares.networking.proxy-nginx;
+
   proxyNodes = lib.filterAttrs (_: node: node.proxy != null) config.mares.nodes;
 
   mkVhost = name: nodeCfg: {
@@ -12,7 +14,8 @@ let
       nodeCfg.proxy.subdomains
     );
     locations."/" = {
-      proxyPass = "http://${nodeCfg.host}:${nodeCfg.proxy.port}";
+      proxyPass = "${nodeCfg.proxy.protocol}://${nodeCfg.host}:${toString nodeCfg.proxy.port}";
+      proxyWebsockets = nodeCfg.proxy.websockets;
       extraConfig =
         ''
           # required when the target is also TLS server with multiple hosts
@@ -27,13 +30,19 @@ let
 
 in
 {
-  config = {
+  options.mares.networking.proxy-nginx = {
+    enable = lib.mkEnableOption "Nginx proxy configuration";
+  };
+
+  config = lib.mkIf cfg.enable {
     services.nginx = {
       enable = true;
+      recommendedBrotliSettings = true;
+      recommendedGzipSettings = true;
+
       recommendedProxySettings = true;
       recommendedTlsSettings = true;
       recommendedOptimisation = true;
-      recommendedGzipSettings = true;
 
       virtualHosts = lib.mapAttrs mkVhost proxyNodes;
     };
