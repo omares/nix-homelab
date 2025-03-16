@@ -3,16 +3,16 @@
 let
   cfg = config.mares.networking.proxy-nginx;
 
-  proxyNodes = lib.filterAttrs (_: node: node.proxy != null) config.mares.nodes;
+  proxyNodes = lib.filterAttrs (_: node: node.proxy != null) config.mares.infrastructure.nodes;
 
   mkVhost = name: nodeCfg: {
     enableACME = true;
     forceSSL = nodeCfg.proxy.ssl;
     acmeRoot = null;
-    serverName = "${name}.${config.mares.proxy.domain}";
-    serverAliases = map (subdomain: "${subdomain}.${toString config.mares.proxy.domain}") (
-      nodeCfg.proxy.subdomains
-    );
+    serverName = "${name}.${config.mares.infrastructure.proxy.domain}";
+    serverAliases = map (
+      subdomain: "${subdomain}.${toString config.mares.infrastructure.proxy.domain}"
+    ) (nodeCfg.proxy.subdomains);
     locations."/" = {
       proxyPass = "${nodeCfg.proxy.protocol}://${nodeCfg.host}:${toString nodeCfg.proxy.port}";
       proxyWebsockets = nodeCfg.proxy.websockets;

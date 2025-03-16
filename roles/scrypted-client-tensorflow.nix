@@ -12,7 +12,7 @@
   mares.automation.scrypted = {
     enable = true;
     role = "client-tensorflow";
-    serverHost = mares.nodes.nvr-server-01.host;
+    serverHost = mares.infrastructure.nodes.nvr-server-01.host;
     workerName = name;
   };
 

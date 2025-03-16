@@ -11,7 +11,7 @@ in
   config = lib.mkIf (cfg.enable && cfg.sonarr.enable) {
     sops.templates."sonarr-config.xml" = {
       content =
-        mares.lib.generators.toXML
+        mares.infrastructure.lib.generators.toXML
           {
             rootName = "Config";
             xmlns = { };

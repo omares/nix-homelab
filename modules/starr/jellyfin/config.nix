@@ -512,7 +512,7 @@ let
     }:
     {
       "jellyfin-${name}.xml" = {
-        content = mares.lib.generators.toXML { inherit rootName; } attrs;
+        content = mares.infrastructure.lib.generators.toXML { inherit rootName; } attrs;
         # Templates must link to the configuration directory, as the service does not permit a link farm destination to be used as the configuration directory.
         path = "${config.services.jellyfin.configDir}/${name}.xml";
       } // defaultTemplateValues;

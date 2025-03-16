@@ -3,7 +3,7 @@
   ...
 }:
 {
-  options.mares = {
+  options.mares.infrastructure = {
     lib = lib.mkOption {
       type = lib.types.attrs;
       default = import ../../lib {

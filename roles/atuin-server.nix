@@ -6,7 +6,7 @@
   ...
 }:
 let
-  dbAddress = "${mares.nodes.db-01.host}:${toString config.services.pgbouncer.settings.pgbouncer.listen_port}";
+  dbAddress = "${mares.infrastructure.nodes.db-01.host}:${toString config.services.pgbouncer.settings.pgbouncer.listen_port}";
 in
 {
   imports = [

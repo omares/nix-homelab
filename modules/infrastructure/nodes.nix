@@ -4,7 +4,7 @@
 }:
 {
 
-  mares = {
+  mares.infrastructure = {
     proxy = {
       domain = "mares.id";
     };

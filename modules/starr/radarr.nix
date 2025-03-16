@@ -12,7 +12,7 @@ in
   config = lib.mkIf (cfg.enable && cfg.radarr.enable) {
     sops.templates."radarr-config.xml" = {
       content =
-        mares.lib.generators.toXML
+        mares.infrastructure.lib.generators.toXML
           {
             rootName = "Config";
             xmlns = { };
