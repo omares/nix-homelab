@@ -7,6 +7,8 @@
     ../modules/starr
   ];
 
+  sops-vault.items = [ "starr" ];
+
   mares.starr = {
     enable = true;
 

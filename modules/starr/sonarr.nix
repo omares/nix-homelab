@@ -55,18 +55,12 @@ in
       openFirewall = true;
     };
 
-    mares.storage.truenas.media = {
-      enable = cfg.sonarr.mountStorage;
-    };
-
     systemd.services.sonarr = {
       wants = [
         "sops-nix.service"
-        "mnt-media.mount"
       ];
       after = [
         "sops-nix.service"
-        "mnt-media.mount"
       ];
     };
   };

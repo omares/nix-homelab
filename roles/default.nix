@@ -1,9 +1,12 @@
 {
+  inputs,
   ...
 }:
 
 {
   imports = [
+    inputs.sops-nix.nixosModules.sops
+    inputs.nix-sops-vault.nixosModules.sops-vault
     ../modules/infrastructure
     ../modules/virtualisation/vm-profile.nix
     ../modules/users/ids.nix
@@ -16,6 +19,8 @@
     ../modules/system
     ../modules/users
   ];
+
+  sops-vault.items = [ "atuin" ];
 
   # On the first boot, cloud-init manages the network setup to retrieve a proper DHCP address.
   # After applying any role (which always includes this default) to the node,

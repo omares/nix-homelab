@@ -7,6 +7,25 @@
     ../modules/starr
   ];
 
+  sops-vault.items = [
+    "starr"
+    "pgsql"
+  ];
+
+  mares.storage.truenas.media = {
+    enable = true;
+  };
+
+  systemd.services.sonarr = {
+    wants = [
+      "mnt-media.mount"
+    ];
+
+    after = [
+      "mnt-media.mount"
+    ];
+  };
+
   # https://github.com/NixOS/nixpkgs/issues/360592
   # https://github.com/Sonarr/Sonarr/pull/7443
   nixpkgs.config.permittedInsecurePackages = [

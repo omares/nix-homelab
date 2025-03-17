@@ -8,8 +8,6 @@ let
   isTensorflowClient = cfg.role == "client-tensorflow";
 in
 {
-  imports = [ ./common.nix ];
-
   config = lib.mkIf (cfg.enable && isTensorflowClient) {
     users.users.scrypted = {
       isSystemUser = true;

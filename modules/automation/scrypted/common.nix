@@ -63,7 +63,5 @@ in
       owner = config.mares.services.scrypted.user;
       group = config.mares.services.scrypted.group;
     };
-
-    sops-vault.items = [ "scrypted" ];
   };
 }

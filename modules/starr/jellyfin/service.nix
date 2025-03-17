@@ -45,10 +45,6 @@ in
       })
     ];
 
-    mares.storage.truenas.media = {
-      enable = cfg.jellyfin.mountStorage;
-    };
-
     # Give jellyfin access to hardware devices
     users.users.jellyfin = {
       uid = config.ids.uids.jellyfin;
@@ -59,21 +55,9 @@ in
     };
 
     systemd.services.jellyfin = {
-      serviceConfig = {
-        # Device access
-        DeviceAllow = [
-          "/dev/dri/renderD128" # GPU render node for encoding/decoding
-          "/dev/dri/card0" # Main GPU device for display/acceleration
-        ];
-      };
-
-      wants = [
-        # "sops-nix.service"
-        "mnt-media.mount"
-      ];
-      after = [
-        # "sops-nix.service"
-        "mnt-media.mount"
+      serviceConfig.DeviceAllow = [
+        "/dev/dri/renderD128" # GPU render node for encoding/decoding
+        "/dev/dri/card0" # Main GPU device for display/acceleration
       ];
     };
   };

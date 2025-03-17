@@ -5,8 +5,13 @@
 }:
 {
   imports = [
+    ../modules/hardware/intel-graphics.nix
     ../modules/automation/scrypted
   ];
+
+  mares.hardware.intel-graphics = {
+    enable = true;
+  };
 
   mares.automation.scrypted = {
     enable = true;

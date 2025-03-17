@@ -1,5 +1,4 @@
 {
-  inputs,
   config,
   nodeCfg,
   pkgs,
@@ -10,12 +9,10 @@ let
 in
 {
   imports = [
-    inputs.sops-nix.nixosModules.sops
-    inputs.nix-sops-vault.nixosModules.sops-vault
-    ../modules/storage/truenas.nix
     ../modules/database/postgres
-    ../modules/services/postgresql-backup.nix
   ];
+
+  sops-vault.items = [ "pgsql" ];
 
   fileSystems."/mnt/postgres-data" = {
     device = "/dev/disk/by-label/postgres";
@@ -25,6 +22,7 @@ in
       "noatime"
     ];
   };
+
   systemd.tmpfiles.settings = {
     "postgresql-data" = {
       "${dataDir}" = {
@@ -35,10 +33,6 @@ in
         };
       };
     };
-  };
-
-  mares.storage.truenas.postgres-backup = {
-    enable = true;
   };
 
   mares.database.postgres = {
@@ -100,59 +94,7 @@ in
     };
   };
 
-  mares.services.postgresql-backup =
-    let
-      mountPoint = config.mares.storage.truenas.postgres-backup.mountPoint;
-    in
-    {
-      dbs-daily = {
-        enable = true;
-        databases = [
-          "prowlarr"
-          "radarr"
-          "sonarr"
-          "jellyseerr"
-          "atuin"
-        ];
-        pgdumpOptions = "-Fc -b";
-        compression = "zstd";
-        compressionLevel = 10;
-        location = "${mountPoint}";
-        startAt = "*-*-* 02:15:00";
-        keep = 7; # Keep last 7 backups
-      };
-      dbs-weekly = {
-        enable = true;
-        databases = [
-          "prowlarr"
-          "radarr"
-          "sonarr"
-          "jellyseerr"
-          "atuin"
-        ];
-        pgdumpOptions = "-Fc -b";
-        compression = "zstd";
-        compressionLevel = 10;
-        location = "${mountPoint}";
-        startAt = "Mon *-*-* 04:00:00";
-        keep = 4; # Keep last 4 backups
-      };
-      globals-weekly = {
-        enable = true;
-        backupAll = true;
-        pgdumpOptions = "--globals-only";
-        compression = "zstd";
-        compressionLevel = 10;
-        location = "${mountPoint}";
-        startAt = "Tue *-*-* 04:00:00";
-        keep = 4; # Keep last 4 backups
-      };
-    };
-
-  sops-vault.items = [ "pgsql" ];
-
   environment.systemPackages = with pkgs; [
     pgcli
   ];
-
 }

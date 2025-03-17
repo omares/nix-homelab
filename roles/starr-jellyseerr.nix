@@ -8,6 +8,11 @@
     ../modules/starr
   ];
 
+  sops-vault.items = [
+    "starr"
+    "pgsql"
+  ];
+
   mares.starr = {
     enable = true;
 

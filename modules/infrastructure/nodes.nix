@@ -67,7 +67,8 @@
 
       db-01 = {
         roles = [
-          config.flake.nixosModules.role-db
+          config.flake.nixosModules.role-postgres
+          config.flake.nixosModules.role-postgres-backup
         ];
         host = "10.10.22.102";
       };

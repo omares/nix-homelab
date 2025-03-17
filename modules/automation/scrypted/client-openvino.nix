@@ -41,7 +41,5 @@ in
         "/dev/dri/card1"
       ];
     };
-
-    cluster.hardware.intel-graphics.enable = true;
   };
 }

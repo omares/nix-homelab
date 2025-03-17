@@ -43,7 +43,7 @@
 
       imports = [
         ./flake
-        ./modules/cluster
+        ./modules/infrastructure
       ];
     };
 }

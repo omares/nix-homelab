@@ -15,18 +15,13 @@ in
       openFirewall = true;
     };
 
-    mares.storage.truenas.media = {
-      enable = cfg.sabnzbd.mountStorage;
-    };
-
     systemd.services.sabnzbd = {
       wants = [
         "sops-nix.service"
-        "mnt-media.mount"
       ];
+
       after = [
         "sops-nix.service"
-        "mnt-media.mount"
       ];
     };
   };

@@ -1,32 +1,32 @@
 {
-  pkgs,
   nodeCfg,
   ...
 }:
 {
 
   imports = [
+    ../modules/storage/truenas.nix
+    ../modules/hardware/intel-graphics.nix
     ../modules/starr
   ];
 
-  hardware.graphics = {
+  sops-vault.items = [ "starr" ];
+
+  mares.storage.truenas.media = {
     enable = true;
-    extraPackages = with pkgs; [
-      intel-media-driver # Primary driver for your UHD 630
-      intel-media-sdk # QuickSync support for 9th gen
-      intel-compute-runtime # OpenCL for hardware tonemapping
-      intel-vaapi-driver # Backup driver, good to have
+  };
+
+  systemd.services.jellyfin = {
+    wants = [
+      "mnt-media.mount"
+    ];
+    after = [
+      "mnt-media.mount"
     ];
   };
 
-  environment.systemPackages = with pkgs; [
-    libva-utils # To test VA-API
-    intel-gpu-tools # For GPU monitoring
-  ];
-
-  powerManagement = {
-    cpuFreqGovernor = "schedutil";
-    powertop.enable = true;
+  mares.hardware.intel-graphics = {
+    enable = true;
   };
 
   mares.starr = {

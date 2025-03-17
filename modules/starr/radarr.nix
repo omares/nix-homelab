@@ -56,18 +56,12 @@ in
       openFirewall = true;
     };
 
-    mares.storage.truenas.media = {
-      enable = cfg.radarr.mountStorage;
-    };
-
     systemd.services.radarr = {
       wants = [
         "sops-nix.service"
-        "mnt-media.mount"
       ];
       after = [
         "sops-nix.service"
-        "mnt-media.mount"
       ];
     };
   };

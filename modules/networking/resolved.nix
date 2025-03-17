@@ -1,7 +1,4 @@
 {
-  name,
-  config,
-  lib,
   ...
 }:
 {

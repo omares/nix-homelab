@@ -26,25 +26,11 @@ in
     systemd.services.scrypted = {
       wants = [
         "sops-nix.service"
-        "mnt-scrypted-large.mount"
       ];
+
       after = [
         "sops-nix.service"
-        "mnt-scrypted-large.mount"
-      ];
-
-      serviceConfig.ReadWritePaths = lib.mkAfter [
-        "/mnt/scrypted-large"
-        "/mnt/scrypted-fast/data"
       ];
     };
-
-    fileSystems."/mnt/scrypted-fast" = {
-      device = "/dev/disk/by-label/scrypted-fast";
-      autoResize = true;
-      fsType = "ext4";
-    };
-
-    mares.storage.truenas.scrypted-large.enable = true;
   };
 }

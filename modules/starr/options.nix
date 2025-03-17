@@ -13,8 +13,6 @@ let
       options = {
         enable = mkEnableOption "Enable ${name} service";
 
-        mountStorage = mkEnableOption "Moun Truenas storage.";
-
         user = mkOption {
           type = types.str;
           default = name;

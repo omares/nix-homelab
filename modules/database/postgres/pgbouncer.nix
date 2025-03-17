@@ -67,10 +67,12 @@ in
         "sops-nix.service"
         "postgresql.service"
       ];
+
       wants = [
         "sops-nix.service"
         "postgresql.service"
       ];
+
       # See https://github.com/NixOS/nixpkgs/pull/308700#issuecomment-2566048064
       serviceConfig = {
         Type = "notify-reload";
