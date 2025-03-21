@@ -1,4 +1,80 @@
-## Proxmox related
+## Project Structure Overview
+
+### Project Organization
+
+This repository organizes my NixOS configurations using the following structure.
+
+```
+└── root/
+    ├── flake/               # Flake output definitions
+    ├── roles/               # System compositions
+    ├── packages/            # Custom package definitions
+    └── modules/             # Configuration components
+        ├── infrastructure/  # Infrastructure definitions
+        ├── services/        # Custom service implementations
+        ├── database/        # Database configurations
+        ├── media/           # Media service configurations
+        ├── networking/      # Network configurations
+        └── [other domains]/ # Other domain-specific modules
+```
+
+### Directory Purposes
+
+`⁠flake/`\
+Contains the implementation of flake outputs, split into multiple files for better organization. This uses flake-parts
+to modularize the flake.nix functionality, making it easier to maintain. These files define packages, NixOS modules,
+and other outputs used within this project.
+
+`⁠roles/`\
+Contains composite system configurations that define specific functionality by integrating multiple modules. Roles serve
+as the integration layer that connects various services and resources together.
+Roles are responsible for enabling the services required for a specific function, managing resource dependencies like
+storage mounts and hardware requirements or listing used SOPS secrets.
+
+The idea of a role is to provide an overview of what functionality is provided and used without requiring deep dives
+into service implementations.
+
+A machine can have multiple roles, but a role is not tied to a specific machine. Roles define state and functionality
+rather than machines themselves.
+
+`⁠packages/`\
+Contains definitions for custom packages that aren't available in nixpkgs or require modifications.
+
+`⁠modules/[domain]/`\
+Contains configurations organized by functional domains. Each domain directory groups related functionality based on
+purpose rather than technical classification:
+
+- `⁠database/`: Database service configurations
+- `⁠media/`: Media-related services
+- `⁠networking/`: Network configurations
+- `⁠shell/`: Shell tools and configurations
+- `⁠storage/`: Storage solutions
+- `⁠hardware/`: Hardware-specific configurations
+
+Modules define service capabilities, options, and detailed implementations. They handle their own internal configuration,
+including service-specific secret management and firewall rules (with toggle options), but don't enable themselves by
+ default.
+
+`⁠modules/services/`\
+Contains custom service implementations that aren't provided by nixpkgs.
+
+
+`⁠modules/infrastructure/`\
+Contains definitions of my environment's structure, primarily focusing on nodes and their associated roles. This defines
+which machines exist in my environment, what roles they have, and whether they should be proxied. The infrastructure
+module serves as the registry of machines that forms the foundation of my homelab.
+
+### Design Principles
+1. **Domain-based organization**: Group related functionality by purpose
+2. **Separation of implementation and activation:**:
+    - Modules implement services and their configuration options
+    - Roles composite modules and set specific configuration values
+3. **Service encapsulation**: Services handle their own implementation details, including detailed configuration, how to integrate secrets, and firewall rules (with toggle options)
+4. **Role integration**: Roles enable required services, manage storage mounts and hardware requirements, connect services to required resources, and should provide an overview of functionality.
+5. **Flat hierarchies**: Keep directory structures flat. Create subdirectories only when there are several related files (3+) or when the organization significantly improves clarity. For domains with just 1-2 files, prefer keeping them as direct files in the domain directory rather than creating additional subdirectories.
+
+This structure creates a clean separation between implementation (modules) and activation (roles).
+
 
 ## Proxmox VM Templates
 
