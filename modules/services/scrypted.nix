@@ -6,7 +6,7 @@
 }:
 
 let
-  cfg = config.services.scrypted;
+  cfg = config.mares.services.scrypted;
 
   python312Packages =
     python-pkgs: with python-pkgs; [
@@ -73,7 +73,7 @@ let
   ];
 in
 {
-  options.services.scrypted = {
+  options.mares.services.scrypted = {
     enable = lib.mkEnableOption "Scrypted home automation server";
 
     package = lib.mkPackageOption pkgs "scrypted" { };
@@ -134,7 +134,7 @@ in
       # pkgs.tensorflow-lite
     ] ++ gstPlugins;
 
-    systemd.services.scrypted = {
+    systemd.mares.services.scrypted = {
       description = "Scrypted home automation server";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];

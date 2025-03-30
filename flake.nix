@@ -42,7 +42,8 @@
       ];
 
       imports = [
-        ./modules/cluster
+        ./flake
+        ./modules/infrastructure
       ];
     };
 }

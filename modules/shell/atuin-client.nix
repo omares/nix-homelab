@@ -10,8 +10,6 @@ in
     ../services/atuin-client.nix
   ];
 
-  sops-vault.items = [ "atuin" ];
-
   sops.secrets = {
     atuin_password = {
       owner = owner;
@@ -21,7 +19,7 @@ in
     };
   };
 
-  services.atuin-client = {
+  mares.services.atuin-client = {
     enable = true;
     passwordPath = config.sops.secrets.atuin_password.path;
     keyPath = config.sops.secrets.atuin_key.path;

@@ -5,13 +5,13 @@
   ...
 }:
 let
-  cfg = config.cluster.automation.scrypted;
+  cfg = config.mares.automation.scrypted;
   isServer = cfg.role == "server";
 in
 {
   config = lib.mkIf (cfg.enable && isServer) {
 
-    services.scrypted = {
+    mares.services.scrypted = {
       enable = true;
       package = pkgs.callPackage ../../packages/scrypted.nix { };
       openFirewall = true;
@@ -26,25 +26,11 @@ in
     systemd.services.scrypted = {
       wants = [
         "sops-nix.service"
-        "mnt-scrypted-large.mount"
       ];
+
       after = [
         "sops-nix.service"
-        "mnt-scrypted-large.mount"
-      ];
-
-      serviceConfig.ReadWritePaths = lib.mkAfter [
-        "/mnt/scrypted-large"
-        "/mnt/scrypted-fast/data"
       ];
     };
-
-    fileSystems."/mnt/scrypted-fast" = {
-      device = "/dev/disk/by-label/scrypted-fast";
-      autoResize = true;
-      fsType = "ext4";
-    };
-
-    cluster.storage.truenas.scrypted-large.enable = true;
   };
 }

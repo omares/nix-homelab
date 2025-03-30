@@ -5,13 +5,13 @@
 }:
 
 let
-  cfg = config.cluster.vm-profile;
+  cfg = config.mares.vm-profile;
 in
 {
   # The import is necessary when the VM profile is used in a non-packaging context.
   imports = [ ./format/proxmox-enhanced.nix ];
 
-  options.cluster.vm-profile = {
+  options.mares.vm-profile = {
     template = lib.mkOption {
       type = lib.types.enum [
         "proxmox-legacy"
@@ -50,7 +50,7 @@ in
 
       virtualisation.diskSize = lib.mkDefault diskSize;
 
-      proxmox-enhanced = {
+      mares.proxmox-enhanced = {
         diskType = if isOptimized then "scsi" else "virtio";
 
         kernelModules = {

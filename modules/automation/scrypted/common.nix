@@ -4,10 +4,10 @@
   ...
 }:
 let
-  cfg = config.cluster.automation.scrypted;
+  cfg = config.mares.automation.scrypted;
 in
 {
-  options.cluster.automation.scrypted = {
+  options.mares.automation.scrypted = {
     enable = lib.mkEnableOption "Enable scrypted";
 
     role = lib.mkOption {
@@ -60,10 +60,8 @@ in
     };
 
     sops.secrets.scrypted-environment = {
-      owner = config.services.scrypted.user;
-      group = config.services.scrypted.group;
+      owner = config.mares.services.scrypted.user;
+      group = config.mares.services.scrypted.group;
     };
-
-    sops-vault.items = [ "scrypted" ];
   };
 }

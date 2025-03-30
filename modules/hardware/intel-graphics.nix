@@ -5,10 +5,10 @@
   ...
 }:
 let
-  cfg = config.cluster.hardware.intel-graphics;
+  cfg = config.mares.hardware.intel-graphics;
 in
 {
-  options.cluster.hardware.intel-graphics = {
+  options.mares.hardware.intel-graphics = {
     enable = lib.mkEnableOption "Enable Intel graphics driver";
   };
 

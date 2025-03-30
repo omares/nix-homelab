@@ -5,7 +5,7 @@
   ...
 }:
 let
-  cfg = config.cluster.automation.scrypted;
+  cfg = config.mares.automation.scrypted;
   isOpenvinoClient = cfg.role == "client-openvino";
 in
 {
@@ -15,9 +15,9 @@ in
       "render"
     ];
 
-    services.scrypted = {
+    mares.services.scrypted = {
       enable = true;
-      package = pkgs.callPackage ../../packages/scrypted.nix { };
+      package = pkgs.callPackage ../../../packages/scrypted.nix { };
       openFirewall = true;
       extraEnvironment = {
         SCRYPTED_CLUSTER_LABELS = "compute,transcode,@scrypted/openvino";
@@ -41,7 +41,5 @@ in
         "/dev/dri/card1"
       ];
     };
-
-    cluster.hardware.intel-graphics.enable = true;
   };
 }
