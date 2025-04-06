@@ -2,6 +2,7 @@
   config,
   lib,
   mares,
+  nodeCfg,
   ...
 }:
 let
@@ -16,7 +17,7 @@ let
     "main" = {
       "apiKey" = "${config.sops.placeholder.jellyseerr-api_key}";
       "applicationTitle" = "Jellyseerr";
-      "applicationUrl" = "https://jellyseerr.${mares.infrastructure.proxy.domain}";
+      "applicationUrl" = nodeCfg.proxy.url;
       "csrfProtection" = false;
       "cacheImages" = false;
       "defaultPermissions" = 32;
@@ -55,7 +56,7 @@ let
     };
     "jellyfin" = {
       "name" = "starr-jellyfin-01";
-      "ip" = "jellyfin.${mares.infrastructure.proxy.domain}";
+      "ip" = mares.infrastructure.nodes.starr-jellyfin-01.proxy.fqdn;
       "port" = 443;
       "useSsl" = true;
       "urlBase" = "";
@@ -81,8 +82,8 @@ let
     "tautulli" = { };
     "radarr" = [
       {
-        "name" = "radarr.${mares.infrastructure.proxy.domain}";
-        "hostname" = "radarr.${mares.infrastructure.proxy.domain}";
+        "name" = mares.infrastructure.nodes.starr-radarr-01.dns.fqdn;
+        "hostname" = mares.infrastructure.nodes.starr-radarr-01.proxy.fqdn;
         "port" = 443;
         "apiKey" = "${config.sops.placeholder.radarr-api_key}";
         "useSsl" = true;
@@ -101,8 +102,8 @@ let
     ];
     "sonarr" = [
       {
-        "name" = "sonarr.${mares.infrastructure.proxy.domain}";
-        "hostname" = "sonarr.${mares.infrastructure.proxy.domain}";
+        "name" = mares.infrastructure.nodes.starr-sonarr-01.dns.fqdn;
+        "hostname" = mares.infrastructure.nodes.starr-sonarr-01.proxy.fqdn;
         "port" = 443;
         "apiKey" = "${config.sops.placeholder.sonarr-api_key}";
         "useSsl" = true;

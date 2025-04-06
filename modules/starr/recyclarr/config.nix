@@ -15,7 +15,7 @@ in
       configuration = {
         radarr = {
           starr-radarr-01 = {
-            base_url = "https://radarr.${mares.infrastructure.proxy.domain}";
+            base_url = mares.infrastructure.nodes.starr-radarr-01.proxy.url;
             api_key._secret = "/run/credentials/recyclarr.service/radarr-api_key";
 
             delete_old_custom_formats = true;
@@ -56,7 +56,7 @@ in
                 assign_scores_to = [
                   {
                     name = "Remux + WEB 2160p (GER)";
-                    score = -20000;
+                    score = -35000;
                   }
                 ];
               }
@@ -230,7 +230,7 @@ in
 
         sonarr = {
           starr-sonarr-01 = {
-            base_url = "https://sonarr.${mares.infrastructure.proxy.domain}";
+            base_url = mares.infrastructure.nodes.starr-sonarr-01.proxy.url;
             api_key._secret = "/run/credentials/recyclarr.service/sonarr-api_key";
 
             delete_old_custom_formats = true;
@@ -271,7 +271,7 @@ in
                 assign_scores_to = [
                   {
                     name = "UHD Remux + WEB (GER)";
-                    score = -20000;
+                    score = -35000;
                   }
                 ];
               }

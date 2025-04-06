@@ -59,7 +59,7 @@ in
     lib.mkMerge [
       (lib.mkIf cfgMedia.enable {
         fileSystems."${cfgMedia.mountPoint}" = {
-          device = "${mares.infrastructure.nodes.truenas.host}:/mnt/storage01/Media";
+          device = "${mares.infrastructure.nodes.truenas.dns.fqdn}:/mnt/storage01/Media";
           fsType = "nfs";
           options = mountOptions;
         };
@@ -69,7 +69,7 @@ in
 
       (lib.mkIf cfgBackup.enable {
         fileSystems."${cfgBackup.mountPoint}" = {
-          device = "${mares.infrastructure.nodes.truenas.host}:/mnt/storage01/backups/postgres";
+          device = "${mares.infrastructure.nodes.truenas.dns.fqdn}:/mnt/storage01/backups/postgres";
           fsType = "nfs";
           options = mountOptions;
         };
@@ -79,7 +79,7 @@ in
 
       (lib.mkIf cfgScrytedLarge.enable {
         fileSystems."${cfgScrytedLarge.mountPoint}" = {
-          device = "${mares.infrastructure.nodes.truenas.host}:/mnt/storage01/scrypted";
+          device = "${mares.infrastructure.nodes.truenas.dns.fqdn}:/mnt/storage01/scrypted";
           fsType = "nfs";
           options = mountOptions;
         };

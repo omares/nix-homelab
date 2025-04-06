@@ -46,7 +46,7 @@ in
     postgres = {
       host = lib.mkOption {
         type = lib.types.str;
-        default = mares.infrastructure.nodes.db-01.host;
+        default = mares.infrastructure.nodes.db-01.dns.fqdn;
         description = "PostgreSQL host address";
       };
 

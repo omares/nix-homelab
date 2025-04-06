@@ -32,7 +32,6 @@
 
     prowlarr = {
       enable = true;
-      mountStorage = true;
       bindAddress = nodeCfg.host;
     };
   };

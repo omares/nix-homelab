@@ -7,7 +7,7 @@
 }:
 let
   cfg = config.mares.shell.atuin-server;
-  dbAddress = "${mares.infrastructure.nodes.db-01.host}:${toString config.services.pgbouncer.settings.pgbouncer.listen_port}";
+  dbAddress = "${mares.infrastructure.nodes.db-01.dns.fqdn}:${toString config.services.pgbouncer.settings.pgbouncer.listen_port}";
 in
 {
   options.mares.shell.atuin-server = {

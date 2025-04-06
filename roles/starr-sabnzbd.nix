@@ -30,7 +30,6 @@
 
     sabnzbd = {
       enable = true;
-      mountStorage = true;
       bindAddress = nodeCfg.host;
     };
   };

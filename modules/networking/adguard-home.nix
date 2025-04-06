@@ -7,6 +7,12 @@
 }:
 let
   cfg = config.mares.networking.adguard-home;
+  dnsNodes = lib.filterAttrs (_: node: node.dns != null) config.mares.infrastructure.nodes;
+
+  mkDnsRewrites = _: nodeCfg: {
+    domain = nodeCfg.dns.fqdn;
+    answer = nodeCfg.host;
+  };
 in
 {
   options.mares.networking.adguard-home = {
@@ -223,7 +229,7 @@ in
           blocking_mode = "default";
           parental_block_host = "family-block.dns.adguard.com";
           safebrowsing_block_host = "standard-block.dns.adguard.com";
-          rewrites = [
+          rewrites = lib.mapAttrsToList mkDnsRewrites dnsNodes ++ [
             {
               domain = "*.mares.id";
               answer = "10.10.22.103";

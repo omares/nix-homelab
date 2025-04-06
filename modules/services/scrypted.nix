@@ -23,17 +23,17 @@ let
   # This unfortunately is not compatible with Nix, as the Nix ecosystem has transitioned to newer package versions.
   # See comment below for potential solution and further challenges.
   # The Python 3.9 executable is provided to have it available, but I do not expect it to do anything.
-  python39Packages =
-    python-pkgs: with python-pkgs; [
-      pip
-      debugpy
+  # python39Packages =
+  #   python-pkgs: with python-pkgs; [
+  #     pip
+  #     debugpy
 
-      # The versions provided from current nixpkgs installations are too new, not matching the expected versions.
-      # tensorflow
-      # numpy
-    ];
+  #     # The versions provided from current nixpkgs installations are too new, not matching the expected versions.
+  #     # tensorflow
+  #     # numpy
+  #   ];
 
-  python39 = pkgs.python39.withPackages python39Packages;
+  # python39 = pkgs.python39.withPackages python39Packages;
 
   /*
     nixpkgs 22.11 allows building Python 3.9 with TensorFlow without needing to override all dependent python packages.
@@ -134,7 +134,7 @@ in
       # pkgs.tensorflow-lite
     ] ++ gstPlugins;
 
-    systemd.mares.services.scrypted = {
+    systemd.services.scrypted = {
       description = "Scrypted home automation server";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
@@ -145,7 +145,7 @@ in
           SCRYPTED_INSTALL_PATH = cfg.installPath;
           SCRYPTED_VOLUME = "${cfg.installPath}/volume";
           SCRYPTED_PYTHON_PATH = "${lib.getExe python312}";
-          SCRYPTED_PYTHON39_PATH = "${lib.getExe python39}";
+          SCRYPTED_PYTHON39_PATH = "${lib.getExe python312}";
           SCRYPTED_PYTHON312_PATH = "${lib.getExe python312}";
           SCRYPTED_FFMPEG_PATH = "${lib.getExe pkgs.ffmpeg}";
 
@@ -169,7 +169,6 @@ in
       ];
 
       path = [
-        python39
         python312
         pkgs.ffmpeg
         pkgs.gcc-unwrapped.lib
