@@ -14,8 +14,6 @@ let
     profiles.system = {
       sshUser = nodeCfg.user;
       user = "root";
-      interactiveSudo = true;
-      remoteBuild = false;
       fastConnection = true;
       path =
         inputs.deploy-rs.lib.${nodeCfg.system}.activate.nixos
