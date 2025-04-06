@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ config, lib, mares, ... }:
 
 let
   cfg = config.mares.networking.proxy-nginx;
@@ -6,15 +6,11 @@ let
   proxyNodes = lib.filterAttrs (_: node: node.proxy != null) config.mares.infrastructure.nodes;
 
   mkVhost = name: nodeCfg: {
+    acmeRoot = null;
     enableACME = true;
     forceSSL = nodeCfg.proxy.ssl;
-    acmeRoot = null;
-    serverName = "${name}.${config.mares.infrastructure.proxy.domain}";
-    serverAliases = map (
-      subdomain: "${subdomain}.${toString config.mares.infrastructure.proxy.domain}"
-    ) (nodeCfg.proxy.subdomains);
     locations."/" = {
-      proxyPass = "${nodeCfg.proxy.protocol}://${nodeCfg.host}:${toString nodeCfg.proxy.port}";
+      proxyPass = "${nodeCfg.proxy.protocol}://${nodeCfg.dns.fqdn or nodeCfg.host}:${toString nodeCfg.proxy.port}";
       proxyWebsockets = nodeCfg.proxy.websockets;
       extraConfig =
         ''
@@ -26,6 +22,10 @@ let
         ''
         + nodeCfg.proxy.extraConfig;
     };
+    serverName = "${nodeCfg.proxy.fqdn}";
+    serverAliases = map (
+      subdomain: "${subdomain}.${toString config.mares.infrastructure.proxy.domain}"
+    ) (nodeCfg.proxy.subdomains);
   };
 
 in
@@ -44,6 +44,7 @@ in
 
     services.nginx = {
       enable = true;
+      proxyResolveWhileRunning = true;
       recommendedBrotliSettings = true;
       recommendedGzipSettings = true;
 
@@ -51,6 +52,10 @@ in
       recommendedTlsSettings = true;
       recommendedOptimisation = true;
 
+      resolver.addresses = [
+        mares.infrastructure.nodes.dns-01.host
+        mares.infrastructure.nodes.dns-02.host
+      ];
       virtualHosts = lib.mapAttrs mkVhost proxyNodes;
     };
   };

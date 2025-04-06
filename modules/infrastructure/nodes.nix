@@ -2,6 +2,9 @@
   config,
   ...
 }:
+let
+  cfg = config.mares.infrastructure;
+in
 {
 
   mares.infrastructure = {
@@ -13,6 +16,10 @@
         roles = [ config.flake.nixosModules.role-atuin-server ];
         host = "10.10.22.247";
 
+        dns = {
+          vlan = "vm";
+        };
+
         proxy = {
           port = 8888;
           subdomains = [ "atuin" ];
@@ -22,6 +29,10 @@
       build-01 = {
         roles = [ config.flake.nixosModules.role-proxmox-builder ];
         host = "10.10.22.122";
+
+        dns = {
+          vlan = "vm";
+        };
       };
 
       build-02 = {
@@ -30,6 +41,10 @@
         ];
         host = "10.10.22.201";
         system = "aarch64-linux";
+
+        dns = {
+          vlan = "vm";
+        };
       };
 
       dns-01 = {
@@ -38,6 +53,10 @@
           config.flake.nixosModules.role-proxmox-legacy
         ];
         host = "10.10.22.163";
+
+        dns = {
+          vlan = "vm";
+        };
 
         proxy = {
           port = 3000;
@@ -51,6 +70,10 @@
         ];
         host = "10.10.22.112";
         system = "aarch64-linux";
+
+        dns = {
+          vlan = "vm";
+        };
 
         proxy = {
           port = 3000;
@@ -70,6 +93,11 @@
           config.flake.nixosModules.role-postgres
           config.flake.nixosModules.role-postgres-backup
         ];
+
+        dns = {
+          vlan = "vm";
+        };
+
         host = "10.10.22.102";
       };
 
@@ -79,6 +107,10 @@
           config.flake.nixosModules.role-proxmox-legacy
         ];
         host = "10.10.22.233";
+
+        dns = {
+          vlan = "vm";
+        };
 
         proxy = {
           port = 8080;
@@ -108,6 +140,10 @@
         ];
         host = "10.10.22.172";
 
+        dns = {
+          vlan = "vm";
+        };
+
         proxy = {
           port = 7878;
           subdomains = [ "radarr" ];
@@ -122,6 +158,10 @@
         ];
         host = "10.10.22.235";
 
+        dns = {
+          vlan = "vm";
+        };
+
         proxy = {
           port = 8989;
           subdomains = [ "sonarr" ];
@@ -134,7 +174,12 @@
           config.flake.nixosModules.role-starr-recyclarr
           config.flake.nixosModules.role-proxmox-legacy
         ];
+
         host = "10.10.22.115";
+
+        dns = {
+          vlan = "vm";
+        };
       };
 
       starr-jellyfin-01 = {
@@ -143,6 +188,10 @@
           config.flake.nixosModules.role-proxmox-legacy
         ];
         host = "10.10.22.211";
+
+        dns = {
+          vlan = "vm";
+        };
 
         proxy = {
           port = 8096;
@@ -156,7 +205,12 @@
           config.flake.nixosModules.role-starr-jellyseerr
           config.flake.nixosModules.role-proxmox-legacy
         ];
+
         host = "10.10.22.141";
+
+        dns = {
+          vlan = "vm";
+        };
 
         proxy = {
           port = 5055;
@@ -169,7 +223,12 @@
         roles = [
           config.flake.nixosModules.role-scrypted-server
         ];
+
         host = "192.168.30.229";
+
+        dns = {
+          vlan = "vm";
+        };
 
         proxy = {
           port = 38655;
@@ -183,14 +242,24 @@
         roles = [
           config.flake.nixosModules.role-scrypted-client-openvino
         ];
+
         host = "192.168.30.181";
+
+        dns = {
+          vlan = "vm";
+        };
       };
 
       nvr-client-02 = {
         roles = [
           config.flake.nixosModules.role-scrypted-client-tensorflow
         ];
+
         host = "192.168.30.211";
+
+        dns = {
+          vlan = "vm";
+        };
       };
 
       #
@@ -200,6 +269,10 @@
         managed = false;
 
         host = "192.168.1.1";
+
+        dns = {
+          vlan = "default";
+        };
 
         proxy = {
           port = 443;
@@ -214,6 +287,10 @@
 
         host = "10.10.22.10";
 
+        dns = {
+          vlan = "vm";
+        };
+
         proxy = {
           port = 80;
           websockets = true;
@@ -225,8 +302,13 @@
 
         host = "192.168.20.21";
 
+        dns = {
+          vlan = "iot";
+        };
+
         proxy = {
           port = 8006;
+          subdomains = [ "pve" ];
           protocol = "https";
           websockets = true;
         };
@@ -237,12 +319,44 @@
 
         host = "192.168.20.93";
 
+        dns = {
+          vlan = "iot";
+        };
+
         proxy = {
           port = 8006;
           protocol = "https";
           websockets = true;
         };
       };
+
+      pve-03 = {
+        managed = false;
+
+        host = "192.168.20.209";
+
+        dns = {
+          vlan = "iot";
+        };
+      };
+
+      pbs-01 = {
+        managed = false;
+
+        host = "10.10.22.40";
+
+        dns = {
+          vlan = "vm";
+        };
+
+        proxy = {
+          port = 8007;
+          subdomains = [ "pbs" ];
+          protocol = "https";
+          websockets = true;
+        };
+      };
     };
   };
+
 }

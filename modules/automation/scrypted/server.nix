@@ -13,7 +13,7 @@ in
 
     mares.services.scrypted = {
       enable = true;
-      package = pkgs.callPackage ../../packages/scrypted.nix { };
+      package = pkgs.callPackage ../../../packages/scrypted.nix { };
       openFirewall = true;
       extraEnvironment = {
         SCRYPTED_CLUSTER_LABELS = "storage";
