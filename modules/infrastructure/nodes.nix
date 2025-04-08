@@ -80,6 +80,18 @@ in
         };
       };
 
+      mon-01 = {
+        roles = [
+          config.flake.nixosModules.role-prometheus
+        ];
+
+        dns = {
+          vlan = "vm";
+        };
+
+        host = "10.10.22.241";
+      };
+
       proxy-01 = {
         roles = [
           config.flake.nixosModules.role-proxy
