@@ -515,7 +515,8 @@ let
         content = mares.infrastructure.lib.generators.toXML { inherit rootName; } attrs;
         # Templates must link to the configuration directory, as the service does not permit a link farm destination to be used as the configuration directory.
         path = "${config.services.jellyfin.configDir}/${name}.xml";
-      } // defaultTemplateValues;
+      }
+      // defaultTemplateValues;
     };
 
   makeJsonTemplate =
@@ -528,7 +529,8 @@ let
         path = "${config.services.jellyfin.configDir}/${name}.json";
         # Templates must link to the configuration directory, as the service does not permit a link farm destination to be used as the configuration directory.
         content = lib.generators.toJSON { } attrs;
-      } // defaultTemplateValues;
+      }
+      // defaultTemplateValues;
     };
 in
 {

@@ -48,26 +48,25 @@ in
 
       ensureDatabases = lib.attrNames cfg.databases;
 
-      ensureUsers =
-        [
-          {
-            name = cfg.adminUser;
-            ensureClauses = {
-              superuser = true;
-              login = true;
-              createdb = true;
-              createrole = true;
-            };
-          }
-        ]
-        ++ (lib.mapAttrsToList (name: user: {
-          inherit name;
-          ensureDBOwnership = user.ensureDBOwnership;
+      ensureUsers = [
+        {
+          name = cfg.adminUser;
           ensureClauses = {
+            superuser = true;
             login = true;
-            createdb = user.createdb;
+            createdb = true;
+            createrole = true;
           };
-        }) cfg.users);
+        }
+      ]
+      ++ (lib.mapAttrsToList (name: user: {
+        inherit name;
+        ensureDBOwnership = user.ensureDBOwnership;
+        ensureClauses = {
+          login = true;
+          createdb = user.createdb;
+        };
+      }) cfg.users);
 
       settings = {
         listen_addresses = lib.mkDefault "${cfg.listenAddress}";
