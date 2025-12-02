@@ -26,8 +26,8 @@ in
     hardware.coral.usb.enable = true;
 
     services.udev.extraRules = ''
-      SUBSYSTEM=="usb", ATTRS{idVendor}=="1a6e", ATTRS{idProduct}=="089a", GROUP="coral", MODE="0666", TAG+="uaccess
-      SUBSYSTEM=="usb", ATTRS{idVendor}=="18d1", ATTRS{idProduct}=="9302", GROUP="coral", MODE="0666", TAG+="uaccess
+      SUBSYSTEM=="usb", ATTRS{idVendor}=="1a6e", ATTRS{idProduct}=="089a", GROUP="coral", MODE="0666", TAG+="uaccess"
+      SUBSYSTEM=="usb", ATTRS{idVendor}=="18d1", ATTRS{idProduct}=="9302", GROUP="coral", MODE="0666", TAG+="uaccess"
     '';
 
     # Runtime configuration

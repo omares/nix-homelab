@@ -132,7 +132,8 @@ in
       pkgs.gcc-unwrapped.lib
       pkgs.gobject-introspection
       # pkgs.tensorflow-lite
-    ] ++ gstPlugins;
+    ]
+    ++ gstPlugins;
 
     systemd.services.scrypted = {
       description = "Scrypted home automation server";
@@ -154,7 +155,7 @@ in
             pkgs.ocl-icd
             pkgs.intel-compute-runtime-legacy1
             pkgs.intel-media-driver # For VA-API hardware acceleration
-            pkgs.intel-media-sdk # For QuickSync
+            # pkgs.intel-media-sdk # For QuickSync
             pkgs.libva # For VA-API general support
             pkgs.intel-vaapi-driver # VA-API backend
             # pkgs.tensorflow-lite
@@ -173,7 +174,8 @@ in
         pkgs.ffmpeg
         pkgs.gcc-unwrapped.lib
         pkgs.gobject-introspection
-      ] ++ gstPlugins;
+      ]
+      ++ gstPlugins;
 
       serviceConfig = {
         ExecStart = "${lib.getExe cfg.package}";
