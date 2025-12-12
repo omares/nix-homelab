@@ -15,6 +15,7 @@ in
       atuin-01 = {
         roles = [
           config.flake.nixosModules.role-atuin-server
+          config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
         ];
         host = "10.10.22.247";
@@ -58,6 +59,7 @@ in
         roles = [
           config.flake.nixosModules.role-dns
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
         ];
         host = "10.10.22.163";
@@ -75,6 +77,7 @@ in
         roles = [
           config.flake.nixosModules.role-dns
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
         ];
         host = "10.10.22.112";
@@ -92,6 +95,7 @@ in
       mon-01 = {
         roles = [
           config.flake.nixosModules.role-monitoring-server
+          config.flake.nixosModules.role-atuin-client
         ];
 
         dns = {
@@ -111,6 +115,7 @@ in
         roles = [
           config.flake.nixosModules.role-proxy
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
           config.flake.nixosModules.role-monitoring-nginx
         ];
@@ -121,6 +126,7 @@ in
         roles = [
           config.flake.nixosModules.role-postgres
           config.flake.nixosModules.role-postgres-backup
+          config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
           config.flake.nixosModules.role-monitoring-postgres
         ];
@@ -136,6 +142,7 @@ in
         roles = [
           config.flake.nixosModules.role-starr-sabnzbd
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
           config.flake.nixosModules.role-monitoring-starr-sabnzbd
         ];
@@ -156,6 +163,7 @@ in
         roles = [
           config.flake.nixosModules.role-starr-prowlarr
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
           config.flake.nixosModules.role-monitoring-starr-prowlarr
         ];
@@ -172,6 +180,7 @@ in
         roles = [
           config.flake.nixosModules.role-starr-radarr
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
           config.flake.nixosModules.role-monitoring-starr-radarr
         ];
@@ -192,6 +201,7 @@ in
         roles = [
           config.flake.nixosModules.role-starr-sonarr
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
           config.flake.nixosModules.role-monitoring-starr-sonarr
         ];
@@ -212,6 +222,7 @@ in
         roles = [
           config.flake.nixosModules.role-starr-recyclarr
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
         ];
 
@@ -226,6 +237,7 @@ in
         roles = [
           config.flake.nixosModules.role-starr-jellyfin
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
         ];
         host = "10.10.22.211";
@@ -245,6 +257,7 @@ in
         roles = [
           config.flake.nixosModules.role-starr-jellyseerr
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
         ];
 
@@ -264,6 +277,7 @@ in
       nvr-server-01 = {
         roles = [
           config.flake.nixosModules.role-scrypted-server
+          config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
         ];
 
@@ -284,6 +298,7 @@ in
       nvr-client-01 = {
         roles = [
           config.flake.nixosModules.role-scrypted-client-openvino
+          config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
         ];
 
@@ -297,6 +312,7 @@ in
       nvr-client-02 = {
         roles = [
           config.flake.nixosModules.role-scrypted-client-tensorflow
+          config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
         ];
 
