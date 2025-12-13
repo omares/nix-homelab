@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   ...
 }:
 let
@@ -10,8 +9,6 @@ in
   imports = [
     ../modules/monitoring
   ];
-
-  mares.monitoring.roles = [ "monitoring-postgres" ];
 
   # postgres exporter - runs as local postgres superuser for full metrics access
   services.prometheus.exporters.postgres = {

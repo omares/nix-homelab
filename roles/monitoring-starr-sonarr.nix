@@ -8,8 +8,6 @@ in
 {
   imports = [ ../modules/monitoring ];
 
-  mares.monitoring.roles = [ "monitoring-starr-sonarr" ];
-
   services.prometheus.exporters.exportarr-sonarr = {
     enable = true;
     url = "http://${bindAddress}:8989";

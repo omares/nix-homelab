@@ -1,14 +1,10 @@
 {
-  config,
-  lib,
   ...
 }:
 {
   imports = [
     ../modules/monitoring
   ];
-
-  mares.monitoring.roles = [ "monitoring-nginx" ];
 
   # Enable nginx status page for the exporter to scrape
   services.nginx.statusPage = true;

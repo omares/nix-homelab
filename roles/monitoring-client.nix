@@ -13,8 +13,6 @@ in
     ../modules/monitoring
   ];
 
-  mares.monitoring.roles = [ "monitoring-client" ];
-
   mares.monitoring.alloy = {
     enable = true;
     listenAddress = nodeHost;

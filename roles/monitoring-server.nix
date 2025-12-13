@@ -9,8 +9,6 @@
 
   sops-vault.items = [ "grafana" ];
 
-  mares.monitoring.roles = [ "monitoring-server" ];
-
   fileSystems."/var/lib/prometheus2" = {
     device = "/dev/disk/by-label/prometheus-data";
     autoResize = true;

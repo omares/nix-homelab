@@ -53,22 +53,5 @@ in
         };
       };
     };
-
-    roles = lib.mkOption {
-      type = lib.types.listOf (
-        lib.types.enum [
-          "monitoring-client"
-          "monitoring-server"
-          "monitoring-postgres"
-          "monitoring-nginx"
-          "monitoring-starr-radarr"
-          "monitoring-starr-sonarr"
-          "monitoring-starr-prowlarr"
-          "monitoring-starr-sabnzbd"
-        ]
-      );
-      default = [ ];
-      description = "List of monitoring roles enabled on this node";
-    };
   };
 }

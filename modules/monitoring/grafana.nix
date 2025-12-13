@@ -278,7 +278,7 @@ let
       # Unified "Media Dashboard" from exportarr GitHub repo
       # Covers: Prowlarr, Sabnzbd, Radarr, Sonarr, Lidarr, Readarr
       url = "https://raw.githubusercontent.com/onedr0p/exportarr/master/examples/grafana/dashboard2.json";
-      sha256 = "0ic7lmkg94dfa8lm14n8sv54cq0r7bhdclcaynayaikw86kv1pdc";
+      sha256 = "0sgry76hl5qp9fnz9picmyns5b59kyvn7m41zx2vgspfad85ypmh";
       transform =
         dashboard:
         lib.pipe dashboard [
@@ -300,6 +300,23 @@ let
         dashboard:
         lib.pipe dashboard [
           (dashLib.setUid "prometheus-stats")
+          (dashLib.replaceDatasources [
+            {
+              key = "DS_PROMETHEUS";
+              value = "prometheus-main";
+            }
+          ])
+        ];
+    };
+
+    proxmox = {
+      id = 10347;
+      version = 5;
+      sha256 = "1zwfhp312yxv5jm1js6vsnd46f5ph0np86c47dbdc3xg3d9m4yxc";
+      transform =
+        dashboard:
+        lib.pipe dashboard [
+          (dashLib.setUid "proxmox")
           (dashLib.replaceDatasources [
             {
               key = "DS_PROMETHEUS";

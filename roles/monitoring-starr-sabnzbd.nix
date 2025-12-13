@@ -8,8 +8,6 @@ in
 {
   imports = [ ../modules/monitoring ];
 
-  mares.monitoring.roles = [ "monitoring-starr-sabnzbd" ];
-
   services.prometheus.exporters.sabnzbd = {
     enable = true;
     port = 9710;

@@ -20,6 +20,47 @@ let
     }
   '') cfg.extraScrapeTargets;
 
+  # Generate PVE multi-target scrape configs
+  # Each PVE node gets a scrape + relabel component pair
+  pveScrapeConfigs = lib.optionalString (cfg.pveTargets != [ ]) (
+    lib.concatMapStringsSep "\n" (
+      target:
+      let
+        safeName = builtins.replaceStrings [ "." ] [ "_" ] target;
+      in
+      ''
+        prometheus.scrape "pve_${safeName}" {
+          targets = [{"__address__" = "localhost:9221"}]
+          forward_to = [prometheus.relabel.pve_${safeName}.receiver]
+
+          scrape_interval = "60s"
+          scrape_timeout = "30s"
+          metrics_path = "/pve"
+
+          params = {
+            "target" = ["${target}"],
+            "cluster" = ["1"],
+            "node" = ["1"],
+          }
+        }
+
+        prometheus.relabel "pve_${safeName}" {
+          forward_to = [prometheus.remote_write.default.receiver]
+
+          rule {
+            target_label = "instance"
+            replacement = "${target}"
+          }
+
+          rule {
+            target_label = "job"
+            replacement = "pve"
+          }
+        }
+      ''
+    ) cfg.pveTargets
+  );
+
   alloyConfig = ''
     prometheus.exporter.unix "default" {
       include_exporter_metrics = true
@@ -118,6 +159,8 @@ let
     }
 
     ${extraScrapeConfigs}
+
+    ${pveScrapeConfigs}
   '';
 
   scrapeTargetSubmodule = lib.types.submodule {
@@ -172,6 +215,16 @@ in
           job = "nginx";
           targets = [ "localhost:9113" ];
         }
+      ];
+    };
+
+    pveTargets = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "List of PVE node IPs to scrape via multi-target exporter on localhost:9221";
+      example = [
+        "192.168.20.21"
+        "192.168.20.93"
       ];
     };
   };

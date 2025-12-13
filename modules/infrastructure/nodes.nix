@@ -95,6 +95,8 @@ in
       mon-01 = {
         roles = [
           config.flake.nixosModules.role-monitoring-server
+          config.flake.nixosModules.role-monitoring-pve
+          config.flake.nixosModules.role-monitoring-client
           config.flake.nixosModules.role-atuin-client
         ];
 
