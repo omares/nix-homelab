@@ -12,6 +12,11 @@ in
     ../modules/database/postgres
   ];
 
+  mares.database.postgres.upgrade = {
+    enable = false;
+    targetPackage = pkgs.postgresql_17;
+  };
+
   sops-vault.items = [ "pgsql" ];
 
   fileSystems."/mnt/postgres-data" = {

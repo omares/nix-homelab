@@ -14,7 +14,7 @@ in
   config = lib.mkIf cfg.enable {
     services.postgresql = {
       enable = true;
-      package = pkgs.postgresql_16;
+      package = pkgs.postgresql_17;
       dataDir = cfg.dataDir;
       enableTCPIP = true;
 
