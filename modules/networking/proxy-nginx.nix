@@ -1,26 +1,37 @@
-{ config, lib, mares, ... }:
+{
+  config,
+  lib,
+  mares,
+  ...
+}:
 
 let
   cfg = config.mares.networking.proxy-nginx;
 
   proxyNodes = lib.filterAttrs (_: node: node.proxy != null) config.mares.infrastructure.nodes;
 
+  # Generate list of ACME order-renew services for all proxy vhosts
+  acmeOrderRenewServices = lib.mapAttrsToList (
+    name: nodeCfg: "acme-order-renew-${nodeCfg.proxy.fqdn}.service"
+  ) proxyNodes;
+
   mkVhost = name: nodeCfg: {
     acmeRoot = null;
     enableACME = true;
     forceSSL = nodeCfg.proxy.ssl;
     locations."/" = {
-      proxyPass = "${nodeCfg.proxy.protocol}://${nodeCfg.dns.fqdn or nodeCfg.host}:${toString nodeCfg.proxy.port}";
+      proxyPass = "${nodeCfg.proxy.protocol}://${
+        nodeCfg.dns.fqdn or nodeCfg.host
+      }:${toString nodeCfg.proxy.port}";
       proxyWebsockets = nodeCfg.proxy.websockets;
-      extraConfig =
-        ''
-          # required when the target is also TLS server with multiple hosts
-          proxy_ssl_server_name on;
+      extraConfig = ''
+        # required when the target is also TLS server with multiple hosts
+        proxy_ssl_server_name on;
 
-          # required when the server wants to use HTTP Authentication
-          proxy_pass_header Authorization;
-        ''
-        + nodeCfg.proxy.extraConfig;
+        # required when the server wants to use HTTP Authentication
+        proxy_pass_header Authorization;
+      ''
+      + nodeCfg.proxy.extraConfig;
     };
     serverName = "${nodeCfg.proxy.fqdn}";
     serverAliases = map (
@@ -44,6 +55,7 @@ in
 
     services.nginx = {
       enable = true;
+      enableReload = true;
       proxyResolveWhileRunning = true;
       recommendedBrotliSettings = true;
       recommendedGzipSettings = true;
@@ -57,6 +69,15 @@ in
         mares.infrastructure.nodes.dns-02.host
       ];
       virtualHosts = lib.mapAttrs mkVhost proxyNodes;
+    };
+
+    # Ensure nginx waits for ACME order-renew services to complete.
+    # This prevents a race condition where nginx starts with minica-generated
+    # self-signed certs before the real Let's Encrypt certs are fetched,
+    # which can cause key mismatch errors if state is partially deleted.
+    systemd.services.nginx = {
+      after = acmeOrderRenewServices;
+      wants = acmeOrderRenewServices;
     };
   };
 }

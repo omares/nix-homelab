@@ -441,7 +441,8 @@
           "uas"
           "virtio_blk"
           "virtio_pci"
-        ] ++ cfg.kernelModules.extraModules;
+        ]
+        ++ cfg.kernelModules.extraModules;
 
         initrd.kernelModules = cfg.kernelModules.extraInitrdModules;
       };

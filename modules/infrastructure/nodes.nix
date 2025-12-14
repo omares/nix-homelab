@@ -13,7 +13,11 @@ in
     };
     nodes = {
       atuin-01 = {
-        roles = [ config.flake.nixosModules.role-atuin-server ];
+        roles = [
+          config.flake.nixosModules.role-atuin-server
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+        ];
         host = "10.10.22.247";
 
         dns = {
@@ -27,7 +31,10 @@ in
       };
 
       build-01 = {
-        roles = [ config.flake.nixosModules.role-proxmox-builder ];
+        roles = [
+          config.flake.nixosModules.role-proxmox-builder
+          config.flake.nixosModules.role-monitoring-client
+        ];
         host = "10.10.22.122";
 
         dns = {
@@ -38,6 +45,7 @@ in
       build-02 = {
         roles = [
           config.flake.nixosModules.role-proxmox-arm
+          config.flake.nixosModules.role-monitoring-client
         ];
         host = "10.10.22.201";
         system = "aarch64-linux";
@@ -51,6 +59,8 @@ in
         roles = [
           config.flake.nixosModules.role-dns
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
         ];
         host = "10.10.22.163";
 
@@ -67,6 +77,8 @@ in
         roles = [
           config.flake.nixosModules.role-dns
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
         ];
         host = "10.10.22.112";
         system = "aarch64-linux";
@@ -80,10 +92,34 @@ in
         };
       };
 
+      mon-01 = {
+        roles = [
+          config.flake.nixosModules.role-monitoring-server
+          config.flake.nixosModules.role-monitoring-pve
+          config.flake.nixosModules.role-monitoring-client
+          config.flake.nixosModules.role-atuin-client
+        ];
+
+        dns = {
+          vlan = "vm";
+        };
+
+        host = "10.10.22.241";
+
+        proxy = {
+          port = 3000;
+          subdomains = [ "grafana" ];
+          websockets = true;
+        };
+      };
+
       proxy-01 = {
         roles = [
           config.flake.nixosModules.role-proxy
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+          config.flake.nixosModules.role-monitoring-nginx
         ];
         host = "10.10.22.103";
       };
@@ -92,6 +128,9 @@ in
         roles = [
           config.flake.nixosModules.role-postgres
           config.flake.nixosModules.role-postgres-backup
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+          config.flake.nixosModules.role-monitoring-postgres
         ];
 
         dns = {
@@ -105,6 +144,9 @@ in
         roles = [
           config.flake.nixosModules.role-starr-sabnzbd
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+          config.flake.nixosModules.role-monitoring-starr-sabnzbd
         ];
         host = "10.10.22.233";
 
@@ -123,6 +165,9 @@ in
         roles = [
           config.flake.nixosModules.role-starr-prowlarr
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+          config.flake.nixosModules.role-monitoring-starr-prowlarr
         ];
         host = "10.10.22.147";
 
@@ -137,6 +182,9 @@ in
         roles = [
           config.flake.nixosModules.role-starr-radarr
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+          config.flake.nixosModules.role-monitoring-starr-radarr
         ];
         host = "10.10.22.172";
 
@@ -155,6 +203,9 @@ in
         roles = [
           config.flake.nixosModules.role-starr-sonarr
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+          config.flake.nixosModules.role-monitoring-starr-sonarr
         ];
         host = "10.10.22.235";
 
@@ -173,6 +224,8 @@ in
         roles = [
           config.flake.nixosModules.role-starr-recyclarr
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
         ];
 
         host = "10.10.22.115";
@@ -186,6 +239,8 @@ in
         roles = [
           config.flake.nixosModules.role-starr-jellyfin
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
         ];
         host = "10.10.22.211";
 
@@ -204,6 +259,8 @@ in
         roles = [
           config.flake.nixosModules.role-starr-jellyseerr
           config.flake.nixosModules.role-proxmox-legacy
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
         ];
 
         host = "10.10.22.141";
@@ -222,6 +279,8 @@ in
       nvr-server-01 = {
         roles = [
           config.flake.nixosModules.role-scrypted-server
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
         ];
 
         host = "192.168.30.229";
@@ -241,6 +300,8 @@ in
       nvr-client-01 = {
         roles = [
           config.flake.nixosModules.role-scrypted-client-openvino
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
         ];
 
         host = "192.168.30.181";
@@ -253,6 +314,8 @@ in
       nvr-client-02 = {
         roles = [
           config.flake.nixosModules.role-scrypted-client-tensorflow
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
         ];
 
         host = "192.168.30.211";
@@ -262,9 +325,6 @@ in
         };
       };
 
-      #
-      # Unmanaged nodes
-      #
       unifi = {
         managed = false;
 
