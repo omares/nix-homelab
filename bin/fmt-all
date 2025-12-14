@@ -1,2 +1,0 @@
-#!/bin/sh
-nixfmt -v flake.nix lib/ modules/ roles/

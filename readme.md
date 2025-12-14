@@ -76,6 +76,30 @@ module serves as the registry of machines that forms the foundation of my homela
 This structure creates a clean separation between implementation (modules) and activation (roles).
 
 
+## Development
+
+### Formatting
+
+This project uses [treefmt-nix](https://github.com/numtide/treefmt-nix) for code formatting. The configuration is defined in `treefmt.nix`.
+
+```bash
+# Format all files
+nix fmt
+
+# Check formatting (part of flake check)
+nix flake check
+```
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `nix fmt` | Format all Nix files |
+| `nix flake check` | Validate flake, run deploy-rs checks, verify formatting |
+| `nix develop` | Enter development shell with deploy-rs, compose2nix |
+| `nix build .#<template>` | Build a Proxmox VM template |
+| `deploy --targets .#<host>` | Deploy configuration to a host |
+
 ## Proxmox VM Templates
 
 The flake offers packages that generate Proxmox VM templates using [nixos-generators](https://github.com/nix-community/nixos-generators).
