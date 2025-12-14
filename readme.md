@@ -172,7 +172,30 @@ nix flake check
 | `nix flake check` | Validate flake, run deploy-rs checks, verify formatting |
 | `nix develop` | Enter development shell with deploy-rs, compose2nix |
 | `nix build .#<template>` | Build a Proxmox VM template |
-| `deploy --targets .#<host>` | Deploy configuration to a host |
+| `./bin/neploy .#<host>` | Deploy configuration to a host (with nom output) |
+
+### Deployment
+
+Use `neploy` for deployments with formatted output via [nix-output-monitor](https://github.com/maralorn/nix-output-monitor):
+
+```bash
+# Single node
+./bin/neploy .#db-01
+
+# Multiple nodes
+./bin/neploy .#dns-01 .#dns-02
+
+# Deploy by group
+./bin/neploy group starr
+
+# List available groups
+./bin/neploy group
+
+# Deploy all groups (infra → build → starr → nvr)
+./bin/neploy group all
+```
+
+Nodes are assigned to deploy groups via the `deployGroups` attribute in `modules/infrastructure/nodes.nix`. A node can belong to multiple groups.
 
 ## Proxmox VM Templates
 

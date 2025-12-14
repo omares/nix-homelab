@@ -79,5 +79,11 @@ in
       after = acmeOrderRenewServices;
       wants = acmeOrderRenewServices;
     };
+
+    # Don't start nginx-config-reload on boot/deploy. It should only run
+    # when ACME services trigger it after certificate renewals.
+    # This prevents a race condition during deploy where all ACME services
+    # start simultaneously and trigger nginx-config-reload, causing timeouts.
+    systemd.services.nginx-config-reload.wantedBy = lib.mkForce [];
   };
 }
