@@ -48,10 +48,10 @@ let
     DeinterlaceDoubleRate = false;
     DeinterlaceMethod = "yadif";
     EnableDecodingColorDepth10Hevc = true;
-    EnableDecodingColorDepth10Vp9 = false;
+    EnableDecodingColorDepth10Vp9 = true;
     EnableDecodingColorDepth10HevcRext = false;
     EnableDecodingColorDepth12HevcRext = false;
-    EnableEnhancedNvdecDecoder = true;
+    EnableEnhancedNvdecDecoder = false;
     PreferSystemNativeHwDecoder = true;
     EnableIntelLowPowerH264HwEncoder = false; # not available in virtualized environment
     EnableIntelLowPowerHevcHwEncoder = false; # not available in virtualized environment
@@ -66,141 +66,9 @@ let
       { string = "vc1"; }
       { string = "vp8"; }
       { string = "vp9"; }
-      { string = "av1"; }
     ];
     AllowOnDemandMetadataBasedKeyframeExtractionForExtensions = [
       { string = "mkv"; }
-    ];
-  };
-
-  migrations = {
-    Applied = [
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "9b354818-94d5-4b68-ac49-e35cb85f9d84";
-          Item2 = "CreateNetworkConfiguration";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "a6dcacf4-c057-4ef9-80d3-61cef9ddb4f0";
-          Item2 = "MigrateMusicBrainzTimeout";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "4fb5c950-1991-11ee-9b4b-0800200c9a66";
-          Item2 = "MigrateNetworkConfiguration";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "a8e61960-7726-4450-8f3d-82c12daabbcb";
-          Item2 = "MigrateEncodingOptions";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "4124c2cd-e939-4ffb-9be9-9b311c413638";
-          Item2 = "DisableTranscodingThrottling";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "ef103419-8451-40d8-9f34-d1a8e93a1679";
-          Item2 = "CreateLoggingConfigHeirarchy";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "3793eb59-bc8c-456c-8b9f-bd5a62a42978";
-          Item2 = "MigrateActivityLogDatabase";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "acbe17b7-8435-4a83-8b64-6fcf162cb9bd";
-          Item2 = "RemoveDuplicateExtras";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "5c4b82a2-f053-4009-bd05-b6fcad82f14c";
-          Item2 = "MigrateUserDatabase";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "06387815-c3cc-421f-a888-fb5f9992bea8";
-          Item2 = "MigrateDisplayPreferencesDatabase";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "a81f75e0-8f43-416f-a5e8-516ccab4d8cc";
-          Item2 = "RemoveDownloadImagesInAdvance";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "5bd72f41-e6f3-4f60-90aa-09869abe0e22";
-          Item2 = "MigrateAuthenticationDatabase";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "615dfa9e-2497-4dbb-a472-61938b752c5b";
-          Item2 = "FixPlaylistOwner";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "67445d54-b895-4b24-9f4c-35ce0690ea07";
-          Item2 = "MigrateRatingLevels";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "cf6fabc2-9fbe-4933-84a5-ffe52ef22a58";
-          Item2 = "FixAudioData";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "96c156a2-7a13-4b3b-a8b8-fb80c94d20c0";
-          Item2 = "RemoveDuplicatePlaylistChildren";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "eb58ebee-9514-4b9b-8225-12e1a40020df";
-          Item2 = "AddDefaultPluginRepository";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "5f86e7f6-d966-4c77-849d-7a7b40b68c4e";
-          Item2 = "ReaddDefaultPluginRepository";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "34a1a1c4-5572-418e-a2f8-32cdfe2668e8";
-          Item2 = "AddDefaultCastReceivers";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "852816e0-2712-49a9-9240-c6fc5fcad1a8";
-          Item2 = "UpdateDefaultPluginRepository10.9";
-        };
-      }
-      {
-        ValueTupleOfGuidString = {
-          Item1 = "4ef123d5-8eff-4b0b-869d-3aed07a60e1b";
-          Item2 = "MoveTrickplayFiles";
-        };
-      }
     ];
   };
 
@@ -546,12 +414,6 @@ in
         rootName = "EncodingOptions";
         attrs = encoding;
         name = "encoding";
-      })
-
-      (makeXmlTemplate {
-        rootName = "MigrationOptions";
-        attrs = migrations;
-        name = "migrations";
       })
 
       (makeXmlTemplate {
