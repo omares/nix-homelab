@@ -76,6 +76,80 @@ module serves as the registry of machines that forms the foundation of my homela
 This structure creates a clean separation between implementation (modules) and activation (roles).
 
 
+## Deployment Workflow
+
+This project manages NixOS virtual machines running on [Proxmox VE](https://www.proxmox.com/). Configurations are deployed using [deploy-rs](https://github.com/serokell/deploy-rs).
+
+### Adding a New Node
+
+1. **Clone and boot a VM** from a NixOS template in Proxmox (see [Proxmox VM Templates](#proxmox-vm-templates) for creating templates), then note the assigned IP address
+
+2. **Register the node** in `modules/infrastructure/nodes.nix`:
+   ```nix
+   my-service-01 = {
+     roles = [
+       config.flake.nixosModules.role-my-service
+       config.flake.nixosModules.role-monitoring-client
+     ];
+     host = "10.10.22.xxx";  # IP from step 1
+   };
+   ```
+
+3. **Deploy the configuration**:
+   ```bash
+   deploy .#my-service-01 --skip-checks
+   ```
+
+The node is now managed by this flake and receives updates via deploy-rs.
+
+### Roles
+
+Roles determine what services and configurations run on a node. Each role is a composable unit defined in the `roles/` directory.
+
+Common patterns:
+- Most nodes include `role-monitoring-client` for observability
+- Most nodes include `role-atuin-client` for shell history sync
+- Service-specific roles (e.g., `role-postgres`, `role-starr-radarr`) configure the primary function
+
+A node can have multiple roles, allowing flexible composition of functionality.
+
+### Node Configuration Options
+
+#### DNS Records
+
+Nodes can automatically receive DNS records by specifying a VLAN:
+
+```nix
+dns = {
+  vlan = "vm";  # Creates: my-service-01.vm.mares.id
+};
+```
+
+#### Reverse Proxy
+
+Nodes can be exposed through the reverse proxy with automatic HTTPS:
+
+```nix
+proxy = {
+  port = 8080;                    # Backend service port
+  subdomains = [ "my-service" ];  # Creates: my-service.mares.id
+  websockets = true;              # Enable WebSocket support
+  protocol = "https";             # Backend protocol (default: http)
+};
+```
+
+#### Non-Managed Nodes
+
+External services not running NixOS (e.g., TrueNAS, Proxmox hosts) can be registered for DNS/proxy configuration without receiving NixOS deployments:
+
+```nix
+truenas = {
+  managed = false;
+  host = "10.10.22.10";
+  proxy = { port = 80; };
+};
+```
+
 ## Development
 
 ### Formatting
@@ -161,7 +235,8 @@ nix build .#proxmox-x86-optimized
 
 The build VM can be used immediately after deployment.
 
-## Proxmox VM ID Conventions
+<details>
+<summary>Proxmox VM ID Conventions</summary>
 
 ### Overview
 - `1-99`: Reserved for cluster/system use
@@ -253,7 +328,10 @@ The build VM can be used immediately after deployment.
 - Document any deviations from this scheme
 - Consider using tags in addition to ID ranges for better organization
 
-## VM Naming Convention
+</details>
+
+<details>
+<summary>VM Naming Convention</summary>
 
 ### Format
 `{purpose}-{nn}`
@@ -339,3 +417,5 @@ ha-01      # Home Assistant
 - Avoid environment prefixes unless needed (dev/prod)
 - Consider DNS implications when naming
 - Keep consistent across documentation and configurations
+
+</details>
