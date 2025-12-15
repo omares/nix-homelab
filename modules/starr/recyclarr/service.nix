@@ -16,15 +16,6 @@ in
     };
 
     systemd.services.recyclarr = {
-      serviceConfig = {
-        LoadCredential = [
-          "sonarr-api_key:${config.sops.secrets.sonarr-api_key.path}"
-          "radarr-api_key:${config.sops.secrets.radarr-api_key.path}"
-        ];
-      };
-    };
-
-    systemd.services.recyclarr = {
       wants = [
         "sops-nix.service"
       ];

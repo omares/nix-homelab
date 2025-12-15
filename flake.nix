@@ -17,6 +17,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nix-sops-vault = {
       url = "git+ssh://git@github.com/omares/nix-sops-vault.git";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -32,6 +37,7 @@
       nixos-generators,
       deploy-rs,
       sops-nix,
+      treefmt-nix,
       nix-sops-vault,
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
@@ -42,6 +48,7 @@
       ];
 
       imports = [
+        inputs.treefmt-nix.flakeModule
         ./flake
         ./modules/infrastructure
       ];

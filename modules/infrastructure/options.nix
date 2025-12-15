@@ -172,6 +172,13 @@ in
                 default = null;
                 description = "Proxy configuration for this node";
               };
+
+              deployGroups = lib.mkOption {
+                type = lib.types.listOf lib.types.str;
+                default = [ ];
+                description = "Groups this node belongs to for batch deployments";
+                example = ''[ "infra" "dns" ]'';
+              };
             };
           }
         )
