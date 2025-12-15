@@ -37,8 +37,6 @@ in
     services.adguardhome = {
       enable = true;
       mutableSettings = false;
-      openFirewall = true;
-
       host = nodeCfg.host;
       settings = {
 
@@ -65,7 +63,7 @@ in
           bind_hosts = [ "0.0.0.0" ];
           port = 53;
           anonymize_client_ip = false;
-          ratelimit = 20;
+          ratelimit = 50;
           ratelimit_subnet_len_ipv4 = 24;
           ratelimit_subnet_len_ipv6 = 56;
           ratelimit_whitelist = [ ];
@@ -101,10 +99,10 @@ in
           cache_size = 4194304;
           cache_ttl_min = 0;
           cache_ttl_max = 0;
-          cache_optimistic = false;
+          cache_optimistic = true;
           bogus_nxdomain = [ ];
           aaaa_disabled = false;
-          enable_dnssec = false;
+          enable_dnssec = true;
           edns_client_subnet = {
             custom_ip = "";
             enabled = false;
@@ -133,12 +131,12 @@ in
           hostsfile_enabled = true;
         };
         tls = {
-          enabled = true;
+          enabled = false;
           server_name = "${name}.mares.id";
           force_https = false;
           port_https = 443;
           port_dns_over_tls = 853;
-          port_dns_over_quic = 853;
+          port_dns_over_quic = 784;
           port_dnscrypt = 0;
           dnscrypt_config_file = "";
           allow_unencrypted_doh = true;
@@ -151,7 +149,7 @@ in
         querylog = {
           dir_path = "";
           ignored = [ ];
-          interval = "2160h";
+          interval = "720h";
           size_memory = 1000;
           enabled = true;
           file_enabled = true;
