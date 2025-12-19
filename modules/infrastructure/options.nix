@@ -173,11 +173,11 @@ in
                 description = "Proxy configuration for this node";
               };
 
-              deployGroups = lib.mkOption {
+              tags = lib.mkOption {
                 type = lib.types.listOf lib.types.str;
                 default = [ ];
-                description = "Groups this node belongs to for batch deployments";
-                example = ''[ "infra" "dns" ]'';
+                description = "Tags for this node (used for deployment groups and feature filtering)";
+                example = ''[ "infra" "dns" "technitium" ]'';
               };
             };
           }
