@@ -66,12 +66,6 @@
       description = "DNS server's own hostname (for TLS cert)";
     };
 
-    blockPageAddress = lib.mkOption {
-      type = lib.types.str;
-      example = "10.10.22.199";
-      description = "IP address for block page responses";
-    };
-
     acmeDirectory = lib.mkOption {
       type = lib.types.str;
       example = "/var/lib/acme/dns.mares.id";
@@ -101,6 +95,39 @@
       );
       default = [ ];
       description = "A records to create in the zone (always overwrites)";
+    };
+
+    # Cluster options
+    clusterRole = lib.mkOption {
+      type = lib.types.enum [
+        "primary"
+        "secondary"
+      ];
+      description = "Role in the Technitium cluster";
+    };
+
+    clusterDomain = lib.mkOption {
+      type = lib.types.str;
+      example = "cluster.dns.mares.id";
+      description = "Cluster domain for node communication";
+    };
+
+    primaryServer = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "10.10.22.199";
+      description = "Primary server IP address (required for secondary nodes)";
+    };
+
+    nodeIpAddress = lib.mkOption {
+      type = lib.types.str;
+      description = "This node's IP address for cluster registration";
+    };
+
+    nodeDomain = lib.mkOption {
+      type = lib.types.str;
+      example = "dns-04.mares.id";
+      description = "This node's domain name (dnsServerDomain). Must end with clusterDomain.";
     };
 
   };

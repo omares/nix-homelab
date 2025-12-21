@@ -33,7 +33,6 @@ in
       enable = true;
 
       inherit zone domain;
-      blockPageAddress = nodeCfg.host;
       acmeDirectory = config.security.acme.certs.${domain}.directory;
       serverAddresses = lib.mapAttrsToList (_: node: node.host) technitiumNodes;
       dnsRecords = lib.mapAttrsToList (_: node: {
@@ -45,10 +44,8 @@ in
       tsigKeyName = "technitium-cluster";
 
       forwarders = [
-        "https://zero.dns0.eu/"
-        "https://dns.adguard-dns.com/dns-query"
-        "https://dns.cloudflare.com/dns-query"
         "https://dns.quad9.net/dns-query"
+        "https://base.dns.mullvad.net/dns-query"
       ];
 
       blockLists = [
@@ -85,6 +82,12 @@ in
           forwarder = "10.10.22.1";
         }
       ];
+
+      # Cluster configuration
+      clusterRole = "primary";
+      clusterDomain = zone;
+      nodeIpAddress = nodeCfg.host;
+      nodeDomain = domain; # dns.mares.id
     };
   };
 }

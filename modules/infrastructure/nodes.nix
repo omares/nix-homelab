@@ -59,7 +59,10 @@ in
       };
 
       dns-01 = {
-        tags = [ "dns" "infra" ];
+        tags = [
+          "dns"
+          "infra"
+        ];
         roles = [
           config.flake.nixosModules.role-dns
           config.flake.nixosModules.role-proxmox-legacy
@@ -78,7 +81,10 @@ in
       };
 
       dns-02 = {
-        tags = [ "dns" "infra" ];
+        tags = [
+          "dns"
+          "infra"
+        ];
         roles = [
           config.flake.nixosModules.role-dns
           config.flake.nixosModules.role-proxmox-legacy
@@ -98,9 +104,14 @@ in
       };
 
       dns-03 = {
-        tags = [ "dns" "infra" "technitium" ];
+        tags = [
+          "dns"
+          "infra"
+          "technitium"
+          "technitium-primary"
+        ];
         roles = [
-          config.flake.nixosModules.role-dns-technitium
+          config.flake.nixosModules.role-dns-technitium-primary
           config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
         ];
@@ -113,6 +124,25 @@ in
         proxy = {
           port = 5380;
           subdomains = [ "technitium" ];
+        };
+      };
+
+      dns-04 = {
+        tags = [
+          "dns"
+          "infra"
+          "technitium"
+          "technitium-secondary"
+        ];
+        roles = [
+          config.flake.nixosModules.role-dns-technitium-secondary
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+        ];
+        host = "10.10.22.225";
+
+        dns = {
+          vlan = "vm";
         };
       };
 
