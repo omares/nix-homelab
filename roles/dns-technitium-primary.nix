@@ -41,7 +41,6 @@ in
       }) dnsNodes;
 
       proxyHost = "10.10.22.103";
-      tsigKeyName = "technitium-cluster";
 
       forwarders = [
         "https://dns.quad9.net/dns-query"

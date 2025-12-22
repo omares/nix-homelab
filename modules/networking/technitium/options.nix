@@ -48,12 +48,6 @@
       description = "Conditional forwarders for reverse DNS zones";
     };
 
-    tsigKeyName = lib.mkOption {
-      type = lib.types.str;
-      example = "technitium-cluster";
-      description = "Name for the TSIG key used for zone transfers and cluster communication";
-    };
-
     zone = lib.mkOption {
       type = lib.types.str;
       example = "mares.id";
