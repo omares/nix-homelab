@@ -195,7 +195,7 @@ Use `neploy` for deployments with formatted output via [nix-output-monitor](http
 ./bin/neploy group all
 ```
 
-Nodes are assigned to deploy groups via the `deployGroups` attribute in `modules/infrastructure/nodes.nix`. A node can belong to multiple groups.
+Nodes are assigned tags via the `tags` attribute in `modules/infrastructure/nodes.nix`. Tags are used for deployment grouping and feature filtering. A node can have multiple tags.
 
 ## Proxmox VM Templates
 

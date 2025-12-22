@@ -13,7 +13,7 @@ in
     };
     nodes = {
       atuin-01 = {
-        deployGroups = [ "infra" ];
+        tags = [ "infra" ];
         roles = [
           config.flake.nixosModules.role-atuin-server
           config.flake.nixosModules.role-atuin-client
@@ -32,7 +32,7 @@ in
       };
 
       build-01 = {
-        deployGroups = [ "build" ];
+        tags = [ "build" ];
         roles = [
           config.flake.nixosModules.role-proxmox-builder
           config.flake.nixosModules.role-monitoring-client
@@ -45,7 +45,7 @@ in
       };
 
       build-02 = {
-        deployGroups = [ "build" ];
+        tags = [ "build" ];
         roles = [
           config.flake.nixosModules.role-proxmox-arm
           config.flake.nixosModules.role-monitoring-client
@@ -59,7 +59,10 @@ in
       };
 
       dns-01 = {
-        deployGroups = [ "dns" "infra" ];
+        tags = [
+          "dns"
+          "infra"
+        ];
         roles = [
           config.flake.nixosModules.role-dns
           config.flake.nixosModules.role-proxmox-legacy
@@ -78,7 +81,10 @@ in
       };
 
       dns-02 = {
-        deployGroups = [ "dns" "infra" ];
+        tags = [
+          "dns"
+          "infra"
+        ];
         roles = [
           config.flake.nixosModules.role-dns
           config.flake.nixosModules.role-proxmox-legacy
@@ -97,8 +103,51 @@ in
         };
       };
 
+      dns-03 = {
+        tags = [
+          "dns"
+          "infra"
+          "technitium"
+          "technitium-primary"
+        ];
+        roles = [
+          config.flake.nixosModules.role-dns-technitium-primary
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+        ];
+        host = "10.10.22.199";
+
+        dns = {
+          vlan = "vm";
+        };
+
+        proxy = {
+          port = 5380;
+          subdomains = [ "technitium" ];
+        };
+      };
+
+      dns-04 = {
+        tags = [
+          "dns"
+          "infra"
+          "technitium"
+          "technitium-secondary"
+        ];
+        roles = [
+          config.flake.nixosModules.role-dns-technitium-secondary
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+        ];
+        host = "10.10.22.225";
+
+        dns = {
+          vlan = "vm";
+        };
+      };
+
       mon-01 = {
-        deployGroups = [ "infra" ];
+        tags = [ "infra" ];
         roles = [
           config.flake.nixosModules.role-monitoring-server
           config.flake.nixosModules.role-monitoring-pve
@@ -120,7 +169,7 @@ in
       };
 
       proxy-01 = {
-        deployGroups = [ "infra" ];
+        tags = [ "infra" ];
         roles = [
           config.flake.nixosModules.role-proxy
           config.flake.nixosModules.role-proxmox-legacy
@@ -132,7 +181,7 @@ in
       };
 
       db-01 = {
-        deployGroups = [ "infra" ];
+        tags = [ "infra" ];
         roles = [
           config.flake.nixosModules.role-postgres
           config.flake.nixosModules.role-postgres-backup
@@ -149,7 +198,7 @@ in
       };
 
       starr-sabnzbd-01 = {
-        deployGroups = [ "starr" ];
+        tags = [ "starr" ];
         roles = [
           config.flake.nixosModules.role-starr-sabnzbd
           config.flake.nixosModules.role-proxmox-legacy
@@ -171,7 +220,7 @@ in
       };
 
       starr-prowlarr-01 = {
-        deployGroups = [ "starr" ];
+        tags = [ "starr" ];
         roles = [
           config.flake.nixosModules.role-starr-prowlarr
           config.flake.nixosModules.role-proxmox-legacy
@@ -189,7 +238,7 @@ in
       };
 
       starr-radarr-01 = {
-        deployGroups = [ "starr" ];
+        tags = [ "starr" ];
         roles = [
           config.flake.nixosModules.role-starr-radarr
           config.flake.nixosModules.role-proxmox-legacy
@@ -211,7 +260,7 @@ in
       };
 
       starr-sonarr-01 = {
-        deployGroups = [ "starr" ];
+        tags = [ "starr" ];
         roles = [
           config.flake.nixosModules.role-starr-sonarr
           config.flake.nixosModules.role-proxmox-legacy
@@ -233,7 +282,7 @@ in
       };
 
       starr-recyclarr-01 = {
-        deployGroups = [ "starr" ];
+        tags = [ "starr" ];
         roles = [
           config.flake.nixosModules.role-starr-recyclarr
           config.flake.nixosModules.role-proxmox-legacy
@@ -249,7 +298,7 @@ in
       };
 
       starr-jellyfin-01 = {
-        deployGroups = [ "starr" ];
+        tags = [ "starr" ];
         roles = [
           config.flake.nixosModules.role-starr-jellyfin
           config.flake.nixosModules.role-proxmox-legacy
@@ -270,7 +319,7 @@ in
       };
 
       starr-jellyseerr-01 = {
-        deployGroups = [ "starr" ];
+        tags = [ "starr" ];
         roles = [
           config.flake.nixosModules.role-starr-jellyseerr
           config.flake.nixosModules.role-proxmox-legacy
@@ -292,7 +341,7 @@ in
       };
 
       nvr-server-01 = {
-        deployGroups = [ "nvr" ];
+        tags = [ "nvr" ];
         roles = [
           config.flake.nixosModules.role-scrypted-server
           config.flake.nixosModules.role-atuin-client
@@ -314,7 +363,7 @@ in
       };
 
       nvr-client-01 = {
-        deployGroups = [ "nvr" ];
+        tags = [ "nvr" ];
         roles = [
           config.flake.nixosModules.role-scrypted-client-openvino
           config.flake.nixosModules.role-atuin-client
@@ -329,7 +378,7 @@ in
       };
 
       nvr-client-02 = {
-        deployGroups = [ "nvr" ];
+        tags = [ "nvr" ];
         roles = [
           config.flake.nixosModules.role-scrypted-client-tensorflow
           config.flake.nixosModules.role-atuin-client

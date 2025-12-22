@@ -34,14 +34,14 @@ show_help() {
 # Get nodes for a deploy group from flake
 get_group_nodes() {
   local group="$1"
-  nix eval "$FLAKE_ROOT#deployGroups.$group" --json 2>/dev/null | \
+  nix eval "$FLAKE_ROOT#tags.$group" --json 2>/dev/null | \
     jq -r '.[]' | sed 's/^/.#/'
 }
 
 # List available groups
 list_groups() {
   echo "Available deploy groups:"
-  nix eval "$FLAKE_ROOT#deployGroups" --json 2>/dev/null | \
+  nix eval "$FLAKE_ROOT#tags" --json 2>/dev/null | \
     jq -r 'to_entries[] | "  \(.key) - \(.value | join(", "))"'
 }
 

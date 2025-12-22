@@ -2,7 +2,7 @@
   imports = [
     ./checks.nix
     ./deploy.nix
-    ./deployGroups.nix
+    ./tags.nix
     ./devShells.nix
     ./lib.nix
     ./nixosConfigurations.nix
