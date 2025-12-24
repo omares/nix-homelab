@@ -14,7 +14,6 @@ in
       type = lib.types.enum [
         "server"
         "client-openvino"
-        "client-tensorflow"
       ];
       default = "server";
       description = "Role of this Scrypted instance";
