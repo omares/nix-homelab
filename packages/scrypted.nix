@@ -38,7 +38,7 @@ in
     hash = "sha256-5fFyrphAHSAJYfcw5lg7X7zaLt4SXIHQL/3SEPcStiY=";
   };
 
-  npmDepsHash = "sha256-pKigplSr+3PVT4Y25Cc1QwOtrjMO7Gki23V9GXBntoM=";
+  npmDepsHash = "sha256-BDAWNudfRYY/uphvc/SFaKU29ceUIEt7DjJ1t7c5O60=";
 
   sourceRoot = "${src.name}/server";
 
@@ -48,26 +48,41 @@ in
     moreutils
   ];
 
-  # Replace @scrypted/node-pty (broken build) with official node-pty.
-  # The vendored package-lock.json must be updated when upgrading scrypted:
-  #   1. Download new package-lock.json from upstream
-  #   2. Remove @scrypted/node-pty, add node-pty and node-addon-api
-  #   3. Update npmDepsHash
+  # Replace @scrypted/node-pty with official node-pty.
+  # @scrypted/node-pty depends on @scrypted/prebuild-install which tries to download
+  # prebuilt binaries during npm fetch - this fails in Nix's sandbox.
+  # The official node-pty uses node-addon-api and compiles from source instead.
   postPatch = ''
+    # Patch package.json: replace @scrypted/node-pty with node-pty
     ${lib.getExe jq} --sort-keys \
-      'del(.dependencies["@scrypted/node-pty"]) | .dependencies["node-pty"] |= "1.1.0"' \
+      'del(.dependencies["@scrypted/node-pty"]) | .dependencies["node-pty"] = "1.1.0"' \
       package.json \
       | ${lib.getExe' moreutils "sponge"} package.json
 
-    cp ${./package-lock.json} package-lock.json
+    # Patch package-lock.json: remove @scrypted packages, add node-pty + node-addon-api
+    ${lib.getExe jq} --sort-keys '
+      del(.packages["node_modules/@scrypted/node-pty"]) |
+      del(.packages["node_modules/prebuild-install"]) |
+      .packages["node_modules/node-pty"] = {
+        "version": "1.1.0",
+        "resolved": "https://registry.npmjs.org/node-pty/-/node-pty-1.1.0.tgz",
+        "integrity": "sha512-20JqtutY6JPXTUnL0ij1uad7Qe1baT46lyolh2sSENDd4sTzKZ4nmAFkeAARDKwmlLjPx6XKRlwRUxwjOy+lUg==",
+        "hasInstallScript": true,
+        "license": "MIT",
+        "dependencies": { "node-addon-api": "^7.1.0" }
+      } |
+      .packages["node_modules/node-addon-api"] = {
+        "version": "7.1.0",
+        "resolved": "https://registry.npmjs.org/node-addon-api/-/node-addon-api-7.1.0.tgz",
+        "integrity": "sha512-mNcltoe1R8o7STTegSOHdnJNN7s5EUvhoS7ShnTHDyOSd+8H+UdWODq6qSv67PjC8Zc5JRT8+oLAMCr0SIXw7g==",
+        "license": "MIT",
+        "engines": { "node": "^16 || ^18 || >= 20" }
+      }
+    ' package-lock.json \
+      | ${lib.getExe' moreutils "sponge"} package-lock.json
   '';
 
-  # Skip postinstall scripts - they try to download Python (@scrypted/server)
-  # and ffmpeg (@scrypted/ffmpeg-static) binaries which fails in the sandbox.
-  # We provide these via makeWrapperArgs instead.
-  npmInstallFlags = [ "--ignore-scripts" ];
-  npmRebuildFlags = [ "--ignore-scripts" ];
-  npmBuildScript = "build";
+
 
   env = {
     SCRYPTED_PYTHON_PATH = lib.getExe python;
