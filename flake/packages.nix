@@ -76,14 +76,23 @@ in
 
         # scrypted package
         scrypted = import ../packages/scrypted.nix {
-
           inherit (pkgs)
             lib
+            stdenv
             buildNpmPackage
             fetchFromGitHub
-            nodejs_20
-            callPackage
+            nodejs_22
+            jq
+            moreutils
+            writers
             nix-update-script
+            python312
+            ffmpeg
+            bashInteractive
+            gcc-unwrapped
+            zlib
+            libdrm
+            libva
             ;
         };
       };

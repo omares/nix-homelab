@@ -18,11 +18,9 @@ in
       enable = true;
       extraPackages = with pkgs; [
         intel-media-driver # Primary driver for UHD 630
-        #intel-compute-runtime
         intel-compute-runtime-legacy1 # OpenCL for hardware tonemapping
-        # intel-vaapi-driver # Backup driver, good to have
-        # libva-vdpau-driver
         ocl-icd
+        vulkan-loader # Vulkan ICD loader
       ];
     };
 
@@ -30,6 +28,7 @@ in
       libva-utils # To test VA-API
       intel-gpu-tools # For GPU monitoring
       clinfo
+      vulkan-tools # vulkaninfo command for testing
     ];
 
     powerManagement = {

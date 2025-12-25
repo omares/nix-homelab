@@ -377,21 +377,6 @@ in
         };
       };
 
-      nvr-client-02 = {
-        tags = [ "nvr" ];
-        roles = [
-          config.flake.nixosModules.role-scrypted-client-tensorflow
-          config.flake.nixosModules.role-atuin-client
-          config.flake.nixosModules.role-monitoring-client
-        ];
-
-        host = "192.168.30.211";
-
-        dns = {
-          vlan = "vm";
-        };
-      };
-
       unifi = {
         managed = false;
 
