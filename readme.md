@@ -172,27 +172,32 @@ nix flake check
 | `nix flake check` | Validate flake, run deploy-rs checks, verify formatting |
 | `nix develop` | Enter development shell with deploy-rs, compose2nix |
 | `nix build .#<template>` | Build a Proxmox VM template |
-| `./bin/neploy .#<host>` | Deploy configuration to a host (with nom output) |
+| `./bin/d .#<host>` | Deploy configuration to a host |
 
 ### Deployment
 
-Use `neploy` for deployments with formatted output via [nix-output-monitor](https://github.com/maralorn/nix-output-monitor):
+Use `d` for deployments:
 
 ```bash
 # Single node
-./bin/neploy .#db-01
+./bin/d .#db-01
 
 # Multiple nodes
-./bin/neploy .#dns-01 .#dns-02
+./bin/d .#dns-01 .#dns-02
 
-# Deploy by group
-./bin/neploy group starr
+# Deploy by tag
+./bin/d tag starr
 
-# List available groups
-./bin/neploy group
+# List available tags
+./bin/d tag
 
-# Deploy all groups (infra → build → starr → nvr)
-./bin/neploy group all
+# Deploy all tagged nodes
+./bin/d --all
+
+# Verbose modes
+./bin/d -v .#dns-01      # nix -v
+./bin/d -vv .#dns-01     # nix -vv + deploy-rs debug
+./bin/d -vvv .#dns-01    # nix -vvv + deploy-rs debug
 ```
 
 Nodes are assigned tags via the `tags` attribute in `modules/infrastructure/nodes.nix`. Tags are used for deployment grouping and feature filtering. A node can have multiple tags.
