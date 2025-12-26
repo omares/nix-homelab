@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Generate SSH config from flake's sshConfig output
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+FLAKE_ROOT="$(dirname "$SCRIPT_DIR")"
+DEFAULT_OUTPUT="$HOME/.ssh/config.d/nix-proxmox"
+
+show_help() {
+  echo "Usage: ssh-config [options]"
+  echo ""
+  echo "Options:"
+  echo "  -w, --write    Write directly to $DEFAULT_OUTPUT"
+  echo "  -h, --help     Show help"
+  echo ""
+  echo "Without -w, prints to stdout for manual redirection."
+}
+
+generate_config() {
+  nix eval "$FLAKE_ROOT#sshConfig" --json | jq -r '
+    to_entries | sort_by(.key)[] |
+    "Host \(.key)\n    HostName \(.value.hostname)\n    User \(.value.user)\n"
+  '
+}
+
+case "${1:-}" in
+  -w|--write)
+    mkdir -p "$(dirname "$DEFAULT_OUTPUT")"
+    generate_config > "$DEFAULT_OUTPUT"
+    echo "Written to $DEFAULT_OUTPUT"
+    ;;
+  -h|--help)
+    show_help
+    ;;
+  "")
+    generate_config
+    ;;
+  *)
+    echo "Unknown option: $1"
+    show_help
+    exit 1
+    ;;
+esac

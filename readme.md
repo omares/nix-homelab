@@ -173,6 +173,7 @@ nix flake check
 | `nix develop` | Enter development shell with deploy-rs, compose2nix |
 | `nix build .#<template>` | Build a Proxmox VM template |
 | `./bin/d .#<host>` | Deploy configuration to a host |
+| `./bin/ssh-config` | Generate SSH config for all managed nodes |
 
 ### Deployment
 
@@ -201,6 +202,28 @@ Use `d` for deployments:
 ```
 
 Nodes are assigned tags via the `tags` attribute in `modules/infrastructure/nodes.nix`. Tags are used for deployment grouping and feature filtering. A node can have multiple tags.
+
+### SSH Configuration
+
+Generate an SSH config file for all managed nodes:
+
+```bash
+# Write directly to ~/.ssh/config.d/nix-proxmox
+./bin/ssh-config --write
+
+# Or print to stdout
+./bin/ssh-config
+
+# Then connect using just the node name
+ssh dns-01
+```
+
+The flake also exports `sshConfig` for use in Home Manager:
+
+```nix
+# In your home-manager config
+programs.ssh.matchBlocks = inputs.nix-proxmox.sshConfig;
+```
 
 ## Proxmox VM Templates
 
