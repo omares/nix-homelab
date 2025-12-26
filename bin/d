@@ -1,0 +1,158 @@
+#!/usr/bin/env bash
+# NixOS deployment helper using deploy-rs
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+FLAKE_ROOT="$(dirname "$SCRIPT_DIR")"
+
+# Colors
+BOLD='\033[1m'
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+# Verbosity (0=normal, 1=verbose, 2=very verbose, 3=maximum)
+VERBOSITY=0
+DEPLOY_ALL=false
+
+show_help() {
+  echo "Usage: d [options] <targets...>"
+  echo "       d [options] tag <name>"
+  echo "       d [options] --all"
+  echo ""
+  echo "Options:"
+  echo "  -v           Verbose (nix -v)"
+  echo "  -vv          Very verbose (nix -vv, deploy-rs debug)"
+  echo "  -vvv         Maximum verbosity (nix -vvv, deploy-rs debug)"
+  echo "  -a, --all    Deploy all tagged nodes"
+  echo "  -h, --help   Show help"
+  echo ""
+  echo "Examples:"
+  echo "  d .#dns-01              Deploy single node"
+  echo "  d .#dns-01 .#dns-02     Deploy multiple nodes"
+  echo "  d tag starr             Deploy nodes with 'starr' tag"
+  echo "  d --all                 Deploy all tagged nodes"
+  echo "  d -v tag infra          Verbose deploy"
+  echo "  d -vvv .#dns-01         Maximum verbosity"
+}
+
+# Get nodes for a tag from flake
+get_tag_nodes() {
+  local tag="$1"
+  nix eval "$FLAKE_ROOT#tags.$tag" --json 2>/dev/null | \
+    jq -r '.[]' | sed 's/^/.#/'
+}
+
+# Get all tag names from flake
+get_all_tags() {
+  nix eval "$FLAKE_ROOT#tags" --json 2>/dev/null | jq -r 'keys[]'
+}
+
+# List available tags
+list_tags() {
+  echo "Available tags:"
+  nix eval "$FLAKE_ROOT#tags" --json 2>/dev/null | \
+    jq -r 'to_entries[] | "  \(.key) - \(.value | join(", "))"'
+}
+
+# Deploy a single target
+deploy_target() {
+  local target="$1"
+  local tag="${2:-}"
+  local nix_args=""
+  local deploy_args="-s"
+
+  [[ $VERBOSITY -ge 1 ]] && nix_args="-v"
+  [[ $VERBOSITY -ge 2 ]] && nix_args="-vv" && deploy_args="-s -d"
+  [[ $VERBOSITY -ge 3 ]] && nix_args="-vvv"
+
+  local name="${target#.#}"
+  local tag_suffix=""
+  [[ -n "$tag" ]] && tag_suffix="  🏷️  ${tag}"
+
+  # Calculate padding (📡=1char/2wide, 🏷️=2chars/2wide)
+  local extra_width=1  # 📡 is 1 char but 2 wide
+  [[ -n "$tag_suffix" ]] && extra_width=1  # 🏷️ is 2 chars but 2 wide, so no extra
+  local content="  X ${name}${tag_suffix}  "
+  local width=64
+  local padding=$((width - ${#content} - extra_width))
+  [[ $padding -lt 0 ]] && padding=0
+  local spaces=$(printf '%*s' "$padding" '')
+
+  echo ""
+  echo -e "${CYAN}╭$(printf '─%.0s' $(seq 1 $width))╮${NC}"
+  echo -e "${CYAN}│${NC}  📡 ${BOLD}${GREEN}${name}${NC}${tag_suffix}${spaces}  ${CYAN}│${NC}"
+  echo -e "${CYAN}╰$(printf '─%.0s' $(seq 1 $width))╯${NC}"
+  echo ""
+
+  if [[ -n "$nix_args" ]]; then
+    deploy "$target" $deploy_args -- $nix_args
+  else
+    deploy "$target" $deploy_args
+  fi
+}
+
+# Deploy multiple targets sequentially
+deploy_targets() {
+  local tag="${1:-}"
+  shift || true
+  for target in "$@"; do
+    deploy_target "$target" "$tag"
+  done
+}
+
+# Deploy all tagged nodes
+deploy_all() {
+  local all_tags
+  mapfile -t all_tags < <(get_all_tags)
+
+  for tag in "${all_tags[@]}"; do
+    mapfile -t nodes < <(get_tag_nodes "$tag")
+    deploy_targets "$tag" "${nodes[@]}"
+  done
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -vvv)      VERBOSITY=3; shift ;;
+    -vv)       VERBOSITY=2; shift ;;
+    -v)        VERBOSITY=1; shift ;;
+    -a|--all)  DEPLOY_ALL=true; shift ;;
+    -h|--help) show_help; exit 0 ;;
+    *)         break ;;
+  esac
+done
+
+# Main logic
+if $DEPLOY_ALL; then
+  deploy_all
+  exit 0
+fi
+
+case "${1:-}" in
+  tag)
+    case "${2:-}" in
+      ""|--help|-h)
+        list_tags
+        ;;
+      *)
+        mapfile -t nodes < <(get_tag_nodes "$2")
+        if [ ${#nodes[@]} -eq 0 ]; then
+          echo "Error: Unknown tag '$2'"
+          echo ""
+          list_tags
+          exit 1
+        fi
+        deploy_targets "$2" "${nodes[@]}"
+        ;;
+    esac
+    ;;
+  ""|--help|-h)
+    show_help
+    ;;
+  *)
+    deploy_targets "" "$@"
+    ;;
+esac
