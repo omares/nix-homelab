@@ -101,6 +101,48 @@ Nix flakes only see git-tracked files. After creating new files:
 git add modules/<new>/ roles/<new>.nix
 ```
 
+### Secrets with LoadCredential
+
+Use systemd's `LoadCredential` for secure secret handling. This allows multiple services to read the same secret without file permission issues.
+
+**Module** - Accepts secret file path, configures LoadCredential, uses credentials path internally:
+
+```nix
+# Options
+tokenFile = lib.mkOption {
+  type = lib.types.path;
+  description = "Path to token file (loaded via systemd LoadCredential).";
+};
+
+# Config
+systemd.services.myservice.serviceConfig.LoadCredential = [
+  "my-token:${cfg.tokenFile}"
+];
+
+# Use the credentials path in service config (NOT the original path)
+services.myservice.settings.tokenFile = "/run/credentials/myservice.service/my-token";
+```
+
+**Role** - Declares secrets via sops-vault, passes paths to module:
+
+```nix
+sops-vault.items = [ "myservice" ];
+
+# For secrets read by provisioning scripts running as service user, set owner
+sops.secrets.myservice-admin_password.owner = "myservice";
+
+mares.myservice = {
+  enable = true;
+  tokenFile = config.sops.secrets.myservice-token.path;
+};
+```
+
+**Key points:**
+- `LoadCredential` copies secret to `/run/credentials/<service>.service/<name>`
+- Each service gets its own copy with proper permissions
+- Module uses credentials path (`/run/credentials/...`), role passes sops path (`/run/secrets/...`)
+- For secrets read directly by service user (not via LoadCredential), set `sops.secrets.*.owner`
+
 ### Comments
 
 Avoid redundant comments that restate what code obviously does:
