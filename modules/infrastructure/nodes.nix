@@ -377,6 +377,21 @@ in
         };
       };
 
+      mqtt-01 = {
+        tags = [ "automation" ];
+        roles = [
+          config.flake.nixosModules.role-mqtt
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+        ];
+
+        host = "10.10.22.227";
+
+        dns = {
+          vlan = "vm";
+        };
+      };
+
       unifi = {
         managed = false;
 

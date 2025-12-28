@@ -36,6 +36,87 @@ Long-running tasks MUST be delegated to sub-agents to avoid polluting the main c
 
 Keep the nix code simple.
 
+## Module Implementation Patterns
+
+### Module vs Role Responsibilities
+
+| Aspect | Module | Role |
+|--------|--------|------|
+| Service config | ✅ Implementation | ❌ |
+| Firewall rules | ✅ With `openFirewall` toggle | ❌ |
+| ACME cert request | ❌ | ✅ |
+| Cert path | ✅ Accepts `certDirectory` | ✅ Passes from ACME |
+| Systemd deps | ❌ | ✅ `after`/`wants` for resources |
+| Secrets declaration | ❌ | ✅ `sops-vault.items` |
+| Secrets usage | ✅ Accepts `*File` options | ✅ Passes `config.sops.secrets.*.path` |
+
+### Multi-File Module Structure
+
+```
+modules/<domain>/<service>/
+├── default.nix   # imports = [ ./options.nix ./service.nix ];
+├── options.nix   # Interface: mkOption/mkEnableOption
+└── service.nix   # Implementation: mkIf cfg.enable { ... }
+```
+
+### Role Structure
+
+```nix
+{ config, nodeCfg, mares, ... }:
+{
+  imports = [ ../modules/<domain>/<service> ];
+  sops-vault.items = [ "vault-name" ];
+  
+  mares.<domain>.<service> = {
+    enable = true;
+    bindAddress = nodeCfg.host;
+  };
+}
+```
+
+### ACME TLS Pattern
+
+`mares.networking.acme.enable` only sets defaults (email, dnsProvider, credentials). Each cert must be explicitly requested:
+
+```nix
+mares.networking.acme.enable = true;
+
+security.acme.certs.${acmeHost} = {
+  group = "service-group";
+  reloadServices = [ "service.service" ];
+};
+
+systemd.services.service = {
+  after = [ "acme-${acmeHost}.service" ];
+  wants = [ "acme-${acmeHost}.service" ];
+};
+
+mares.<domain>.<service>.certDirectory = config.security.acme.certs.${acmeHost}.directory;
+```
+
+### Git Tracking
+
+Nix flakes only see git-tracked files. After creating new files:
+```bash
+git add modules/<new>/ roles/<new>.nix
+```
+
+### Comments
+
+Avoid redundant comments that restate what code obviously does:
+```nix
+# Bad
+# Open firewall for MQTT port
+networking.firewall.allowedTCPPorts = [ cfg.port ];
+
+# Good - no comment needed
+networking.firewall.allowedTCPPorts = [ cfg.port ];
+
+# Good - explains WHY
+# Technitium requires PFX format, convert from ACME PEM files
+systemd.services.technitium-cert = { ... };
+```
+
 ## MCP Tools (MANDATORY)
 ALWAYS use NixOS MCP server for all Nix operations. Especially for verifying the correctness of options and other configurations:
 `nixos_nixos_search`, `nixos_nixos_info`, `nixos_home_manager_*`, `nixos_darwin_*`, `nixos_nixhub_*` for package/option lookups.
