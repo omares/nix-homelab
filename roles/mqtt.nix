@@ -46,6 +46,7 @@ in
         acl = [
           "readwrite shellies/#"
           "readwrite shelly/#"
+          "readwrite shellies_discovery/#"
         ];
       };
     };

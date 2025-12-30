@@ -30,7 +30,9 @@ in
       longitude: ${config.sops.placeholder."hass-longitude"}
 
       # Database connections
-      recorder_db_url: "postgresql://hass:${config.sops.placeholder."pgsql-hass_password"}@${dbNode.dns.fqdn}:6432/hass"
+      recorder_db_url: "postgresql://hass:${
+        config.sops.placeholder."pgsql-hass_password"
+      }@${dbNode.dns.fqdn}:6432/hass"
 
       # MQTT
       mqtt_password: ${config.sops.placeholder."mqtt-hass_password"}
@@ -54,8 +56,10 @@ in
       host = monNode.dns.fqdn;
     };
 
-    mqtt.enable = true;
-    shelly.enable = true;
+    # Shelly device IDs (MQTT prefixes) for the announce automation
+    shelly.deviceIds = [
+      "shellies/office_fixed_window_shutter"
+    ];
   };
 
   mares.backup.restic = {
