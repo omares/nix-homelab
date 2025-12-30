@@ -5,6 +5,11 @@
 }:
 let
   cfg = config.mares.automation.mosquitto;
+
+  # Generate a hash of ACL config to trigger reloads when it changes
+  aclConfigHash = builtins.hashString "sha256" (
+    builtins.toJSON (lib.mapAttrs (_name: userCfg: userCfg.acl) cfg.users)
+  );
 in
 {
   config = lib.mkIf cfg.enable {
@@ -31,5 +36,8 @@ in
         }
       ];
     };
+
+    # Reload Mosquitto when ACL configuration changes
+    systemd.services.mosquitto.reloadTriggers = [ aclConfigHash ];
   };
 }
