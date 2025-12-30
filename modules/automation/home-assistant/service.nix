@@ -9,6 +9,8 @@ in
 {
   config = lib.mkIf cfg.enable {
     networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
+    # mDNS for zeroconf device discovery (Shelly, etc.)
+    networking.firewall.allowedUDPPorts = lib.mkIf cfg.openFirewall [ 5353 ];
 
     services.home-assistant = {
       enable = true;
@@ -29,7 +31,8 @@ in
         ]
         ++ cfg.extraComponents
         ++ lib.optionals cfg.influxdb.enable [ "influxdb" ]
-        ++ lib.optionals cfg.mqtt.enable [ "mqtt" ];
+        ++ lib.optionals cfg.mqtt.enable [ "mqtt" ]
+        ++ lib.optionals cfg.shelly.enable [ "shelly" ];
 
       # Note: MQTT broker connection must be configured via UI after onboarding
       # (Settings > Devices & Services > Add Integration > MQTT)
@@ -45,6 +48,9 @@ in
             longitude = "!secret longitude";
             country = "DE";
           };
+
+          # Enables zeroconf/mDNS discovery for Shelly and other devices
+          default_config = { };
 
           http = {
             server_host = cfg.bindAddress;

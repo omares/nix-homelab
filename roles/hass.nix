@@ -55,6 +55,7 @@ in
     };
 
     mqtt.enable = true;
+    shelly.enable = true;
   };
 
   mares.backup.restic = {

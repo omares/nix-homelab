@@ -99,5 +99,7 @@ in
     };
 
     mqtt.enable = mkEnableOption "MQTT integration (broker configured via UI after onboarding)";
+
+    shelly.enable = mkEnableOption "Shelly integration for local control of Shelly devices";
   };
 }
