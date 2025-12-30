@@ -79,19 +79,30 @@ modules/<domain>/<service>/
 `mares.networking.acme.enable` only sets defaults (email, dnsProvider, credentials). Each cert must be explicitly requested:
 
 ```nix
-mares.networking.acme.enable = true;
+{ config, nodeCfg, ... }:
+let
+  # IMPORTANT: Always use nodeCfg.dns.fqdn for the ACME hostname.
+  # This resolves to <nodename>.vm.mares.id (e.g., mqtt-01.vm.mares.id)
+  # which matches the auto-generated DNS A records.
+  # Do NOT hardcode hostnames like "mqtt-01.mares.id" - these resolve
+  # to the proxy server, not the actual VM.
+  acmeHost = nodeCfg.dns.fqdn;
+in
+{
+  mares.networking.acme.enable = true;
 
-security.acme.certs.${acmeHost} = {
-  group = "service-group";
-  reloadServices = [ "service.service" ];
-};
+  security.acme.certs.${acmeHost} = {
+    group = "service-group";
+    reloadServices = [ "service.service" ];
+  };
 
-systemd.services.service = {
-  after = [ "acme-${acmeHost}.service" ];
-  wants = [ "acme-${acmeHost}.service" ];
-};
+  systemd.services.service = {
+    after = [ "acme-${acmeHost}.service" ];
+    wants = [ "acme-${acmeHost}.service" ];
+  };
 
-mares.<domain>.<service>.certDirectory = config.security.acme.certs.${acmeHost}.directory;
+  mares.<domain>.<service>.certDirectory = config.security.acme.certs.${acmeHost}.directory;
+}
 ```
 
 ### Git Tracking

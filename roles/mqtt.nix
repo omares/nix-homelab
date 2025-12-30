@@ -1,12 +1,10 @@
 {
   config,
   nodeCfg,
-  mares,
   ...
 }:
 let
-  domain = mares.infrastructure.proxy.domain;
-  acmeHost = "mqtt-01.${domain}";
+  acmeHost = nodeCfg.dns.fqdn;
 in
 {
   imports = [
