@@ -40,7 +40,7 @@ in
       package = pkgs.writeShellScriptBin "restic" ''
         exec /run/wrappers/bin/restic "$@"
       '';
-      repository = "sftp:truenas-backup:/${job.repoPath}";
+      repository = "sftp:truenas-backup:${job.repoPath}";
       passwordFile = job.passwordFile;
       paths = job.paths;
       exclude = job.exclude;
