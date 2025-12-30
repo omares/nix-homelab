@@ -392,6 +392,27 @@ in
         };
       };
 
+      hass-01 = {
+        tags = [ "automation" ];
+        roles = [
+          config.flake.nixosModules.role-hass
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+        ];
+
+        host = "10.10.22.104";
+
+        dns = {
+          vlan = "vm";
+        };
+
+        proxy = {
+          port = 8123;
+          subdomains = [ "ha" ];
+          websockets = true;
+        };
+      };
+
       unifi = {
         managed = false;
 

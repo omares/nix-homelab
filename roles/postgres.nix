@@ -53,6 +53,7 @@ in
       sonarr_log = { };
       jellyseerr = { };
       atuin = { };
+      hass = { };
     };
     users = {
       prowlarr = {
@@ -95,6 +96,11 @@ in
         pgbouncerParams = {
           pool_mode = "session";
         };
+      };
+      hass = {
+        ensureDBOwnership = true;
+        createdb = false;
+        databases = [ "hass" ];
       };
     };
   };
