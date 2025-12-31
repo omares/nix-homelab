@@ -342,6 +342,9 @@ in
             commit_interval = cfg.recorder.commitInterval;
             exclude = {
               domains = cfg.recorder.excludeDomains;
+              entity_globs = [
+                "sensor.*_last_restart"
+              ];
             };
           };
 
