@@ -58,9 +58,22 @@ in
 
     # Shelly device IDs (MQTT prefixes) for the announce automation
     shelly.deviceIds = [
-      "shellies/office_fixed_window_shutter"
+      "shellies/carport_garden_path_light_relay"
+      "shellies/guest_bathroom_shutter_cover"
+      "shellies/garden_pool_circulation_pump_relay"
+      "shellies/garden_pool_heating_pump_relay"
+      "shellies/hallway_shutter_cover"
+      "shellies/kitchen_shutter_cover"
+      "shellies/living_room_shutter_left_cover"
+      "shellies/living_room_shutter_right_cover"
+      "shellies/living_room_shutter_terrace_door_cover"
+      "shellies/living_room_shutter_terrace_window_cover"
+      "shellies/office_shutter_fixed_cover"
+      "shellies/office_shutter_cover"
+      "shellies/utility_room_shutter_cover"
     ];
   };
+  #
 
   mares.backup.restic = {
     enable = true;
