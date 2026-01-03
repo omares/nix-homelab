@@ -1,20 +1,18 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 let
   cfg = config.mares.automation.mosquitto;
-
-  # Generate a hash of ACL config to trigger reloads when it changes
-  aclConfigHash = builtins.hashString "sha256" (
-    builtins.toJSON (lib.mapAttrs (_name: userCfg: userCfg.acl) cfg.users)
-  );
+  mqttPkg = config.services.mosquitto.package;
 in
 {
   config = lib.mkIf cfg.enable {
-    # Open firewall for MQTT TLS port
-    networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
+    networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [
+      cfg.port
+    ];
 
     services.mosquitto = {
       enable = true;
@@ -27,17 +25,38 @@ in
             certfile = "${cfg.certDirectory}/cert.pem";
             cafile = "${cfg.certDirectory}/chain.pem";
             keyfile = "${cfg.certDirectory}/key.pem";
+            require_certificate = false;
           };
 
-          users = lib.mapAttrs (_name: userCfg: {
-            passwordFile = userCfg.passwordFile;
-            acl = userCfg.acl;
-          }) cfg.users;
+          authPlugins = lib.mkIf cfg.dynamicSecurity.enable [
+            {
+              plugin = "${mqttPkg.lib}/lib/mosquitto_dynamic_security.so";
+              options = {
+                config_file = cfg.dynamicSecurity.configFile;
+              };
+            }
+          ];
         }
       ];
     };
 
-    # Reload Mosquitto when ACL configuration changes
-    systemd.services.mosquitto.reloadTriggers = [ aclConfigHash ];
+    # Provide mosquitto_ctrl config and wrapper for Dynamic Security management
+    # Hostname derived from certDirectory path (e.g., /var/lib/acme/mqtt-01.vm.mares.id -> mqtt-01.vm.mares.id)
+    environment.etc."mosquitto_ctrl.conf" = lib.mkIf cfg.dynamicSecurity.enable {
+      text = ''
+        -h ${builtins.baseNameOf cfg.certDirectory}
+        -p ${toString cfg.port}
+        --cafile /etc/ssl/certs/ca-certificates.crt
+        -u admin
+      '';
+    };
+
+    environment.systemPackages = lib.mkIf cfg.dynamicSecurity.enable [
+      mqttPkg
+      pkgs.openssl
+      (pkgs.writeShellScriptBin "mctl" ''
+        exec ${mqttPkg}/bin/mosquitto_ctrl -o /etc/mosquitto_ctrl.conf "$@"
+      '')
+    ];
   };
 }

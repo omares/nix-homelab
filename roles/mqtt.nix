@@ -13,7 +13,6 @@ in
   ];
 
   sops-vault.items = [
-    "mqtt"
     "easydns"
   ];
 
@@ -23,6 +22,7 @@ in
   security.acme.certs.${acmeHost} = {
     group = "mosquitto";
     reloadServices = [ "mosquitto.service" ];
+    keyType = "rsa4096";
   };
 
   # Ensure mosquitto waits for ACME certificate
@@ -36,19 +36,7 @@ in
     bindAddress = nodeCfg.host;
     certDirectory = config.security.acme.certs.${acmeHost}.directory;
 
-    users = {
-      hass = {
-        passwordFile = config.sops.secrets.mqtt-hass_password.path;
-        acl = [ "readwrite #" ];
-      };
-      shelly = {
-        passwordFile = config.sops.secrets.mqtt-shelly_password.path;
-        acl = [
-          "readwrite shellies/#"
-          "readwrite shelly/#"
-          "readwrite shellies_discovery/#"
-        ];
-      };
-    };
+    dynamicSecurity.enable = true;
   };
+
 }

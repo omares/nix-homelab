@@ -28,24 +28,15 @@ in
       description = "Path to ACME certificate directory containing cert.pem, chain.pem, key.pem.";
     };
 
-    users = mkOption {
-      type = types.attrsOf (
-        types.submodule {
-          options = {
-            passwordFile = mkOption {
-              type = types.path;
-              description = "Path to file containing the user's password.";
-            };
-            acl = mkOption {
-              type = types.listOf types.str;
-              default = [ ];
-              description = "ACL rules for this user (e.g., 'readwrite #').";
-            };
-          };
-        }
-      );
-      default = { };
-      description = "MQTT users with their password files and ACL rules.";
+    dynamicSecurity = {
+      enable = mkEnableOption "Mosquitto Dynamic Security plugin for flexible authentication";
+
+      configFile = mkOption {
+        type = types.str;
+        default = "/var/lib/mosquitto/dynamic-security.json";
+        description = "Path to the Dynamic Security JSON config file.";
+      };
     };
+
   };
 }

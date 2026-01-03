@@ -6,10 +6,12 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 let
   cfg = config.mares.home-assistant;
+  merossLan = pkgs.callPackage ./meross-lan.nix { };
 in
 {
   config = lib.mkIf cfg.enable {
@@ -20,6 +22,7 @@ in
     services.home-assistant = {
       enable = true;
       configDir = cfg.configDir;
+      customComponents = [ merossLan ];
 
       extraPackages = ps: [
         ps.psycopg2
