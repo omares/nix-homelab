@@ -102,7 +102,7 @@ let
   };
 in
 {
-  config = lib.mkIf cfg.enable {
+  config = lib.mkIf (cfg.enable && cfg.shelly.enable) {
     services.home-assistant.config = {
       # Enable python_script integration for Shelly Gen2+ discovery
       python_script = { };

@@ -12,17 +12,20 @@
 let
   cfg = config.mares.home-assistant;
   merossLan = pkgs.callPackage ./meross-lan.nix { };
+  merossComponents = lib.optionals cfg.meross.enable [ merossLan ];
 in
 {
   config = lib.mkIf cfg.enable {
-    networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
-    # mDNS for zeroconf device discovery (Shelly, etc.)
+    networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall (
+      [ cfg.port ] ++ lib.optionals cfg.homekit.enable [ 21063 ]
+    );
+    # mDNS for zeroconf device discovery (Shelly, HomeKit, etc.)
     networking.firewall.allowedUDPPorts = lib.mkIf cfg.openFirewall [ 5353 ];
 
     services.home-assistant = {
       enable = true;
       configDir = cfg.configDir;
-      customComponents = [ merossLan ];
+      customComponents = merossComponents;
 
       extraPackages = ps: [
         ps.psycopg2
@@ -31,7 +34,6 @@ in
         "default_config"
         "isal"
         "mqtt"
-        "shelly"
         "open_meteo"
         "dwd_weather_warnings"
         "mobile_app"
@@ -40,12 +42,13 @@ in
         "google_translate"
         "hue"
         "apple_tv"
-        "homekit_controller"
         "unifiprotect"
         "local_calendar"
       ]
       ++ cfg.extraComponents
-      ++ lib.optionals cfg.influxdb.enable [ "influxdb" ];
+      ++ lib.optionals cfg.shelly.enable [ "shelly" ]
+      ++ lib.optionals cfg.influxdb.enable [ "influxdb" ]
+      ++ lib.optionals cfg.homekit.enable [ "homekit" ];
 
       # Note: MQTT broker connection must be configured via UI after onboarding
       # (Settings > Devices & Services > Add Integration > MQTT)
@@ -112,6 +115,27 @@ in
             max_retries = cfg.influxdb.maxRetries;
             include.entity_globs = [ "sensor.*" ];
           };
+        })
+
+        (lib.mkIf cfg.homekit.enable {
+          homekit = [
+            {
+              name = "Mares HomeKit Bridge";
+              port = 21063;
+              filter = {
+                include_domains = [
+                  "cover"
+                  "light"
+                  "switch"
+                ];
+                exclude_domains = [
+                  "automation"
+                  "media_player"
+                  "script"
+                ];
+              };
+            }
+          ];
         })
       ];
     };

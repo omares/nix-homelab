@@ -98,18 +98,30 @@ in
       };
     };
 
-    shelly.deviceIds = mkOption {
-      type = types.listOf types.str;
-      default = [ ];
-      example = [
-        "shellyplus2pm-485519a1ff8c"
-        "shellyplusht-abcdef123456"
-      ];
-      description = ''
-        List of Shelly Gen2+ device IDs for the announce automation.
-        Required for battery-powered devices that need to be poked to announce themselves.
-        Device IDs can be found in the Shelly device web UI or via MQTT topics.
-      '';
+    shelly = {
+      enable = mkEnableOption "Shelly integration (native + Gen2+ MQTT discovery)";
+
+      deviceIds = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+        example = [
+          "shellyplus2pm-485519a1ff8c"
+          "shellyplusht-abcdef123456"
+        ];
+        description = ''
+          List of Shelly Gen2+ device IDs for the announce automation.
+          Required for battery-powered devices that need to be poked to announce themselves.
+          Device IDs can be found in the Shelly device web UI or via MQTT topics.
+        '';
+      };
+    };
+
+    meross = {
+      enable = mkEnableOption "Meross LAN integration";
+    };
+
+    homekit = {
+      enable = mkEnableOption "HomeKit Bridge integration";
     };
   };
 }
