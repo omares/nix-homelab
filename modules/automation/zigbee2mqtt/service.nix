@@ -10,6 +10,11 @@ let
   configPath = "${upstream.dataDir}/configuration.yaml";
   credentialsDir = "/run/credentials/zigbee2mqtt.service";
 
+  # Get user/group from service config to avoid hardcoding
+  serviceConfig = config.systemd.services.zigbee2mqtt.serviceConfig;
+  user = serviceConfig.User;
+  group = serviceConfig.Group;
+
   settings = {
     permit_join = false;
 
@@ -75,6 +80,10 @@ let
       retain = true;
       qos = 1;
     };
+
+    # Separate dynamic config (devices/groups) from static config (settings)
+    devices = "devices.yaml";
+    groups = "groups.yaml";
   };
 in
 {
@@ -96,5 +105,10 @@ in
 
       preStart = lib.mkForce (utils.genJqSecretsReplacementSnippet settings configPath);
     };
+
+    systemd.tmpfiles.rules = [
+      "f ${upstream.dataDir}/devices.yaml 0640 ${user} ${group} - {}"
+      "f ${upstream.dataDir}/groups.yaml 0640 ${user} ${group} - {}"
+    ];
   };
 }
