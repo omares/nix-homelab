@@ -377,6 +377,21 @@ in
         };
       };
 
+      nvr-client-02 = {
+        tags = [ "nvr" ];
+        roles = [
+          config.flake.nixosModules.role-scrypted-client-openvino
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+        ];
+
+        host = "192.168.30.136";
+
+        dns = {
+          vlan = "vm";
+        };
+      };
+
       mqtt-01 = {
         tags = [ "automation" ];
         roles = [
