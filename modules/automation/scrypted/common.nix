@@ -56,6 +56,11 @@ in
           to = 60999;
         }
       ];
+
+      # DoorBird event notifications (UDP broadcast)
+      allowedUDPPorts = lib.mkAfter [
+        6524
+      ];
     };
 
     sops.secrets.scrypted-environment = {
