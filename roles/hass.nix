@@ -53,6 +53,7 @@ in
 
     homekit.enable = true;
     meross.enable = true;
+    scenePresets.enable = true;
 
     influxdb = {
       enable = true;

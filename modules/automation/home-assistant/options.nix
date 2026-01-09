@@ -123,5 +123,9 @@ in
     homekit = {
       enable = mkEnableOption "HomeKit Bridge integration";
     };
+
+    scenePresets = {
+      enable = mkEnableOption "Scene Presets - Hue-like color picker for lights";
+    };
   };
 }

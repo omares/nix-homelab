@@ -13,6 +13,9 @@ let
   cfg = config.mares.home-assistant;
   merossLan = pkgs.callPackage ./meross-lan.nix { };
   merossComponents = lib.optionals cfg.meross.enable [ merossLan ];
+  scenePresetsComponents = lib.optionals cfg.scenePresets.enable [
+    pkgs.home-assistant-custom-components.scene_presets
+  ];
 in
 {
   config = lib.mkIf cfg.enable {
@@ -25,7 +28,7 @@ in
     services.home-assistant = {
       enable = true;
       configDir = cfg.configDir;
-      customComponents = merossComponents;
+      customComponents = merossComponents ++ scenePresetsComponents;
 
       extraPackages = ps: [
         ps.psycopg2
