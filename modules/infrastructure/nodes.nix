@@ -449,6 +449,27 @@ in
         };
       };
 
+      evcc-01 = {
+        tags = [ "automation" ];
+        roles = [
+          config.flake.nixosModules.role-evcc
+          config.flake.nixosModules.role-monitoring-client
+          config.flake.nixosModules.role-atuin-client
+        ];
+
+        host = "10.10.22.197";
+
+        dns = {
+          vlan = "vm";
+        };
+
+        proxy = {
+          port = 7070;
+          subdomains = [ "evcc" ];
+          websockets = true;
+        };
+      };
+
       unifi = {
         managed = false;
 
