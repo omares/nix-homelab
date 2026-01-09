@@ -57,6 +57,9 @@ in
         "login.tailscale.com"
         "log.tailscale.io"
         "pkgs.tailscale.com"
+        "amplitude.com"
+        "static.amplitude.com"
+        "app.eu.amplitude.com"
       ];
 
       conditionalForwarders = [
