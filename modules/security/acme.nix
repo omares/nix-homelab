@@ -19,6 +19,8 @@ in
         # server = "https://acme-staging-v02.api.letsencrypt.org/directory";
         email = "letsencrypt.mslk1@mres.me";
         dnsProvider = "easydns";
+        # Use EasyDNS nameservers directly to bypass local Technitium NS records
+        dnsResolver = "dns1.easydns.com:53";
         credentialFiles = {
           "EASYDNS_KEY_FILE" = config.sops.secrets.easydns_key.path;
           "EASYDNS_TOKEN_FILE" = config.sops.secrets.easydns_token.path;

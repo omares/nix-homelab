@@ -52,6 +52,14 @@ in
           description = "Grafana port";
         };
       };
+
+      influxdb = {
+        port = lib.mkOption {
+          type = lib.types.port;
+          default = 8086;
+          description = "InfluxDB port";
+        };
+      };
     };
   };
 }

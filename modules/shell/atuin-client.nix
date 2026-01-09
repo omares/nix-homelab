@@ -10,6 +10,10 @@ in
     ../services/atuin-client.nix
   ];
 
+  sops-vault.items = [
+    "atuin"
+  ];
+
   sops.secrets = {
     atuin_password = {
       owner = owner;

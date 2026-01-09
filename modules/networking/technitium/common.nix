@@ -35,41 +35,44 @@ in
   config = lib.mkIf cfg.enable {
     services.technitium-dns-server = {
       enable = true;
-      openFirewall = true; # Opens 53, 5380, 53443
-    };
-
-    # Ensure technitium-dns-server starts after cert.pfx is created
-    systemd.services.technitium-dns-server = {
-      after = [ "technitium-cert.service" ];
-      wants = [ "technitium-cert.service" ];
+      openFirewall = true;
     };
 
     networking.firewall = {
       allowedTCPPorts = [
-        443 # DoH
-        853 # DoT
-        53443 # Cluster communication
+        443
+        853
+        53443
       ];
       allowedUDPPorts = [
-        853 # DoQ
+        853
       ];
     };
 
     # ACME certificate for DoT/DoH/DoQ
-    security.acme.certs.${cfg.domain} = { };
+    security.acme.certs.${cfg.domain} = {
+      reloadServices = [ "technitium-cert.service" ];
+    };
 
-    # Create PFX certificate from ACME certs (Technitium requires PFX format)
+    # Create PFX certificate for Technitium
     systemd.services.technitium-cert = {
       description = "Create Technitium PFX certificate from ACME";
-      after = [ "acme-${cfg.domain}.service" ];
-      requires = [ "acme-${cfg.domain}.service" ];
       wantedBy = [ "multi-user.target" ];
 
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
         ExecStart = "${pfxScript} ${cfg.acmeDirectory} ${pfxPath}";
-        ExecStartPost = "${lib.getExe' pkgs.systemd "systemctl"} try-reload-or-restart technitium-dns-server.service";
+      };
+    };
+
+    systemd.paths.technitium-cert-watch = {
+      description = "Watch Technitium PFX certificate for changes";
+      wantedBy = [ "multi-user.target" ];
+
+      pathConfig = {
+        PathChanged = pfxPath;
+        Unit = "technitium-dns-server.service";
       };
     };
 

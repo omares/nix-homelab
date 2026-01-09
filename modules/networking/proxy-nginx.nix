@@ -65,8 +65,8 @@ in
       recommendedOptimisation = true;
 
       resolver.addresses = [
-        mares.infrastructure.nodes.dns-01.host
-        mares.infrastructure.nodes.dns-02.host
+        mares.infrastructure.nodes.dns-03.host
+        mares.infrastructure.nodes.dns-04.host
       ];
       virtualHosts = lib.mapAttrs mkVhost proxyNodes;
     };
@@ -84,6 +84,6 @@ in
     # when ACME services trigger it after certificate renewals.
     # This prevents a race condition during deploy where all ACME services
     # start simultaneously and trigger nginx-config-reload, causing timeouts.
-    systemd.services.nginx-config-reload.wantedBy = lib.mkForce [];
+    systemd.services.nginx-config-reload.wantedBy = lib.mkForce [ ];
   };
 }

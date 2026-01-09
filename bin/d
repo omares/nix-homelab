@@ -15,6 +15,7 @@ NC='\033[0m'
 # Verbosity (0=normal, 1=verbose, 2=very verbose, 3=maximum)
 VERBOSITY=0
 DEPLOY_ALL=false
+INIT_MODE=false
 
 show_help() {
   echo "Usage: d [options] <targets...>"
@@ -22,6 +23,7 @@ show_help() {
   echo "       d [options] --all"
   echo ""
   echo "Options:"
+  echo "  -i, --init   First-time deployment (prompts for sudo password)"
   echo "  -v           Verbose (nix -v)"
   echo "  -vv          Very verbose (nix -vv, deploy-rs debug)"
   echo "  -vvv         Maximum verbosity (nix -vvv, deploy-rs debug)"
@@ -35,6 +37,7 @@ show_help() {
   echo "  d --all                 Deploy all tagged nodes"
   echo "  d -v tag infra          Verbose deploy"
   echo "  d -vvv .#dns-01         Maximum verbosity"
+  echo "  d --init .#mqtt-01      First-time deploy (interactive sudo)"
 }
 
 # Get nodes for a tag from flake
@@ -63,8 +66,9 @@ deploy_target() {
   local nix_args=""
   local deploy_args="-s"
 
+  [[ $INIT_MODE == true ]] && deploy_args="$deploy_args --interactive-sudo true"
   [[ $VERBOSITY -ge 1 ]] && nix_args="-v"
-  [[ $VERBOSITY -ge 2 ]] && nix_args="-vv" && deploy_args="-s -d"
+  [[ $VERBOSITY -ge 2 ]] && nix_args="-vv" && deploy_args="$deploy_args -d"
   [[ $VERBOSITY -ge 3 ]] && nix_args="-vvv"
 
   local name="${target#.#}"
@@ -119,6 +123,7 @@ while [[ $# -gt 0 ]]; do
     -vvv)      VERBOSITY=3; shift ;;
     -vv)       VERBOSITY=2; shift ;;
     -v)        VERBOSITY=1; shift ;;
+    -i|--init) INIT_MODE=true; shift ;;
     -a|--all)  DEPLOY_ALL=true; shift ;;
     -h|--help) show_help; exit 0 ;;
     *)         break ;;

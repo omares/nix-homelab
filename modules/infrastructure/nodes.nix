@@ -377,6 +377,63 @@ in
         };
       };
 
+      mqtt-01 = {
+        tags = [ "automation" ];
+        roles = [
+          config.flake.nixosModules.role-mqtt
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+        ];
+
+        host = "10.10.22.227";
+
+        dns = {
+          vlan = "vm";
+        };
+      };
+
+      hass-01 = {
+        tags = [ "automation" ];
+        roles = [
+          config.flake.nixosModules.role-hass
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+        ];
+
+        host = "10.10.22.104";
+
+        dns = {
+          vlan = "vm";
+        };
+
+        proxy = {
+          port = 8123;
+          subdomains = [ "ha" ];
+          websockets = true;
+        };
+      };
+
+      z2m-01 = {
+        tags = [ "automation" ];
+        roles = [
+          config.flake.nixosModules.role-z2m
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+        ];
+
+        host = "10.10.22.244";
+
+        dns = {
+          vlan = "vm";
+        };
+
+        proxy = {
+          port = 8080;
+          subdomains = [ "z2m" ];
+          websockets = true;
+        };
+      };
+
       unifi = {
         managed = false;
 

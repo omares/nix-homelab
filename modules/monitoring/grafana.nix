@@ -7,6 +7,7 @@
 let
   cfg = config.mares.monitoring.grafana;
   serverCfg = config.mares.monitoring.server;
+  influxdbCfg = config.mares.monitoring.influxdb;
 
   dashLib = import ../../lib/grafana-dashboards.nix { inherit pkgs lib; };
 
@@ -372,6 +373,12 @@ in
       default = null;
       description = "Path to file containing admin password (for sops-nix integration)";
     };
+
+    influxdbTokenFile = lib.mkOption {
+      type = lib.types.path;
+      description = "Path to file containing InfluxDB token (loaded via systemd LoadCredential).";
+    };
+
   };
 
   config = lib.mkIf cfg.enable {
@@ -416,11 +423,30 @@ in
             access = "proxy";
             url = "http://localhost:${toString serverCfg.loki.port}";
           }
+          {
+            name = "InfluxDB";
+            type = "influxdb";
+            uid = "influxdb-main";
+            access = "proxy";
+            url = "http://${influxdbCfg.bindAddress}:${toString serverCfg.influxdb.port}";
+            jsonData = {
+              version = "Flux";
+              organization = "mares";
+              defaultBucket = "home-assistant";
+            };
+            secureJsonData = {
+              token = "$__file{/run/credentials/grafana.service/influxdb-token}";
+            };
+          }
         ];
 
         dashboards.settings.providers = dashboardProviders;
       };
     };
+
+    systemd.services.grafana.serviceConfig.LoadCredential = [
+      "influxdb-token:${cfg.influxdbTokenFile}"
+    ];
 
     systemd.tmpfiles.rules = lib.optional (
       cfg.adminPasswordFile == null
