@@ -127,5 +127,13 @@ in
     scenePresets = {
       enable = mkEnableOption "Scene Presets - Hue-like color picker for lights";
     };
+
+    evcc = {
+      enable = mkEnableOption "evcc integration for EV charging control";
+    };
+
+    fronius = {
+      enable = mkEnableOption "Fronius Solar integration for inverter and smart meter";
+    };
   };
 }

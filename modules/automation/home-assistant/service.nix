@@ -12,10 +12,12 @@
 let
   cfg = config.mares.home-assistant;
   merossLan = pkgs.callPackage ./meross-lan.nix { };
+  haEvcc = pkgs.callPackage ./ha-evcc.nix { };
   merossComponents = lib.optionals cfg.meross.enable [ merossLan ];
   scenePresetsComponents = lib.optionals cfg.scenePresets.enable [
     pkgs.home-assistant-custom-components.scene_presets
   ];
+  evccComponents = lib.optionals cfg.evcc.enable [ haEvcc ];
 in
 {
   config = lib.mkIf cfg.enable {
@@ -28,7 +30,7 @@ in
     services.home-assistant = {
       enable = true;
       configDir = cfg.configDir;
-      customComponents = merossComponents ++ scenePresetsComponents;
+      customComponents = merossComponents ++ scenePresetsComponents ++ evccComponents;
 
       extraPackages = ps: [
         ps.psycopg2
@@ -51,7 +53,8 @@ in
       ++ cfg.extraComponents
       ++ lib.optionals cfg.shelly.enable [ "shelly" ]
       ++ lib.optionals cfg.influxdb.enable [ "influxdb" ]
-      ++ lib.optionals cfg.homekit.enable [ "homekit" ];
+      ++ lib.optionals cfg.homekit.enable [ "homekit" ]
+      ++ lib.optionals cfg.fronius.enable [ "fronius" ];
 
       # Note: MQTT broker connection must be configured via UI after onboarding
       # (Settings > Devices & Services > Add Integration > MQTT)

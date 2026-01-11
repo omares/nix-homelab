@@ -4,5 +4,6 @@
     ./service.nix
     ./automations.nix
     ./shelly.nix
+    ./helpers.nix
   ];
 }
