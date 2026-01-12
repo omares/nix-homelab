@@ -54,6 +54,8 @@ in
     homekit.enable = true;
     meross.enable = true;
     scenePresets.enable = true;
+    evcc.enable = true;
+    fronius.enable = true;
 
     influxdb = {
       enable = true;
