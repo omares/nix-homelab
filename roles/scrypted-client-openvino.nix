@@ -11,9 +11,7 @@
 
   sops-vault.items = [ "scrypted" ];
 
-  mares.hardware.intel-graphics = {
-    enable = true;
-  };
+  mares.hardware.intel-graphics.enable = true;
 
   mares.automation.scrypted = {
     enable = true;

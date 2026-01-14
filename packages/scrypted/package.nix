@@ -1,6 +1,7 @@
 {
   lib,
   stdenv,
+  callPackage,
   buildNpmPackage,
   fetchFromGitHub,
   nodejs_22,
@@ -82,8 +83,6 @@ in
       | ${lib.getExe' moreutils "sponge"} package-lock.json
   '';
 
-
-
   env = {
     SCRYPTED_PYTHON_PATH = lib.getExe python;
     SCRYPTED_PYTHON312_PATH = lib.getExe python;
@@ -109,12 +108,14 @@ in
       # libva (Linux only)
       #   Video Acceleration API library for hardware video encode/decode.
       #   Required by @scrypted/nvr's libav addon for VA-API hardware acceleration.
-      runtimeLibs =
-        [ gcc-unwrapped.lib zlib ]
-        ++ lib.optionals stdenv.hostPlatform.isLinux [
-          libdrm
-          libva
-        ];
+      runtimeLibs = [
+        gcc-unwrapped.lib
+        zlib
+      ]
+      ++ lib.optionals stdenv.hostPlatform.isLinux [
+        libdrm
+        libva
+      ];
     in
     [
       "--set NODE_ENV production"
@@ -122,7 +123,12 @@ in
       "--set SCRYPTED_PYTHON312_PATH ${lib.getExe python}"
       "--set SCRYPTED_FFMPEG_PATH ${lib.getExe ffmpeg}"
       "--set SHELL ${lib.getExe bashInteractive}"
-      "--prefix PATH : ${lib.makeBinPath [ ffmpeg python ]}"
+      "--prefix PATH : ${
+        lib.makeBinPath [
+          ffmpeg
+          python
+        ]
+      }"
       "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath runtimeLibs}"
       # Intel OpenCL/OpenGL libraries for GPU acceleration.
       # This path is populated by hardware.graphics.extraPackages (e.g., intel-compute-runtime).
@@ -133,7 +139,10 @@ in
     cp ${writers.writeJSON "install.json" { inherit version; }} $out/install.json
   '';
 
-  passthru.updateScript = nix-update-script { };
+  passthru = {
+    updateScript = nix-update-script { };
+    plugins = callPackage ./plugins { };
+  };
 
   meta = {
     description = ''

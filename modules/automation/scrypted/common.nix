@@ -29,6 +29,17 @@ in
       description = "Worker name used for client identifcation";
       default = "";
     };
+
+    plugins = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "List of Scrypted plugins to pre-install via sideloading (server only)";
+      example = [
+        "nvr"
+        "doorbird"
+        "onvif"
+      ];
+    };
   };
 
   config = lib.mkIf cfg.enable {

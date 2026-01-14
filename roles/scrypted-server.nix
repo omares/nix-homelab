@@ -41,5 +41,22 @@
     enable = true;
     role = "server";
     serverHost = nodeCfg.host;
+
+    plugins = [
+      "amcrest"
+      "diagnostics"
+      "dummy-switch"
+      "doorbird"
+      "onvif"
+      "openvino"
+      "prebuffer-mixin"
+      "rtsp"
+      "cloud"
+      "core"
+      "nvr"
+      "snapshot"
+      "objectdetector"
+      "webrtc"
+    ];
   };
 }

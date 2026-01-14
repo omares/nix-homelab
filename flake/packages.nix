@@ -24,7 +24,8 @@ let
           mares.proxmox-enhanced.cloudInit.enable = lib.mkForce true;
           services.cloud-init.enable = lib.mkForce true;
         }
-      ] ++ extraModules;
+      ]
+      ++ extraModules;
 
       specialArgs = {
         homelabLib = lib;
@@ -74,26 +75,9 @@ in
           extraModules = [ top.self.nixosModules.role-proxmox-arm ];
         };
 
-        # scrypted package
-        scrypted = import ../packages/scrypted.nix {
-          inherit (pkgs)
-            lib
-            stdenv
-            buildNpmPackage
-            fetchFromGitHub
-            nodejs_22
-            jq
-            moreutils
-            writers
-            nix-update-script
-            python312
-            ffmpeg
-            bashInteractive
-            gcc-unwrapped
-            zlib
-            libdrm
-            libva
-            ;
+        # scrypted package with plugins
+        scrypted = pkgs.callPackage ../packages/scrypted/package.nix { } // {
+          plugins = pkgs.callPackage ../packages/scrypted/plugins { };
         };
       };
     };
