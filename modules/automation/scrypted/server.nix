@@ -6,16 +6,13 @@
 }:
 let
   cfg = config.mares.automation.scrypted;
-  serviceCfg = config.mares.services.scrypted;
   isServer = cfg.role == "server";
   hasPlugins = cfg.plugins != [ ];
 
   plugins = pkgs.callPackage ../../../packages/scrypted/plugins { };
 
-  # Build list of plugin packages from names
   pluginPackages = map (name: plugins.${name}) cfg.plugins;
 
-  # Sideload script for a single plugin
   sideloadPlugin = pkg: ''
     echo "Sideloading ${pkg.pluginName}..."
 
@@ -62,31 +59,18 @@ let
 in
 {
   config = lib.mkIf (cfg.enable && isServer) {
-
-    mares.services.scrypted = {
-      enable = true;
-      package = pkgs.callPackage ../../../packages/scrypted/package.nix { };
-      openFirewall = true;
-      extraEnvironment = lib.mkMerge [
-        {
-          SCRYPTED_CLUSTER_LABELS = "storage";
-          SCRYPTED_CLUSTER_MODE = "server";
-          SCRYPTED_CLUSTER_ADDRESS = cfg.serverHost;
-        }
-        (lib.mkIf hasPlugins {
-          SCRYPTED_ADMIN_USERNAME = "admin";
-          SCRYPTED_ADMIN_ADDRESS = "127.0.0.1";
-        })
-      ];
-      environmentFiles = [ config.sops.secrets.scrypted-environment.path ];
-    };
-
     systemd.services.scrypted = {
-      wants = [ "sops-nix.service" ];
-      after = [ "sops-nix.service" ];
+      environment = {
+        SCRYPTED_CLUSTER_LABELS = "storage";
+        SCRYPTED_CLUSTER_MODE = "server";
+        SCRYPTED_CLUSTER_ADDRESS = cfg.serverHost;
+      }
+      // lib.optionalAttrs hasPlugins {
+        SCRYPTED_ADMIN_USERNAME = "admin";
+        SCRYPTED_ADMIN_ADDRESS = "127.0.0.1";
+      };
     };
 
-    # Sideload service - runs after scrypted to install plugins
     systemd.services.scrypted-sideload = lib.mkIf hasPlugins {
       description = "Sideload Scrypted plugins";
       after = [ "scrypted.service" ];
@@ -99,8 +83,8 @@ in
         Type = "oneshot";
         RemainAfterExit = true;
         ExecStart = sideloadScript;
-        User = serviceCfg.user;
-        Group = serviceCfg.group;
+        User = cfg.user;
+        Group = cfg.group;
       };
     };
   };

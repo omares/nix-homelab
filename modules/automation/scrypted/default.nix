@@ -1,10 +1,10 @@
 { ... }:
 {
   imports = [
-    ./common.nix
+    ./options.nix
+    ./service.nix
     ./server.nix
     ./client-openvino.nix
-    ../../services/scrypted.nix
     ../../users/scrypted.nix
   ];
 }
