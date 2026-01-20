@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "snapshot";
   version = "0.2.67";
   hash = "sha512-eoU9rB9Ubxsgxpv6WCPOgBfEwVOag00H0Wo0oEOrDsGfTQLcdiapo2baohfjNLjWDeGWhqTXiV9joLXfQHMGmg==";
+  passthru = _finalAttrs: { };
   meta.description = "Snapshot Plugin - Snapshot Plugin for Scrypted";
 }

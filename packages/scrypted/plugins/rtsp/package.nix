@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "rtsp";
   version = "0.0.55";
   hash = "sha512-Ukzfl+ooN8bKAhnhNawiAfF6TUXnIRfJtyZyu3jdXUk9FmHzcIqwrDIpBwbavD0zRJ3CcxmeGonop2QdwlU83g==";
+  passthru = _finalAttrs: { };
   meta.description = "RTSP Camera Plugin - RTSP Cameras and Streams Plugin for Scrypted";
 }

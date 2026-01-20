@@ -8,6 +8,7 @@ let
 in
 {
   config = lib.mkIf cfg.enable {
+    # Contains SCRYPTED_CLUSTER_SECRET for cluster authentication
     sops.secrets.scrypted-environment = {
       owner = cfg.user;
       group = cfg.group;
@@ -55,7 +56,9 @@ in
           "AF_NETLINK"
         ];
 
-        EnvironmentFile = cfg.environmentFiles;
+        EnvironmentFile = cfg.environmentFiles ++ [
+          config.sops.secrets.scrypted-environment.path
+        ];
       };
     };
 

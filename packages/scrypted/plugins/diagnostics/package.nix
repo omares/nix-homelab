@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "diagnostics";
   version = "0.0.29";
   hash = "sha512-qxYKFyhwUsusKiO8QEeQ4FZwGjJkhNHO0myhSzw4TjjiBjK9NE6sUPV+XjyU/GAxXLiftWL+roaOpXr2ch1rGw==";
+  passthru = _finalAttrs: { };
   meta.description = "Diagnostics - This plugin can be used to run diagnostics on the system and supported devices. The results from the diagnostics can be seen in the `Log`.";
 }

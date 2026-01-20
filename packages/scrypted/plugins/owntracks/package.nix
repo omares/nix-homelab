@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "owntracks";
   version = "0.0.26";
   hash = "sha512-3v7Gm0As2bZYqIVlVpOWZ1uYKBHVcMKpXMyiQ6Pt7xqer02gFLURrNt+WBO9+ghlx6cZwgeqYDQQYZyGKt5jxQ==";
+  passthru = _finalAttrs: { };
   meta.description = "Owntracks Plugin - Owntracks Plugin for Scrypted";
 }

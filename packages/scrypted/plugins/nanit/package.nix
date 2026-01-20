@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "nanit";
   version = "0.0.10";
   hash = "sha512-3c9PMw/SvZkjorXOupoc6EQnoKqQx7kH38gfZEmiOD2V0uQZu0WVIh/F1jxilAoWShnU0LCmPSZy2lYST7TQGg==";
+  passthru = _finalAttrs: { };
   meta.description = "Nanit Camera Plugin - - Install Node and npm -> https://docs.npmjs.com/downloading-and-installing-node-js-and-npm   - Install https://www.scrypted.app/ and follow instructions on the website.   - Once you have Scrypted running and can access it...continue";
 }

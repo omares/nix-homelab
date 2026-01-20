@@ -133,7 +133,7 @@ mkScryptedPlugin {
     cp $out/python-env/requirements.scrypted.txt $out/python-env/requirements.scrypted.installed.txt
   '';
 
-  passthru = {
+  passthru = finalAttrs: {
     inherit
       pythonMajorMinor
       scryptedPythonVersion
@@ -141,6 +141,16 @@ mkScryptedPlugin {
       ;
     platformArch = platformInfo.arch;
     updateScript = ./update.sh;
+
+    provision = {
+      warnings = [ "scrypted-openvino: Requires internet access to download ML models on first use" ];
+      symlinks = [
+        {
+          target = "python${pythonMajorMinor}-Linux-${platformInfo.arch}-${scryptedPythonVersion}";
+          path = "${finalAttrs.finalPackage}/python-env";
+        }
+      ];
+    };
   };
 
   meta = {

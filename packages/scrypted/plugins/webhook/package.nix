@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "webhook";
   version = "0.0.27";
   hash = "sha512-I6PsQIHdEGh5fgH11MOB7rS3FzuIKeWzW/bUuNEvGg3U6iPGOdn3Esaj+ir0HKMhsn81sRvW8ahzNftBi9Q0qw==";
+  passthru = _finalAttrs: { };
   meta.description = "Webhook Plugin - Webhooks for Scrypted";
 }

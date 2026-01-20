@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "hue";
   version = "1.2.22";
   hash = "sha512-f+iBWoLovYxl69jscO0z2OqyB0jeG1aldNVFxR/zxE1RcXO5/v1gW2msWB14BMbcOBVZHXNUhZW1pLHUNapFVw==";
+  passthru = _finalAttrs: { };
   meta.description = "Hue Bridge - A Philips Hue plugin for Scrypted";
 }

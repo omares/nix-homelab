@@ -39,8 +39,8 @@
 
   mares.automation.scrypted = {
     enable = true;
-    role = "server";
-    serverHost = nodeCfg.host;
+    cluster.mode = "server";
+    cluster.serverAddr = nodeCfg.host;
 
     plugins = [
       "amcrest"

@@ -4,7 +4,7 @@
     ./options.nix
     ./service.nix
     ./server.nix
-    ./client-openvino.nix
+    ./client.nix
     ../../users/scrypted.nix
   ];
 }

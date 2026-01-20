@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "roborock";
   version = "0.0.5";
   hash = "sha512-6xhdSN315gaBLgr5fbA02knSLAz+OeAotDK+0fNFiv2ZlHQJtbGpt9pSiaK1n6XqYy9iK0XFtNPuXqL77oh/IA==";
+  passthru = _finalAttrs: { };
   meta.description = "Roborock Plugin - ";
 }

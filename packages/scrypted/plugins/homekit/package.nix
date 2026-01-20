@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "homekit";
   version = "1.2.65";
   hash = "sha512-Tmim+0DRfOjyN1fn1Dt5XBHXApDPVyFpVSI0Q2RcAGdLb2AphfDpU8ANDWErwe11nDMsOr6W2ZREnJGkfJCszg==";
+  passthru = _finalAttrs: { };
   meta.description = "HomeKit - HomeKit Plugin for Scrypted";
 }

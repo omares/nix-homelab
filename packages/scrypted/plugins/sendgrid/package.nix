@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "sendgrid";
   version = "0.0.2";
   hash = "sha512-X5h16Q6OtDIIlzz06rvHgsyT/VsFi0TH8pJuO8S6Eq1vaf54gCQYlWvI+qChSAkmHyVJyLyfUaM/FwlFwa8tNQ==";
+  passthru = _finalAttrs: { };
   meta.description = "Twilio SendGrid Plugin - Twilio SendGrid Plugin for Scrypted";
 }

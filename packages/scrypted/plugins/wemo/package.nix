@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "wemo";
   version = "0.0.9";
   hash = "sha512-ubG5X7V1RnlVS/IQ/s4rnzqGuSVTK1QUificaZHH/EwRvHVozi1odVGAvm1uwFpWmgyQPNkhlb6fc1tS2N9IAw==";
+  passthru = _finalAttrs: { };
   meta.description = "Wemo Controller - A Wemo plugin for Scrypted";
 }

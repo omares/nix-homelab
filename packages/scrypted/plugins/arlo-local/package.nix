@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "arlo-local";
   version = "0.6.0";
   hash = "sha512-x7LwT8bXX/QSPmqvrh31U8yzHbX0kpPvr5pD7Xws6hsxQTUag9hNayrnci2IFFUPPZPPqGPvSPhwpWWGaPjgLg==";
+  passthru = _finalAttrs: { };
   meta.description = "Arlo Local Device Plugin - Arlo Local Plugin for Scrypted";
 }

@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "chromecast";
   version = "0.1.58";
   hash = "sha512-ruHOL1dXR87cgo2U1CeN+SX3KyqOz9ZN0d46q/R+8VqNWv2r1Y84ar8vcFyfVr2pA+T9bcjKGdVka2pYga6zHQ==";
+  passthru = _finalAttrs: { };
   meta.description = "Chromecast Plugin - Send video, audio, and text to speech notifications to Chromecast and Google Home devices";
 }

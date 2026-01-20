@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "neato";
   version = "0.1.32";
   hash = "sha512-cO82Db4UIKXwF800/7TgG+hD1u+cmv/Isw/jJ2kbgPrh9o9qHIc2e2+HyPRb92JvgbVoqKhgu26IuPi3NQLhyw==";
+  passthru = _finalAttrs: { };
   meta.description = "Neato Plugin - A Neato plugin for Scrypted";
 }

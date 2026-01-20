@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "google-device-access";
   version = "0.0.99";
   hash = "sha512-3lTTrKecD9OamHeHl9Mh9Z7pScENmBT26JeUIH+K7TfFKHk5g1O9A9sjcplqcgFCPRqGxt0qrh0NRiKCotqlzA==";
+  passthru = _finalAttrs: { };
   meta.description = "Google Device Access - The Google Device Access Plugin allows you to import and control your Nest and Google devices from Scrypted.";
 }

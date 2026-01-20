@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "sample-cameraprovider";
   version = "0.0.13";
   hash = "sha512-ga+QABgVntOpXbDbyZ5iQU1U0yJIKhAxQD/OZM7GgnmT2g7NmE1TKJLrcXyluF9saeNGMVMEwMgDGiRXjibU+A==";
+  passthru = _finalAttrs: { };
   meta.description = "Sample Camera Provider Plugin - This is a sample plugin that shows how to add camera providers like Unifi, Ring, Nest, etc.";
 }

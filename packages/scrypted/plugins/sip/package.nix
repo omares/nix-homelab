@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "sip";
   version = "0.0.11";
   hash = "sha512-4QGNOJ9SdCbm6g2eZxuYwcCbTq9sB9iyFGTy/+Wtf9JOgOh967KIk/VRbsghHR30GmyAI6mjkul3lmw3DUwGAw==";
+  passthru = _finalAttrs: { };
   meta.description = "SIP Plugin - The SIP Plugin bridges compatible SIP Cameras to Scrypted.";
 }

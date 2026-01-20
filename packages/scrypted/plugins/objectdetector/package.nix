@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "objectdetector";
   version = "0.1.77";
   hash = "sha512-xW/phUhU3KfFNCtbHO3hZApYBVzbjeAP/YUNIn3J5BUaFIS1SltXYZXRCaqdizb0SMeSM+RwlEfMKQGkBvvxwQ==";
+  passthru = _finalAttrs: { };
   meta.description = "Video Analysis Plugin - Scrypted Video Analysis Plugin. Installed alongside a detection service like OpenCV or TensorFlow.";
 }

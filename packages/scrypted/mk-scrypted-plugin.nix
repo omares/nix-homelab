@@ -11,12 +11,13 @@
   version,
   hash,
   meta ? { },
-  passthru ? { },
+  passthru ? _finalAttrs: { },
   postInstall ? "",
   ...
 }@args:
 
 stdenvNoCC.mkDerivation (
+  finalAttrs:
   {
     pname = "scrypted-plugin-${pname}";
     inherit version;
@@ -44,7 +45,7 @@ stdenvNoCC.mkDerivation (
       pluginName = "@scrypted/${pname}";
       inherit version;
     }
-    // passthru;
+    // passthru finalAttrs;
 
     meta = {
       homepage = "https://www.npmjs.com/package/@scrypted/${pname}";

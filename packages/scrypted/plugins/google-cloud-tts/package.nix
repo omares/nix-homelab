@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "google-cloud-tts";
   version = "0.0.23";
   hash = "sha512-656LCN7gcqhwx2cea72paUU5ii7J4l/zWM83lslNX4jwthTUcZwIWVtGQxwjngcnr5xGvMQh+ZGi9RmoNw044Q==";
+  passthru = _finalAttrs: { };
   meta.description = "Google Cloud Text to Speech - Google Text to Speech plugin for Scrypted";
 }

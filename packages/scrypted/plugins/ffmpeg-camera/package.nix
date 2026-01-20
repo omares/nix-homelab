@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "ffmpeg-camera";
   version = "0.0.23";
   hash = "sha512-Wke9qAUIBHye3RZ2QCPR9zXfRSpYtn//6dt7URvtASwBvAEK6DClq5ZR9L9w8+v4pRrEJ1OSjJefwpYxeHZ0Hw==";
+  passthru = _finalAttrs: { };
   meta.description = "FFmpeg Camera Plugin - FFmpeg Camera Plugin for Scrypted";
 }

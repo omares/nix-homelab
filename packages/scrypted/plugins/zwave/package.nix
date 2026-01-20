@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "zwave";
   version = "0.1.10";
   hash = "sha512-N6zWK6uYSwi3htlc8poaT/K9L+cVoRhByFcZKvOiw1chvTbGpGKEIpKJ3bLD2y9C6jlNVoNU1LraJIklPDk8tQ==";
+  passthru = _finalAttrs: { };
   meta.description = "Z-Wave Controller - Z-Wave USB Controller for Scrypted";
 }

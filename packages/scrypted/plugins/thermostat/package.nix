@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "thermostat";
   version = "0.0.29";
   hash = "sha512-chJ1zZvd+VQlmMhLARJlZ+8BQOzQzeqhjN/rkpe80Hf9WdrCSSkLq5YnM1M7tvkocJRVrdbnYhlvZu4ZZi87Rg==";
+  passthru = _finalAttrs: { };
   meta.description = "Virtual Thermostat - Create a virtual thermostat from a temperature sensor and smart plug connected to heater or AC unit.";
 }

@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "sunrise-sunset";
   version = "0.0.4";
   hash = "sha512-0/0SayRg4DE3ZWtrzaQ5iUQpD/J9UzqXlO/mBhGHiALHteWkQI0WNuec3/b4rqkyW9he3FqES22Ki+pSJORxWQ==";
+  passthru = _finalAttrs: { };
   meta.description = "Sunrise-Sunset Plugin - Sunrise-Sunset Sensors for Scrypted";
 }

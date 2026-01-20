@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "bond";
   version = "0.0.4";
   hash = "sha512-AnCowOnukBDpr2w9UzLchMPH55+qOaxDmTuvuApqF17L0YrrhpwUyRV5LNjEmyH3ykeQDZ5i/eDC/wKpt1JF7w==";
+  passthru = _finalAttrs: { };
   meta.description = "Bond Plugin - Bond Plugin for Scrypted";
 }

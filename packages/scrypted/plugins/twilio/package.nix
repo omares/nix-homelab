@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "twilio";
   version = "0.0.20";
   hash = "sha512-/20+r5tRqHihqmlP1IRnieC/dWYnjm3BIgIhthd0gNFuECl3NkenjGwufUoqguDRoLRUEcHiiN3KuAgmgpoScA==";
+  passthru = _finalAttrs: { };
   meta.description = "Twilio Notifier - Notify phone numbers using Twilio";
 }

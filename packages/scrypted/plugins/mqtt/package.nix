@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "mqtt";
   version = "0.0.87";
   hash = "sha512-/AwCjlp4+jP0AO2UW/6HJlKZXSwxSJ4iMd4pYzIQZD3XFfS0a/rehJcPOm7Dx5lBHT1pgY3YOso1cDaGHBg+MQ==";
+  passthru = _finalAttrs: { };
   meta.description = "MQTT - The MQTT Plugin can be used as both an MQTT Broker and or as an MQTT Client.";
 }

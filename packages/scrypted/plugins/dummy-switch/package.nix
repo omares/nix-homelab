@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "dummy-switch";
   version = "0.0.25";
   hash = "sha512-xW2cuB+Bm8FrIq6Q152L+dJMX4/RuCfaUCC9OG14HWQ9CIeZ71wssES6N/h8YVdW95WNavWpKMVqpiOHXH/6QQ==";
+  passthru = _finalAttrs: { };
   meta.description = "Dummy Switch Plugin - Scrypted Dummy Switch plugin. Create virtual switches, locks, and start/stops that run scripts, trigger motion, and press buttons when toggled.";
 }

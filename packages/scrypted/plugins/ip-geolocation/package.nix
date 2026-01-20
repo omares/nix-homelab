@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "ip-geolocation";
   version = "0.0.2";
   hash = "sha512-HbopVAm94L5KDyYX3SyTJpNJ1GcziHtYZcU/5jis1CWBLiI1rdtajT+v/LXvM4spgbQXxcG/2lmiJ8WtLkIOGA==";
+  passthru = _finalAttrs: { };
   meta.description = "IP Geolocation Plugin - IP-based Geolocation for Scrypted";
 }

@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "core";
   version = "0.3.143";
   hash = "sha512-qqfvE0VFu6q8cov5OmAcWzSN/u5cm97jpfI6KZpT8ARAk2wODZTxmisEWvGNwOqxJ+UMnksUsFGadkzbPWhRvQ==";
+  passthru = _finalAttrs: { };
   meta.description = "Scrypted Core - Scrypted Core plugin. Provides the UI, websocket, and engine.io APIs.";
 }

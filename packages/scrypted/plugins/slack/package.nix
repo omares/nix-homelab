@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "slack";
   version = "0.1.6";
   hash = "sha512-TTKOywT+Hl/scG3sfVZz3Q1G4QHRUvte70cXmhSAE3Ujo8DV2xpwr/LO4IfMvqeZBzwTais9mfwvqVWdlqL+Bg==";
+  passthru = _finalAttrs: { };
   meta.description = "Slack Notifier Plugin - Slack Notifier Plugin for Scrypted";
 }

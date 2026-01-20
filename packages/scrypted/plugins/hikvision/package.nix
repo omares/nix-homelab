@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "hikvision";
   version = "0.0.166";
   hash = "sha512-S2MEcY7NrX3QZ9kiWO19Kti6NZU3krQivG6iaEqJCH6a4BorfbFV6sY2ciCoFnunnQDiwDiv9ycwueHe7cm1jA==";
+  passthru = _finalAttrs: { };
   meta.description = "Hikvision Plugin - Hikvision Plugin for Scrypted";
 }

@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "sensibo";
   version = "0.0.5";
   hash = "sha512-XPJAoS4v36gUE0muGR0r1r7HdaywOR36EocL5w2psO8ge35Er6PPTVrdgEND1sQcv5EOQ+nA1D1FgKKNaRiVsw==";
+  passthru = _finalAttrs: { };
   meta.description = "Sensibo - Sensibo Thermostat Plugin for Scrypted";
 }

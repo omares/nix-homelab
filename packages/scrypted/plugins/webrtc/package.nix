@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "webrtc";
   version = "0.2.88";
   hash = "sha512-EdfAWPrPVM1HhjlB/FMlytlTbJf6BfQklzANPHfzDvurdtI4QkUzg2/IuCBjGIRQps4ZfJQb8OLEYzfUfKVy7A==";
+  passthru = _finalAttrs: { };
   meta.description = "WebRTC Plugin - This plugin acts as a gateway for WebRTC clients and cameras. WebRTC is a core plugin, and should be enabled on all cameras.";
 }

@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "securitysystem";
   version = "0.0.7";
   hash = "sha512-8Pdfg0JlZCfUQMTaAA2QZV4fxTunOc5a/2SUYAH6XSge92sSKyS42xae/mIYhpOz8eBpd/hqpGo7ZSPQi2G/Ew==";
+  passthru = _finalAttrs: { };
   meta.description = "Security System - Security System Plugin for Scrypted";
 }

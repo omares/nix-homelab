@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "tuya";
   version = "0.1.0-beta.7";
   hash = "sha512-FZjjl62kaOzVpeSckEk4RX4s/040grrrJ/SkgP4Rkj8ISDRh4B1QtM2oq57FAShwmHYqCFG6JCJEjqTW76lMHA==";
+  passthru = _finalAttrs: { };
   meta.description = "Tuya Plugin - This is a Tuya controller that integrates Tuya devices, specifically cameras, into Scrypted.";
 }

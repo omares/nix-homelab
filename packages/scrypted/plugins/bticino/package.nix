@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "bticino";
   version = "0.0.18";
   hash = "sha512-Rvfv5nlq+i3QYI/BgkFEtO8ByhXwUegIekkF0fxftfFpRKj+TYA1bDbBNrD7oIlJDX4kleWPV1TNptw6Tb0UCg==";
+  passthru = _finalAttrs: { };
   meta.description = "BTicino Intercom Plugin - The C300X Plugin for Scrypted allows viewing your C300X intercom with incoming video/audio.";
 }

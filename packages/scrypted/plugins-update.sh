@@ -127,6 +127,7 @@ mkScryptedPlugin {
   pname = "$plugin";
   version = "$VERSION";
   hash = "$HASH";
+  passthru = _finalAttrs: { };
   meta.description = "$FULL_DESC";
 }
 EOF

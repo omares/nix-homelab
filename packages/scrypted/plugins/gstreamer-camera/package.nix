@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "gstreamer-camera";
   version = "0.0.5";
   hash = "sha512-1pnK0yUzww7hiTGY9OhSGYzMns6ZBZBfGwq217JJx/4J8hcDuz83cXdPOMUsaOjo+UXxOaVQiAiV7TiGmo+hww==";
+  passthru = _finalAttrs: { };
   meta.description = "GStreamer Camera Plugin - GStreamer Camera Plugin for Scrypted";
 }

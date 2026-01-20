@@ -6,12 +6,14 @@
 }:
 let
   cfg = config.mares.automation.scrypted;
-  isServer = cfg.role == "server";
+  isServer = cfg.cluster.mode == "server";
   hasPlugins = cfg.plugins != [ ];
 
   plugins = pkgs.callPackage ../../../packages/scrypted/plugins { };
 
   pluginPackages = map (name: plugins.${name}) cfg.plugins;
+
+  labels = [ "storage" ] ++ cfg.cluster.extraLabels;
 
   sideloadPlugin = pkg: ''
     echo "Sideloading ${pkg.pluginName}..."
@@ -61,9 +63,9 @@ in
   config = lib.mkIf (cfg.enable && isServer) {
     systemd.services.scrypted = {
       environment = {
-        SCRYPTED_CLUSTER_LABELS = "storage";
         SCRYPTED_CLUSTER_MODE = "server";
-        SCRYPTED_CLUSTER_ADDRESS = cfg.serverHost;
+        SCRYPTED_CLUSTER_ADDRESS = cfg.cluster.serverAddr;
+        SCRYPTED_CLUSTER_LABELS = lib.concatStringsSep "," labels;
       }
       // lib.optionalAttrs hasPlugins {
         SCRYPTED_ADMIN_USERNAME = "admin";

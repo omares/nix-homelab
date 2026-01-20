@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "doorbird";
   version = "0.0.6";
   hash = "sha512-i6leO7zulJVHQNM0t589IH0xYP4Q8SS4lk7PFvn/p4dnmgQfG8MtciRJwOuYrLx/ypuZBjzdnkPfKiEjQ2ul6Q==";
+  passthru = _finalAttrs: { };
   meta.description = "Doorbird Plugin - The Doorbird Plugin bridges compatible Doorbird video doorbell cameras to Scrypted.";
 }

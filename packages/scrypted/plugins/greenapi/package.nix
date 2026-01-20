@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "greenapi";
   version = "0.0.1";
   hash = "sha512-i5KU14xuGEkBHIQXBirCVbu8gFjt2b3obUyhqfaKldbd5z2eQvm8E0JgLg21SSjQrLDAIFQQjfmr7CZ/j+PffQ==";
+  passthru = _finalAttrs: { };
   meta.description = "Greenapi Plugin - 1. Register on https://green-api.com/en 2. Fill the plugin settings with Instance ID and API token 3. Add devices selecting the target from the dropdown";
 }

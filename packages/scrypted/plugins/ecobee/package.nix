@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "ecobee";
   version = "0.0.26";
   hash = "sha512-tcNcwI6BL5loBJTtgLDwEDzGChB7U4CHzHR4MTXHGgIuULTocgDnUFGeRYTRoZCB+H2iRLRMwm+fDsojAPSuwQ==";
+  passthru = _finalAttrs: { };
   meta.description = "Ecobee Plugin - Ecobee Plugin for Scrypted";
 }

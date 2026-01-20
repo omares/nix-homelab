@@ -5,5 +5,6 @@ mkScryptedPlugin {
   pname = "google-home";
   version = "0.0.61";
   hash = "sha512-tooXfQfTwewZ2Y927/jxJNSgmlkBklHvpPJ5cQrZaDVr3d1At8M8F1dtLJ5ul9bt3Cn14cCVQO1siLr7kLZrtQ==";
+  passthru = _finalAttrs: { };
   meta.description = "Google Home - The Google Home Plugin lets you control your Scrypted devices from Google Assistant.";
 }
