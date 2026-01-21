@@ -1,16 +1,562 @@
-# Scrypted OpenVINO Plugin Pre-provisioning
+# Scrypted Plugin Pre-provisioning
 
-> **Type:** PRD | **Created:** 2025-01
+> **Type:** PRD | **Created:** 2025-01 | **Status:** IMPLEMENTED
+
+## Revision History
+
+| Date       | Status      | Description                                                             |
+| ---------- | ----------- | ----------------------------------------------------------------------- |
+| 2025-01-13 | Abandoned   | Original OpenVINO-only approach abandoned due to maintenance burden     |
+| 2025-01-13 | Revised     | New approach: Auto-generate packages for all Node.js plugins + sideload |
+| 2025-01-13 | Implemented | Phase 1 & 2 complete - package infra + sideload service                 |
+
+---
 
 ## Overview
 
-Create a Nix package that pre-provisions Python dependencies and ML models for the Scrypted OpenVINO plugin, enabling NVR clients without internet access to run object detection.
+Create an automated system to pre-provision Scrypted plugins for offline installation via sideloading API. This enables reproducible deployments where plugins are fetched at Nix build time and installed to Scrypted at first boot.
 
 ## Problem Statement
 
-Scrypted's OpenVINO plugin downloads Python packages via pip and ML models from HuggingFace at runtime. NVR clients on isolated networks (firewall-blocked from internet) cannot complete these downloads, causing object detection to fail.
+Scrypted plugins are normally installed via the UI, which fetches packages from npm at runtime. This creates several issues:
+
+1. **Reproducibility**: Plugin versions can drift between deployments
+2. **Reliability**: npm outages or network issues can break deployments
+3. **Speed**: First boot requires downloading all plugins
+4. **Air-gap scenarios**: Some environments have restricted internet access
 
 ## Goals
+
+- **Automated Packaging**: Auto-generate Nix packages for all ~55 Node.js plugins from npm
+- **Declarative Configuration**: NixOS option to specify which plugins to install
+- **Offline Installation**: Sideload plugins via Scrypted API at first boot
+- **Low Maintenance**: Single `update.sh` script refreshes all plugin versions/hashes
+- **OpenVINO Support**: Manual package for the complex Python-based OpenVINO plugin
+
+## Non-Goals
+
+- Full air-gap support (NVR still downloads libav, Cloud needs licensing)
+- Packaging all Python plugins (only OpenVINO for now)
+- Removing plugins not in the declared list (additive only)
+
+---
+
+## Architecture
+
+### Component Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         Build Time (Nix)                            │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  update.sh ──► Fetches all @scrypted/* plugins from npm             │
+│       │        Skips MANUAL_PLUGINS and IGNORED_PLUGINS             │
+│       │        Generates plugins/<name>/package.nix for each        │
+│       ▼                                                             │
+│  plugins/                                                           │
+│  ├── nvr/package.nix          (auto-generated)                      │
+│  ├── doorbird/package.nix     (auto-generated)                      │
+│  ├── openvino/package.nix     (manual - in MANUAL_PLUGINS)          │
+│  └── ...                                                            │
+│       │                                                             │
+│       ▼                                                             │
+│  default.nix ──► Uses lib.packagesFromDirectoryRecursive            │
+│       │          to auto-discover all plugins/<name>/package.nix    │
+│       ▼                                                             │
+│  mkScryptedPlugin ──► Generic Nix function (mk-scrypted-plugin.nix) │
+│                       fetchurl → untar → extract plugin.zip         │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                       Runtime (NixOS)                               │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  mares.automation.scrypted = {                                      │
+│    enable = true;                                                   │
+│    plugins = [ "nvr" "doorbird" "amcrest" ... ];                    │
+│  };                                                                 │
+│       │                                                             │
+│       ▼                                                             │
+│  scrypted-sideload.service ──► Runs after scrypted.service          │
+│       │                        Waits for API ready (server only)    │
+│       │                        POSTs each plugin via sideload API   │
+│       ▼                                                             │
+│  Scrypted ──► Plugins installed and running                         │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Plugin Discovery
+
+Plugins are discovered via npm registry search:
+
+```bash
+curl 'https://registry.npmjs.org/-/v1/search?text=keywords:scrypted&size=250'
+```
+
+This returns ~130 packages with name and version. We then:
+1. Filter to `@scrypted/*` scope only (official plugins)
+2. Fetch individual package metadata for integrity hash
+3. Skip plugins in `MANUAL_PLUGINS` (hand-maintained, e.g., openvino)
+4. Skip plugins in `IGNORED_PLUGINS` (Python plugins not yet supported)
+
+Result: ~55 Node.js plugins that are auto-packaged.
+
+### Plugin Structure (npm)
+
+All Node.js plugins follow an identical structure:
+
+```
+package/
+├── package.json         # Metadata + scrypted config
+├── tsconfig.json
+├── README.md
+└── dist/
+    └── plugin.zip       # Pre-built webpack bundle
+        ├── main.nodejs.js      # All deps bundled
+        ├── main.nodejs.js.map
+        ├── README.md
+        └── sdk.json
+```
+
+Key insight: **No build step needed** - plugins ship pre-built. We just fetch and extract.
+
+### Sideload API
+
+Scrypted provides official REST endpoints for plugin sideloading:
+
+| Endpoint                                                 | Method | Body           | Purpose                  |
+| -------------------------------------------------------- | ------ | -------------- | ------------------------ |
+| `/web/component/script/setup?npmPackage=@scrypted/xxx`   | POST   | package.json   | Register plugin metadata |
+| `/web/component/script/deploy?npmPackage=@scrypted/xxx`  | POST   | plugin.zip     | Upload plugin code       |
+
+### Authentication
+
+Use localhost bypass (same as Home Assistant integration):
+
+```nix
+environment = {
+  SCRYPTED_ADMIN_USERNAME = "admin";     # Auto-creates admin user
+  SCRYPTED_ADMIN_ADDRESS = "127.0.0.1";  # Localhost gets admin access
+};
+```
+
+When both env vars are set, requests from `127.0.0.1` are automatically authenticated as the admin user - no token needed. This is only enabled when `plugins` list is non-empty.
+
+---
+
+## Technical Specification
+
+### 1. Package Structure
+
+Following nixpkgs conventions (similar to PostgreSQL extensions, Pulumi plugins, OctoDNS providers):
+
+```
+packages/scrypted/
+├── package.nix                        # Main scrypted server (existing)
+└── plugins/
+    ├── default.nix                    # Uses lib.packagesFromDirectoryRecursive
+    ├── mk-scrypted-plugin.nix         # Generic builder (mkScryptedPlugin function)
+    ├── update.sh                      # Generates package.nix files from npm
+    └── plugins/                       # One directory per plugin
+        ├── nvr/package.nix            # Auto-generated
+        ├── doorbird/package.nix       # Auto-generated
+        ├── amcrest/package.nix        # Auto-generated
+        ├── ...                        # ~50 more auto-generated
+        └── openvino/package.nix       # Manual (complex Python plugin)
+```
+
+Directory names match npm package names without the `@scrypted/` prefix (e.g., `nvr` for `@scrypted/nvr`).
+
+### 2. Generic Plugin Builder
+
+```nix
+# mk-scrypted-plugin.nix
+# Output: $out/package.json + $out/plugin.zip (for sideload API)
+{ lib, stdenvNoCC, fetchurl }:
+
+{
+  pname,
+  version,
+  hash,
+  meta ? {},
+  passthru ? {},
+  postInstall ? "",
+  ...
+}@args:
+
+stdenvNoCC.mkDerivation ({
+  pname = "scrypted-plugin-${pname}";
+  inherit version;
+
+  src = fetchurl {
+    url = "https://registry.npmjs.org/@scrypted/${pname}/-/${pname}-${version}.tgz";
+    inherit hash;
+  };
+
+  dontUnpack = true;
+
+  installPhase = ''
+    runHook preInstall
+    mkdir -p $out
+    tar -xzf $src --strip-components=1 -C $out package/package.json package/dist/plugin.zip
+    mv $out/dist/plugin.zip $out/
+    rmdir $out/dist
+    runHook postInstall
+  '';
+
+  inherit postInstall;
+
+  passthru = {
+    pluginName = "@scrypted/${pname}";
+    inherit version;
+  } // passthru;
+
+  meta = {
+    description = "Scrypted plugin: ${pname}";
+    homepage = "https://www.scrypted.app/";
+    license = lib.licenses.asl20;
+  } // meta;
+} // removeAttrs args [ "pname" "version" "hash" "meta" "passthru" "postInstall" ])
+```
+
+Output contains only `package.json` and `plugin.zip` - exactly what the sideload API needs. The builder merges `passthru` so complex plugins (like OpenVINO) can add custom attributes.
+
+### 3. Versions File (Auto-Generated)
+
+```nix
+# versions.nix - Auto-generated by update.sh
+{
+  # Node.js plugins (auto-generated)
+  nvr = {
+    version = "0.12.43";
+    hash = "sha512-p+QYIgLMDB894hR3arpNRd3dy5rvEZ0TLBU/ZiGD52fnwkxv29X+7wrIJYb80ViRrrRaJw10fUlC1wiiZYQ6iA==";
+  };
+  doorbird = {
+    version = "0.0.6";
+    hash = "sha512-i6leO7zulJVHQNM0t589IH0xYP4Q8SS4lk7PFvn/p4dnmgQfG8MtciRJwOuYrLx/ypuZBjzdnkPfKiEjQ2ul6Q==";
+  };
+  # ... ~55 more plugins
+}
+```
+
+### 4. Update Script
+
+```bash
+#!/usr/bin/env bash
+# update.sh - Fetches all @scrypted plugins from npm and generates versions.nix
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VERSIONS_FILE="$SCRIPT_DIR/versions.nix"
+
+echo "Fetching plugin list from npm..."
+PLUGINS=$(curl -s 'https://registry.npmjs.org/-/v1/search?text=keywords:scrypted&size=250' \
+  | jq -r '.objects[].package.name' \
+  | grep '^@scrypted/' \
+  | sed 's/@scrypted\///')
+
+echo "Generating versions.nix..."
+echo "# Auto-generated by update.sh - do not edit manually" > "$VERSIONS_FILE"
+echo "{" >> "$VERSIONS_FILE"
+
+for plugin in $PLUGINS; do
+  echo "  Fetching @scrypted/$plugin..."
+  
+  DATA=$(curl -s "https://registry.npmjs.org/@scrypted/$plugin/latest" 2>/dev/null || echo "{}")
+  
+  VERSION=$(echo "$DATA" | jq -r '.version // empty')
+  HASH=$(echo "$DATA" | jq -r '.dist.integrity // empty')
+  RUNTIME=$(echo "$DATA" | jq -r '.scrypted.runtime // "node"')
+  
+  # Skip if missing data or Python plugin
+  if [ -z "$VERSION" ] || [ -z "$HASH" ]; then
+    echo "    Skipping (missing data)"
+    continue
+  fi
+  
+  if [ "$RUNTIME" = "python" ]; then
+    echo "    Skipping (Python plugin)"
+    continue
+  fi
+  
+  echo "  $plugin = {" >> "$VERSIONS_FILE"
+  echo "    version = \"$VERSION\";" >> "$VERSIONS_FILE"
+  echo "    hash = \"$HASH\";" >> "$VERSIONS_FILE"
+  echo "  };" >> "$VERSIONS_FILE"
+done
+
+echo "}" >> "$VERSIONS_FILE"
+
+echo "Done! Generated versions for $(grep -c 'version =' "$VERSIONS_FILE") plugins."
+```
+
+### 5. Plugins Attrset
+
+```nix
+# plugins/default.nix
+{ lib, callPackage, newScope }:
+
+let
+  versions = import ./versions.nix;
+  mkScryptedPlugin = callPackage ./mk-scrypted-plugin.nix { };
+  
+  # Auto-generate packages from versions.nix
+  nodePlugins = lib.mapAttrs (name: ver: mkScryptedPlugin {
+    pname = name;
+    inherit (ver) version hash;
+  }) versions;
+
+  # Manual packages
+  openvino = callPackage ./openvino { };
+
+in nodePlugins // {
+  inherit openvino;
+}
+```
+
+### 6. NixOS Module
+
+```nix
+# modules/automation/scrypted/default.nix (additions)
+{ config, lib, pkgs, ... }:
+
+let
+  cfg = config.mares.automation.scrypted;
+  plugins = pkgs.scrypted.plugins;
+in {
+  options.mares.automation.scrypted = {
+    plugins = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [];
+      description = "List of Scrypted plugins to pre-install via sideloading";
+      example = [ "nvr" "doorbird" "amcrest" "onvif" ];
+    };
+  };
+
+  config = lib.mkIf (cfg.enable && cfg.plugins != []) {
+    # Enable localhost admin access for sideloading
+    # (added to existing environment config)
+    systemd.services.scrypted.environment = {
+      SCRYPTED_ADMIN_USERNAME = "nixos";
+      SCRYPTED_ADMIN_ADDRESS = "127.0.0.1";
+    };
+
+    # Sideload service
+    systemd.services.scrypted-sideload = {
+      description = "Sideload Scrypted plugins";
+      after = [ "scrypted.service" ];
+      requires = [ "scrypted.service" ];
+      wantedBy = [ "multi-user.target" ];
+
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+      };
+
+      path = [ pkgs.curl pkgs.jq ];
+
+      script = let
+        pluginPkgs = map (name: plugins.${name}) cfg.plugins;
+        sideloadPlugin = pkg: ''
+          echo "Sideloading ${pkg.pluginName}..."
+          
+          # Setup (register metadata)
+          curl -sf -X POST \
+            "https://127.0.0.1:10443/web/component/script/setup?npmPackage=${pkg.pluginName}" \
+            -H "Content-Type: application/json" \
+            -d @${pkg}/package.json \
+            --insecure || echo "Setup failed for ${pkg.pluginName}"
+          
+          # Deploy (upload plugin.zip contents)
+          # Note: plugin.zip is already extracted to $out, need to rezip or send files
+          # TODO: Determine exact format needed
+        '';
+      in ''
+        set -euo pipefail
+        
+        echo "Waiting for Scrypted API..."
+        for i in {1..30}; do
+          if curl -sf "https://127.0.0.1:10443/login" --insecure >/dev/null 2>&1; then
+            echo "Scrypted API ready"
+            break
+          fi
+          echo "Waiting... ($i/30)"
+          sleep 2
+        done
+        
+        ${lib.concatMapStrings sideloadPlugin pluginPkgs}
+        
+        echo "Sideload complete"
+      '';
+    };
+  };
+}
+```
+
+---
+
+## Plugin Categories
+
+### Fully Supported (Auto-Generated Node.js)
+
+All ~55 plugins with `runtime != "python"` are auto-generated. Examples:
+
+| Plugin            | Description                | Notes                    |
+| ----------------- | -------------------------- | ------------------------ |
+| nvr               | Scrypted NVR               | Closed source, but works |
+| doorbird          | Doorbird doorbell          |                          |
+| amcrest           | Amcrest cameras            |                          |
+| onvif             | ONVIF cameras              |                          |
+| rtsp              | RTSP streams               |                          |
+| prebuffer-mixin   | Rebroadcast/prebuffer      |                          |
+| snapshot          | Snapshot capture           |                          |
+| objectdetector    | Video analysis coordinator |                          |
+| webrtc            | WebRTC streaming           |                          |
+| cloud             | Scrypted Cloud             | Needs internet for licensing |
+| core              | Scrypted Core              |                          |
+| homekit           | HomeKit bridge             |                          |
+| google-home       | Google Home integration    |                          |
+| alexa             | Alexa integration          |                          |
+
+### Manual Package (Python)
+
+| Plugin   | Description              | Status                                    |
+| -------- | ------------------------ | ----------------------------------------- |
+| openvino | OpenVINO object detection | Manual package, needs Python + HF models |
+
+### Not Supported (Python - Require Internet)
+
+| Plugin          | Description               |
+| --------------- | ------------------------- |
+| onnx            | ONNX object detection     |
+| coreml          | CoreML object detection   |
+| tensorflow-lite | TFLite object detection   |
+| opencv          | OpenCV motion detection   |
+| blink           | Blink cameras (Python)    |
+| wyze            | Wyze cameras (Python)     |
+| arlo            | Arlo cameras (Python)     |
+
+---
+
+## Implementation Status
+
+### Phase 1: Package Infrastructure ✅
+
+- [x] `packages/scrypted/plugins/mk-scrypted-plugin.nix` - Generic builder
+- [x] `packages/scrypted/plugins/update.sh` - Generates `plugins/<name>/package.nix`
+- [x] 59 auto-generated plugin packages
+- [x] `packages/scrypted/plugins/default.nix` - Uses `packagesFromDirectoryRecursive`
+- [x] Flake exposes `scrypted.plugins.*`
+- [x] Test: `nix build .#scrypted.plugins.doorbird` ✓
+
+### Phase 2: Sideload Module ✅
+
+- [x] `plugins` option in `modules/automation/scrypted/common.nix`
+- [x] Localhost admin env vars (when plugins enabled)
+- [x] `scrypted-sideload.service` in `server.nix`
+- [x] Waits for API, POSTs each plugin
+
+### Phase 3: OpenVINO Integration ✅
+
+- [x] OpenVINO uses `mkScryptedPlugin` as base with `postInstall` hook
+- [x] `openvino/update.sh` uses `nurl` to auto-compute `modelsHash`
+- [x] Client role uses tmpfiles for Python env + models symlinks
+- [x] Main `update.sh` delegates to complex plugins via `COMPLEX_PLUGINS` list
+
+### Phase 4: Testing 📋
+
+- [x] Deploy to nvr-server-01
+- [x] Verify plugins appear in Scrypted UI (dummy-switch tested successfully)
+- [ ] Test OpenVINO plugin on worker nodes
+
+---
+
+## Usage Example
+
+```nix
+# hosts/nvr-server-01/default.nix
+{ config, ... }:
+
+{
+  imports = [ ../../roles/scrypted-server.nix ];
+
+  mares.automation.scrypted = {
+    enable = true;
+    role = "server";
+    
+    plugins = [
+      # Core functionality
+      "nvr"
+      "core"
+      "cloud"
+      
+      # Camera providers
+      "doorbird"
+      "amcrest"
+      "onvif"
+      "rtsp"
+      
+      # Streaming & processing
+      "prebuffer-mixin"
+      "snapshot"
+      "objectdetector"
+      "webrtc"
+      
+      # Integrations
+      "homekit"
+      "google-home"
+      
+      # Utilities
+      "diagnostics"
+      "dummy-switch"
+    ];
+  };
+}
+```
+
+---
+
+## Resolved Questions
+
+1. **Sideload API format**: `/deploy` expects raw `plugin.zip` binary with `Content-Type: application/zip`. The server converts to base64 internally.
+
+2. **Plugin updates**: Re-sideloading always overwrites - no version checking. Scrypted handles plugin restart.
+
+3. **Worker nodes**: Workers get plugins via RPC from server. Only sideload on server.
+
+4. **Idempotency**: Let Scrypted handle it - sideload service runs on every boot, Scrypted overwrites existing plugins.
+
+5. **Models hash**: The `openvino/update.sh` uses `nurl -e` to automatically compute the HuggingFace models hash. This downloads ~2GB but eliminates manual hash updates. Falls back to existing hash on non-Linux.
+
+---
+
+## Success Criteria
+
+- [x] `update.sh` generates valid plugin packages (~59 plugins)
+- [x] `update.sh` delegates to complex plugins (openvino) via `COMPLEX_PLUGINS`
+- [x] `nix build .#scrypted.plugins.<name>` works for any Node.js plugin
+- [x] `mares.automation.scrypted.plugins = [...]` triggers sideload on boot
+- [x] Sideloaded plugins appear in Scrypted UI (dummy-switch verified)
+- [x] Plugins function correctly (dummy-switch verified)
+- [ ] OpenVINO plugin works on worker nodes
+
+---
+
+## Appendix: Original OpenVINO-Only PRD
+
+<details>
+<summary>Click to expand original PRD (historical reference)</summary>
+
+### Original Problem Statement
+
+Scrypted's OpenVINO plugin downloads Python packages via pip and ML models from HuggingFace at runtime. NVR clients on isolated networks (firewall-blocked from internet) cannot complete these downloads, causing object detection to fail.
+
+### Original Goals
 
 - **Offline Operation**: Enable NVR clients to run object detection without internet access.
 - **Reproducible Builds**: Pin all dependencies (OpenVINO, models) for consistent deployments.
@@ -18,293 +564,19 @@ Scrypted's OpenVINO plugin downloads Python packages via pip and ML models from 
 - **Multi-Platform**: Support both x86_64-linux (production) and aarch64-linux (future-proofing).
 - **Maintainability**: Provide update script to sync with upstream releases.
 
-## Architecture
+### Why It Was Abandoned (Initially)
 
-- **Package**: `pkgs.scryptedPlugins.openvino`
-- **Integration**: Role-level `systemd.tmpfiles.rules` symlinks package into expected location.
-- **Models Source**: HuggingFace repos `scrypted/plugin-models` and `openai/clip-vit-base-patch32`.
+1. **Maintenance Burden**: Scrypted moves fast, hash updates required constantly
+2. **Incomplete Solution**: NVR (closed source) downloads libav at runtime
+3. **Limited Scope**: Only OpenVINO needed special handling
 
-## Platform Support
+### Why We're Reviving It (Revised)
 
-| Platform       | Build | Deploy | Notes                                 |
-|----------------|-------|--------|---------------------------------------|
-| x86_64-linux   | Yes   | Yes    | Primary target (nvr-client-01/02)     |
-| aarch64-linux  | Yes   | Yes    | Local dev on M2 Mac + future-proofing |
-| aarch64-darwin | No    | N/A    | Can evaluate, but not build wheels    |
-| x86_64-darwin  | No    | N/A    | Can evaluate, but not build wheels    |
+The key insight: **automate the packaging** of simple Node.js plugins. Instead of manually maintaining each plugin, we:
+1. Auto-fetch all plugins from npm registry
+2. Auto-generate Nix packages
+3. Single `update.sh` refreshes everything
 
-## Technical Specification
+This makes the maintenance burden acceptable.
 
-### 1. Package Structure
-
-```
-packages/scrypted-plugins/
-├── default.nix              # Exposes scryptedPlugins = { openvino = ...; }
-└── openvino/
-    ├── default.nix          # Main package definition
-    └── update.sh            # Update script
-```
-
-### 2. Package Output
-
-```
-$out/
-├── python-env/              # Python site-packages symlinks
-│   ├── openvino/
-│   ├── PIL/
-│   ├── cv2/
-│   ├── transformers/
-│   └── ...
-├── requirements.txt
-├── requirements.installed.txt
-├── requirements.scrypted.txt
-├── requirements.scrypted.installed.txt
-└── files/                   # ML models (~450MB)
-    ├── scrypted_labels.txt
-    ├── 120/openvino/
-    ├── hf/models--openai--clip-vit-base-patch32/
-    ├── v6/
-    ├── v7/
-    └── v8/
-```
-
-### 3. Version Management
-
-All version-sensitive values marked with `# VERSION-PIN:` comments:
-
-```nix
-# VERSION-PIN: Sync with @scrypted/openvino npm package
-# Check: curl -s "https://registry.npmjs.org/@scrypted/openvino/latest" | jq -r '.version'
-openvinoPluginVersion = "0.1.188";
-
-# VERSION-PIN: From plugin's requirements.txt - CRITICAL for hardware compatibility
-# Check: https://github.com/koush/scrypted/blob/main/plugins/openvino/src/requirements.txt
-# WARNING: See requirements.txt comments for hardware-specific issues
-openvinoVersion = "2024.5.0";
-
-# VERSION-PIN: OpenVINO wheel hashes per platform
-# Check: curl -s "https://pypi.org/pypi/openvino/2024.5.0/json" | jq '.urls[] | select(.filename | contains("cp312")) | {filename, digests}'
-openvinoWheelHashes = {
-  x86_64-linux = "sha256-...";   # manylinux2014_x86_64
-  aarch64-linux = "sha256-...";  # manylinux_2_31_aarch64
-};
-
-# VERSION-PIN: Sync with scrypted/plugin-models HuggingFace repo
-# Check: curl -s "https://huggingface.co/api/models/scrypted/plugin-models" | jq -r '.sha'
-modelsRevision = "ae940950a104bab848c61a82fd0ed82bef4cc663";
-
-# VERSION-PIN: From Scrypted server source
-# Check: grep SCRYPTED_PYTHON_VERSION in server/src/plugin/runtime/python-worker.ts
-scryptedPythonVersion = "20240317";
-
-# VERSION-PIN: Must match python312 package used
-pythonMajorMinor = "3.12";
-```
-
-### 4. Implementation Components
-
-#### Pinned OpenVINO Wheel Package (Multi-Platform)
-
-```nix
-openvino-2024 = python312.pkgs.buildPythonPackage rec {
-  pname = "openvino";
-  version = openvinoVersion;  # "2024.5.0"
-  format = "wheel";
-  src = fetchPypi {
-    inherit pname version;
-    format = "wheel";
-    python = "cp312";
-    abi = "cp312";
-    platform = {
-      x86_64-linux = "manylinux2014_x86_64";
-      aarch64-linux = "manylinux_2_31_aarch64";
-    }.${stdenv.hostPlatform.system} or (throw "Unsupported platform");
-    hash = openvinoWheelHashes.${stdenv.hostPlatform.system}
-      or (throw "No hash for platform");
-  };
-  nativeBuildInputs = [ autoPatchelfHook ];
-  buildInputs = [ stdenv.cc.cc.lib ];
-};
-```
-
-#### Python Environment
-
-```nix
-pythonEnv = python312.withPackages (ps: [
-  openvino-2024          # Our pinned version
-  ps.pillow              # nixpkgs version (compatible)
-  ps.opencv4             # nixpkgs version (compatible)
-  ps.transformers        # nixpkgs version (compatible)
-  ps.huggingface-hub
-  ps.ptpython
-  ps.wheel
-]);
-```
-
-#### Models Download (Fixed-Output Derivation)
-
-```nix
-models = stdenvNoCC.mkDerivation {
-  pname = "scrypted-openvino-models";
-  version = modelsRevision;
-  nativeBuildInputs = [ python312 python312Packages.huggingface-hub cacert ];
-  
-  dontUnpack = true;
-  buildPhase = ''
-    export HOME=$TMPDIR
-    export SSL_CERT_FILE=${cacert}/etc/ssl/certs/ca-bundle.crt
-    
-    python3 << 'EOF'
-    from huggingface_hub import snapshot_download
-    import os
-    
-    out = os.environ["out"]
-    
-    # Download Scrypted plugin models
-    snapshot_download(
-      repo_id="scrypted/plugin-models",
-      allow_patterns=["openvino/*"],
-      local_dir=f"{out}/scrypted-plugin-models",
-    )
-    
-    # Download CLIP model
-    snapshot_download(
-      repo_id="openai/clip-vit-base-patch32",
-      local_dir=f"{out}/clip",
-    )
-    EOF
-  '';
-  outputHashAlgo = "sha256";
-  outputHashMode = "recursive";
-  outputHash = "sha256-...";  # VERSION-PIN: Update when models change
-};
-```
-
-#### Combined Plugin Package
-
-```nix
-stdenvNoCC.mkDerivation {
-  pname = "scrypted-plugin-openvino";
-  version = openvinoPluginVersion;
-  passthru = {
-    pluginId = "@scrypted/openvino";
-    updateScript = ./update.sh;
-  };
-  # ... build logic to combine pythonEnv + models + marker files
-}
-```
-
-### 5. Role Integration
-
-In `roles/nvr-client-openvino.nix` (or similar):
-
-```nix
-{ config, pkgs, lib, ... }:
-let
-  # VERSION-PIN: Python version must match python312 package
-  pythonMajorMinor = "3.12";
-  
-  # VERSION-PIN: From Scrypted server/src/plugin/runtime/python-worker.ts
-  scryptedPythonVersion = "20240317";
-  
-  # Platform-specific arch string
-  platformArch = {
-    x86_64-linux = "x86_64";
-    aarch64-linux = "aarch64";
-  }.${pkgs.stdenv.hostPlatform.system} or (throw "Unsupported platform");
-  
-  pythonPlatformDir = "python${pythonMajorMinor}-Linux-${platformArch}-${scryptedPythonVersion}";
-  
-  openvino = pkgs.scryptedPlugins.openvino;
-  pluginPath = "${config.mares.services.scrypted.installPath}/volume/plugins/${openvino.pluginId}";
-in
-{
-  mares.services.scrypted.enable = true;
-  
-  systemd.tmpfiles.rules = [
-    "L+ ${pluginPath}/${pythonPlatformDir} - - - - ${openvino}/python-env"
-    "L+ ${pluginPath}/files - - - - ${openvino}/files"
-  ];
-}
-```
-
-### 6. Update Script
-
-```bash
-#!/usr/bin/env bash
-# packages/scrypted-plugins/openvino/update.sh
-set -eu -o pipefail
-
-echo "=== Checking upstream versions ==="
-
-# 1. Plugin version from npm
-PLUGIN_VERSION=$(curl -s "https://registry.npmjs.org/@scrypted/openvino/latest" | jq -r '.version')
-echo "Plugin version: $PLUGIN_VERSION"
-
-# 2. OpenVINO version from requirements.txt
-REQUIREMENTS_URL="https://raw.githubusercontent.com/koush/scrypted/main/plugins/openvino/src/requirements.txt"
-OPENVINO_VERSION=$(curl -s "$REQUIREMENTS_URL" | grep "^openvino==" | cut -d'=' -f3)
-echo "OpenVINO version: $OPENVINO_VERSION"
-
-# 3. Models repo SHA
-MODELS_SHA=$(curl -s "https://huggingface.co/api/models/scrypted/plugin-models" | jq -r '.sha')
-echo "Models SHA: $MODELS_SHA"
-
-# 4. Scrypted Python version
-PYTHON_VERSION_URL="https://raw.githubusercontent.com/koush/scrypted/main/server/src/plugin/runtime/python-worker.ts"
-SCRYPTED_PYTHON_VERSION=$(curl -s "$PYTHON_VERSION_URL" | grep "SCRYPTED_PYTHON_VERSION:" | grep -oP "'\\K[^']+")
-echo "Scrypted Python version: $SCRYPTED_PYTHON_VERSION"
-
-echo ""
-echo "=== VERSION-PIN values to update ==="
-echo "openvinoPluginVersion = \"$PLUGIN_VERSION\";"
-echo "openvinoVersion = \"$OPENVINO_VERSION\";"
-echo "modelsRevision = \"$MODELS_SHA\";"
-echo "scryptedPythonVersion = \"$SCRYPTED_PYTHON_VERSION\";"
-echo ""
-echo "After updating, rebuild to get new hashes from error messages."
-```
-
-## Implementation Plan
-
-1. **Create Package Structure**: Set up `packages/scrypted-plugins/` directory.
-2. **Implement OpenVINO Package**: Build pinned wheel package with multi-platform support.
-3. **Implement Models Derivation**: Fixed-output derivation for HuggingFace downloads.
-4. **Create Combined Package**: Merge python-env, models, and marker files.
-5. **Expose in Flake**: Add `scryptedPlugins` to flake outputs.
-6. **Update Role**: Add tmpfiles rules to NVR client role.
-7. **Create Update Script**: Script to check upstream versions.
-8. **Test & Deploy**: Build, deploy to nvr-client-02, verify object detection.
-
-## Files to Create/Modify
-
-| File                                            | Action | Description                    |
-|-------------------------------------------------|--------|--------------------------------|
-| `packages/scrypted-plugins/default.nix`         | Create | Exposes scryptedPlugins set    |
-| `packages/scrypted-plugins/openvino/default.nix`| Create | Main package definition        |
-| `packages/scrypted-plugins/openvino/update.sh`  | Create | Update script                  |
-| `roles/nvr-client.nix` (or similar)             | Modify | Add tmpfiles rules             |
-| `flake.nix` or overlay                          | Modify | Expose scryptedPlugins         |
-
-## Testing Plan
-
-1. **Build locally (aarch64)**: `nix build .#scryptedPlugins.openvino`
-2. **Build for target (x86_64)**: Build on remote builder or deploy target.
-3. **Deploy**: Apply to nvr-client-02 (currently broken).
-4. **Verify symlinks**: `ls -la /var/lib/scrypted/volume/plugins/@scrypted/openvino/`
-5. **Verify logs**: Should show "requirements.txt (up to date)".
-6. **Verify detection**: Test camera feeds for object detection.
-
-## Known Limitations
-
-1. **Read-only files directory**: If Scrypted writes to `files/` at runtime (lock files), symlink may fail. Fallback: symlink subdirectories only, keep parent writable.
-2. **Manual hash updates**: After version bump, rebuild to get new hashes from error messages.
-3. **Darwin builds**: Cannot build the wheel packages on macOS directly - use Linux builder.
-
-## Success Criteria
-
-- [ ] `nix build .#scryptedPlugins.openvino` succeeds on x86_64-linux.
-- [ ] Symlinks are created at expected paths on nvr-client-02.
-- [ ] Scrypted logs show "requirements.txt (up to date)" instead of pip errors.
-- [ ] Object detection works on camera feeds.
-- [ ] Update script correctly reports upstream versions.
+</details>
