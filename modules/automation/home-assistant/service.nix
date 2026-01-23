@@ -18,6 +18,7 @@ let
   syrConnect = pkgs.callPackage ./syr-connect.nix {
     inherit (python.pkgs) pycryptodomex;
   };
+  haScrypted = pkgs.callPackage ./ha-scrypted.nix { };
 
   merossComponents = lib.optionals cfg.meross.enable [ merossLan ];
   scenePresetsComponents = lib.optionals cfg.scenePresets.enable [
@@ -25,6 +26,7 @@ let
   ];
   evccComponents = lib.optionals cfg.evcc.enable [ haEvcc ];
   syrConnectComponents = lib.optionals cfg.syrConnect.enable [ syrConnect ];
+  scryptedComponents = lib.optionals cfg.scrypted.enable [ haScrypted ];
 in
 {
   config = lib.mkIf cfg.enable {
@@ -38,7 +40,11 @@ in
       enable = true;
       configDir = cfg.configDir;
       customComponents =
-        merossComponents ++ scenePresetsComponents ++ evccComponents ++ syrConnectComponents;
+        merossComponents
+        ++ scenePresetsComponents
+        ++ evccComponents
+        ++ syrConnectComponents
+        ++ scryptedComponents;
 
       extraPackages = ps: [
         ps.psycopg2

@@ -59,6 +59,7 @@ in
     samsungTv.enable = true;
     roborock.enable = true;
     syrConnect.enable = true;
+    scrypted.enable = true;
 
     influxdb = {
       enable = true;

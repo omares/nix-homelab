@@ -147,5 +147,9 @@ in
     syrConnect = {
       enable = mkEnableOption "SYR Connect for water softeners";
     };
+
+    scrypted = {
+      enable = mkEnableOption "Scrypted integration for NVR and camera management";
+    };
   };
 }
