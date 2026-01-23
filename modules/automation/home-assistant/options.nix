@@ -135,5 +135,9 @@ in
     fronius = {
       enable = mkEnableOption "Fronius Solar integration for inverter and smart meter";
     };
+
+    samsungTv = {
+      enable = mkEnableOption "Samsung TV integration";
+    };
   };
 }

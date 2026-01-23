@@ -56,6 +56,7 @@ in
     scenePresets.enable = true;
     evcc.enable = true;
     fronius.enable = true;
+    samsungTv.enable = true;
 
     influxdb = {
       enable = true;

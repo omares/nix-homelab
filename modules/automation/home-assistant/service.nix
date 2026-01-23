@@ -54,7 +54,8 @@ in
       ++ lib.optionals cfg.shelly.enable [ "shelly" ]
       ++ lib.optionals cfg.influxdb.enable [ "influxdb" ]
       ++ lib.optionals cfg.homekit.enable [ "homekit" ]
-      ++ lib.optionals cfg.fronius.enable [ "fronius" ];
+      ++ lib.optionals cfg.fronius.enable [ "fronius" ]
+      ++ lib.optionals cfg.samsungTv.enable [ "samsungtv" ];
 
       # Note: MQTT broker connection must be configured via UI after onboarding
       # (Settings > Devices & Services > Add Integration > MQTT)
