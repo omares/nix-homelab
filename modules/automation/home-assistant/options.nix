@@ -143,5 +143,9 @@ in
     roborock = {
       enable = mkEnableOption "Roborock vacuum integration";
     };
+
+    syrConnect = {
+      enable = mkEnableOption "SYR Connect for water softeners";
+    };
   };
 }

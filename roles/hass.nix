@@ -58,6 +58,7 @@ in
     fronius.enable = true;
     samsungTv.enable = true;
     roborock.enable = true;
+    syrConnect.enable = true;
 
     influxdb = {
       enable = true;

@@ -11,13 +11,20 @@
 }:
 let
   cfg = config.mares.home-assistant;
+  python = pkgs.home-assistant.python;
+
   merossLan = pkgs.callPackage ./meross-lan.nix { };
   haEvcc = pkgs.callPackage ./ha-evcc.nix { };
+  syrConnect = pkgs.callPackage ./syr-connect.nix {
+    inherit (python.pkgs) pycryptodomex;
+  };
+
   merossComponents = lib.optionals cfg.meross.enable [ merossLan ];
   scenePresetsComponents = lib.optionals cfg.scenePresets.enable [
     pkgs.home-assistant-custom-components.scene_presets
   ];
   evccComponents = lib.optionals cfg.evcc.enable [ haEvcc ];
+  syrConnectComponents = lib.optionals cfg.syrConnect.enable [ syrConnect ];
 in
 {
   config = lib.mkIf cfg.enable {
@@ -30,7 +37,8 @@ in
     services.home-assistant = {
       enable = true;
       configDir = cfg.configDir;
-      customComponents = merossComponents ++ scenePresetsComponents ++ evccComponents;
+      customComponents =
+        merossComponents ++ scenePresetsComponents ++ evccComponents ++ syrConnectComponents;
 
       extraPackages = ps: [
         ps.psycopg2
