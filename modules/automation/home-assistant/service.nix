@@ -39,6 +39,9 @@ let
   syrConnectComponents = lib.optionals cfg.syrConnect.enable [ syrConnect ];
   scryptedComponents = lib.optionals cfg.scrypted.enable [ haScrypted ];
   homeConnectLocalComponents = lib.optionals cfg.homeConnectLocal.enable [ homeConnectLocal ];
+  homeConnectAltComponents = lib.optionals cfg.homeConnectAlt.enable [
+    pkgs.home-assistant-custom-components.home_connect_alt
+  ];
 in
 {
   config = lib.mkIf cfg.enable {
@@ -57,7 +60,8 @@ in
         ++ evccComponents
         ++ syrConnectComponents
         ++ scryptedComponents
-        ++ homeConnectLocalComponents;
+        ++ homeConnectLocalComponents
+        ++ homeConnectAltComponents;
 
       extraPackages = ps: [
         ps.psycopg2

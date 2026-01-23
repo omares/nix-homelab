@@ -155,5 +155,9 @@ in
     homeConnectLocal = {
       enable = mkEnableOption "Home Connect Local for Bosch/Siemens appliances (offline)";
     };
+
+    homeConnectAlt = {
+      enable = mkEnableOption "Home Connect Alt for Bosch/Siemens appliances (cloud)";
+    };
   };
 }

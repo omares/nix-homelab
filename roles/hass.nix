@@ -61,6 +61,7 @@ in
     syrConnect.enable = true;
     scrypted.enable = true;
     homeConnectLocal.enable = true;
+    homeConnectAlt.enable = false;
 
     influxdb = {
       enable = true;
