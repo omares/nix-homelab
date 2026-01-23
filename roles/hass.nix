@@ -62,6 +62,7 @@ in
     scrypted.enable = true;
     homeConnectLocal.enable = true;
     homeConnectAlt.enable = false;
+    wasteCollectionSchedule.enable = true;
 
     influxdb = {
       enable = true;

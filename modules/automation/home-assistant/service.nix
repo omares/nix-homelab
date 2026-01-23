@@ -42,6 +42,9 @@ let
   homeConnectAltComponents = lib.optionals cfg.homeConnectAlt.enable [
     pkgs.home-assistant-custom-components.home_connect_alt
   ];
+  wasteCollectionScheduleComponents = lib.optionals cfg.wasteCollectionSchedule.enable [
+    pkgs.home-assistant-custom-components.waste_collection_schedule
+  ];
 in
 {
   config = lib.mkIf cfg.enable {
@@ -61,7 +64,8 @@ in
         ++ syrConnectComponents
         ++ scryptedComponents
         ++ homeConnectLocalComponents
-        ++ homeConnectAltComponents;
+        ++ homeConnectAltComponents
+        ++ wasteCollectionScheduleComponents;
 
       extraPackages = ps: [
         ps.psycopg2

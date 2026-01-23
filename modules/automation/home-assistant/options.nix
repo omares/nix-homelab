@@ -159,5 +159,9 @@ in
     homeConnectAlt = {
       enable = mkEnableOption "Home Connect Alt for Bosch/Siemens appliances (cloud)";
     };
+
+    wasteCollectionSchedule = {
+      enable = mkEnableOption "Waste Collection Schedule for garbage collection calendars";
+    };
   };
 }
