@@ -139,5 +139,9 @@ in
     samsungTv = {
       enable = mkEnableOption "Samsung TV integration";
     };
+
+    roborock = {
+      enable = mkEnableOption "Roborock vacuum integration";
+    };
   };
 }

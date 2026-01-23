@@ -57,6 +57,7 @@ in
     evcc.enable = true;
     fronius.enable = true;
     samsungTv.enable = true;
+    roborock.enable = true;
 
     influxdb = {
       enable = true;
