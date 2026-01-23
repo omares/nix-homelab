@@ -151,5 +151,9 @@ in
     scrypted = {
       enable = mkEnableOption "Scrypted integration for NVR and camera management";
     };
+
+    homeConnectLocal = {
+      enable = mkEnableOption "Home Connect Local for Bosch/Siemens appliances (offline)";
+    };
   };
 }

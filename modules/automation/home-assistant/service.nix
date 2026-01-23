@@ -19,6 +19,17 @@ let
     inherit (python.pkgs) pycryptodomex;
   };
   haScrypted = pkgs.callPackage ./ha-scrypted.nix { };
+  homeConnectLocal = pkgs.callPackage ./homeconnect-local.nix {
+    inherit (python.pkgs)
+      buildPythonPackage
+      fetchPypi
+      setuptools
+      versioningit
+      aiohttp
+      xmltodict
+      pycryptodome
+      ;
+  };
 
   merossComponents = lib.optionals cfg.meross.enable [ merossLan ];
   scenePresetsComponents = lib.optionals cfg.scenePresets.enable [
@@ -27,6 +38,7 @@ let
   evccComponents = lib.optionals cfg.evcc.enable [ haEvcc ];
   syrConnectComponents = lib.optionals cfg.syrConnect.enable [ syrConnect ];
   scryptedComponents = lib.optionals cfg.scrypted.enable [ haScrypted ];
+  homeConnectLocalComponents = lib.optionals cfg.homeConnectLocal.enable [ homeConnectLocal ];
 in
 {
   config = lib.mkIf cfg.enable {
@@ -44,7 +56,8 @@ in
         ++ scenePresetsComponents
         ++ evccComponents
         ++ syrConnectComponents
-        ++ scryptedComponents;
+        ++ scryptedComponents
+        ++ homeConnectLocalComponents;
 
       extraPackages = ps: [
         ps.psycopg2

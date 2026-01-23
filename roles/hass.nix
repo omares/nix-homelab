@@ -60,6 +60,7 @@ in
     roborock.enable = true;
     syrConnect.enable = true;
     scrypted.enable = true;
+    homeConnectLocal.enable = true;
 
     influxdb = {
       enable = true;
