@@ -64,108 +64,82 @@ in
       };
     };
 
-    influxdb = {
-      enable = mkEnableOption "InfluxDB integration for long-term history";
+    # Components submodule (prometheus.exporters style)
+    components = {
+      # Built-in HA components with extra config
+      shelly = {
+        enable = mkEnableOption "Shelly integration (native + Gen2+ MQTT discovery)";
 
-      host = mkOption {
-        type = types.str;
-        default = "";
-        description = "InfluxDB host.";
+        deviceIds = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          example = [
+            "shellyplus2pm-485519a1ff8c"
+            "shellyplusht-abcdef123456"
+          ];
+          description = ''
+            List of Shelly Gen2+ device IDs for the announce automation.
+            Required for battery-powered devices that need to be poked to announce themselves.
+            Device IDs can be found in the Shelly device web UI or via MQTT topics.
+          '';
+        };
       };
 
-      port = mkOption {
-        type = types.port;
-        default = 8086;
-        description = "InfluxDB port.";
+      influxdb = {
+        enable = mkEnableOption "InfluxDB integration for long-term history";
+
+        host = mkOption {
+          type = types.str;
+          default = "";
+          description = "InfluxDB host.";
+        };
+
+        port = mkOption {
+          type = types.port;
+          default = 8086;
+          description = "InfluxDB port.";
+        };
+
+        organization = mkOption {
+          type = types.str;
+          default = "mares";
+          description = "InfluxDB organization.";
+        };
+
+        bucket = mkOption {
+          type = types.str;
+          default = "home-assistant";
+          description = "InfluxDB bucket.";
+        };
+
+        maxRetries = mkOption {
+          type = types.int;
+          default = 3;
+          description = "Maximum retries for InfluxDB writes.";
+        };
       };
 
-      organization = mkOption {
-        type = types.str;
-        default = "mares";
-        description = "InfluxDB organization.";
-      };
+      # Built-in HA components (simple enable)
+      homekit.enable = mkEnableOption "HomeKit Bridge integration";
+      fronius.enable = mkEnableOption "Fronius Solar integration for inverter and smart meter";
+      samsung-tv.enable = mkEnableOption "Samsung TV integration";
+      roborock.enable = mkEnableOption "Roborock vacuum integration";
 
-      bucket = mkOption {
-        type = types.str;
-        default = "home-assistant";
-        description = "InfluxDB bucket.";
-      };
+      # Custom components from nixpkgs
+      scene-presets.enable = mkEnableOption "Scene Presets - Hue-like color picker for lights";
+      home-connect-alt.enable = mkEnableOption "Home Connect Alt for Bosch/Siemens appliances (cloud)";
+      waste-collection-schedule.enable = mkEnableOption "Waste Collection Schedule for garbage collection calendars";
 
-      maxRetries = mkOption {
-        type = types.int;
-        default = 3;
-        description = "Maximum retries for InfluxDB writes.";
-      };
-    };
+      # Custom components (local packages)
+      meross-lan.enable = mkEnableOption "Meross LAN integration";
+      evcc.enable = mkEnableOption "evcc integration for EV charging control";
+      syr-connect.enable = mkEnableOption "SYR Connect for water softeners";
+      scrypted.enable = mkEnableOption "Scrypted integration for NVR and camera management";
+      home-connect-local.enable = mkEnableOption "Home Connect Local for Bosch/Siemens appliances (offline)";
+      ostrom.enable = mkEnableOption "Ostrom energy provider integration (dynamic electricity prices)";
 
-    shelly = {
-      enable = mkEnableOption "Shelly integration (native + Gen2+ MQTT discovery)";
-
-      deviceIds = mkOption {
-        type = types.listOf types.str;
-        default = [ ];
-        example = [
-          "shellyplus2pm-485519a1ff8c"
-          "shellyplusht-abcdef123456"
-        ];
-        description = ''
-          List of Shelly Gen2+ device IDs for the announce automation.
-          Required for battery-powered devices that need to be poked to announce themselves.
-          Device IDs can be found in the Shelly device web UI or via MQTT topics.
-        '';
-      };
-    };
-
-    meross = {
-      enable = mkEnableOption "Meross LAN integration";
-    };
-
-    homekit = {
-      enable = mkEnableOption "HomeKit Bridge integration";
-    };
-
-    scenePresets = {
-      enable = mkEnableOption "Scene Presets - Hue-like color picker for lights";
-    };
-
-    evcc = {
-      enable = mkEnableOption "evcc integration for EV charging control";
-    };
-
-    fronius = {
-      enable = mkEnableOption "Fronius Solar integration for inverter and smart meter";
-    };
-
-    samsungTv = {
-      enable = mkEnableOption "Samsung TV integration";
-    };
-
-    roborock = {
-      enable = mkEnableOption "Roborock vacuum integration";
-    };
-
-    syrConnect = {
-      enable = mkEnableOption "SYR Connect for water softeners";
-    };
-
-    scrypted = {
-      enable = mkEnableOption "Scrypted integration for NVR and camera management";
-    };
-
-    homeConnectLocal = {
-      enable = mkEnableOption "Home Connect Local for Bosch/Siemens appliances (offline)";
-    };
-
-    homeConnectAlt = {
-      enable = mkEnableOption "Home Connect Alt for Bosch/Siemens appliances (cloud)";
-    };
-
-    wasteCollectionSchedule = {
-      enable = mkEnableOption "Waste Collection Schedule for garbage collection calendars";
-    };
-
-    ostrom = {
-      enable = mkEnableOption "Ostrom energy provider integration (dynamic electricity prices)";
+      # Lovelace modules
+      apexcharts.enable = mkEnableOption "ApexCharts card for advanced data visualization";
     };
   };
 }

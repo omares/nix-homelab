@@ -74,7 +74,7 @@ let
     variables = {
       get_config_payload = "{{ {'id': 1, 'src': 'shellies_discovery', 'method': 'Shelly.GetConfig'} | to_json }}";
       get_components_payload = "{{ {'id': 1, 'src': 'shellies_discovery', 'method': 'Shelly.GetComponents', 'params': {'include': ['config']}} | to_json }}";
-      device_ids = cfg.shelly.deviceIds;
+      device_ids = cfg.components.shelly.deviceIds;
     };
     actions = [
       {
@@ -102,7 +102,7 @@ let
   };
 in
 {
-  config = lib.mkIf (cfg.enable && cfg.shelly.enable) {
+  config = lib.mkIf (cfg.enable && cfg.components.shelly.enable) {
     services.home-assistant.config = {
       # Enable python_script integration for Shelly Gen2+ discovery
       python_script = { };
@@ -110,7 +110,7 @@ in
       automation = [
         shellyDiscoveryAutomation
       ]
-      ++ lib.optionals (cfg.shelly.deviceIds != [ ]) [ shellyAnnounceAutomation ];
+      ++ lib.optionals (cfg.components.shelly.deviceIds != [ ]) [ shellyAnnounceAutomation ];
     };
 
     # Deploy python_scripts to Home Assistant config directory
