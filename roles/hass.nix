@@ -63,6 +63,7 @@ in
     homeConnectLocal.enable = true;
     homeConnectAlt.enable = false;
     wasteCollectionSchedule.enable = true;
+    ostrom.enable = true;
 
     influxdb = {
       enable = true;

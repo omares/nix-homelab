@@ -12,6 +12,7 @@
 let
   cfg = config.mares.home-assistant;
   python = pkgs.home-assistant.python;
+  format = pkgs.formats.yaml { };
 
   merossLan = pkgs.callPackage ./meross-lan.nix { };
   haEvcc = pkgs.callPackage ./ha-evcc.nix { };
@@ -30,6 +31,7 @@ let
       pycryptodome
       ;
   };
+  ostrom = python.pkgs.callPackage ./ostrom.nix { };
 
   merossComponents = lib.optionals cfg.meross.enable [ merossLan ];
   scenePresetsComponents = lib.optionals cfg.scenePresets.enable [
@@ -45,6 +47,171 @@ let
   wasteCollectionScheduleComponents = lib.optionals cfg.wasteCollectionSchedule.enable [
     pkgs.home-assistant-custom-components.waste_collection_schedule
   ];
+  ostromComponents = lib.optionals cfg.ostrom.enable [ ostrom ];
+
+  # Mares Home dashboard with ApexCharts for energy price visualization
+  maresHomeDashboard = format.generate "mares-home.yaml" {
+    title = "Mares Home";
+    views = [
+      {
+        title = "Energy";
+        path = "energy";
+        icon = "mdi:lightning-bolt";
+        cards = [
+          {
+            type = "custom:apexcharts-card";
+            graph_span = "24h";
+            header = {
+              title = "Strompreise (€/kWh)";
+              show = true;
+            };
+            apex_config = {
+              xaxis = {
+                type = "datetime";
+                labels.datetimeFormatter = {
+                  hour = "HH:mm";
+                  day = "dd MMM";
+                };
+              };
+              plotOptions.bar.colors.ranges = [
+                {
+                  from = 0;
+                  to = 0.15;
+                  color = "#2ecc71";
+                }
+                {
+                  from = 0.15;
+                  to = 0.2;
+                  color = "#a6d96a";
+                }
+                {
+                  from = 0.2;
+                  to = 0.25;
+                  color = "#ffff99";
+                }
+                {
+                  from = 0.25;
+                  to = 0.3;
+                  color = "#fdae61";
+                }
+                {
+                  from = 0.3;
+                  to = 0.35;
+                  color = "#f46d43";
+                }
+                {
+                  from = 0.35;
+                  to = 1;
+                  color = "#d73027";
+                }
+              ];
+            };
+            series = [
+              {
+                entity = "sensor.ostrom_energy_spot_price";
+                type = "column";
+                name = "Preis";
+                float_precision = 3;
+                group_by = {
+                  duration = "1h";
+                  func = "avg";
+                };
+                show = {
+                  datalabels = false;
+                  in_header = false;
+                };
+              }
+            ];
+            yaxis = [
+              {
+                min = 0;
+                max = 0.5;
+              }
+            ];
+          }
+          {
+            type = "custom:apexcharts-card";
+            graph_span = "23h";
+            span = {
+              start = "hour";
+              offset = "-1h";
+            };
+            header = {
+              title = "Strompreise Zukunft (€/kWh)";
+              show = true;
+            };
+            apex_config = {
+              xaxis = {
+                type = "datetime";
+                labels.datetimeFormatter = {
+                  hour = "HH:mm";
+                  day = "dd MMM";
+                };
+              };
+              plotOptions.bar.colors.ranges = [
+                {
+                  from = 0;
+                  to = 0.15;
+                  color = "#2ecc71";
+                }
+                {
+                  from = 0.15;
+                  to = 0.2;
+                  color = "#a6d96a";
+                }
+                {
+                  from = 0.2;
+                  to = 0.25;
+                  color = "#ffff99";
+                }
+                {
+                  from = 0.25;
+                  to = 0.3;
+                  color = "#fdae61";
+                }
+                {
+                  from = 0.3;
+                  to = 0.35;
+                  color = "#f46d43";
+                }
+                {
+                  from = 0.35;
+                  to = 1;
+                  color = "#d73027";
+                }
+              ];
+            };
+            series = [
+              {
+                entity = "sensor.ostrom_energy_spot_price";
+                attribute = "prices";
+                float_precision = 3;
+                type = "column";
+                name = "Preis";
+                data_generator = ''
+                  const prices = entity.attributes.prices;
+                  return Object.entries(prices).map(([timestamp, value]) => {
+                    const date = new Date(timestamp);
+                    return [date, value];
+                  });
+                '';
+                show = {
+                  datalabels = false;
+                  in_header = true;
+                };
+              }
+            ];
+            yaxis = [
+              {
+                min = 0;
+                max = 0.5;
+              }
+            ];
+          }
+        ];
+      }
+    ];
+  };
 in
 {
   config = lib.mkIf cfg.enable {
@@ -65,7 +232,12 @@ in
         ++ scryptedComponents
         ++ homeConnectLocalComponents
         ++ homeConnectAltComponents
-        ++ wasteCollectionScheduleComponents;
+        ++ wasteCollectionScheduleComponents
+        ++ ostromComponents;
+
+      customLovelaceModules = lib.optionals cfg.ostrom.enable [
+        pkgs.home-assistant-custom-lovelace-modules.apexcharts-card
+      ];
 
       extraPackages = ps: [
         ps.psycopg2
@@ -98,6 +270,19 @@ in
       # YAML config for broker settings is deprecated.
       config = lib.mkMerge [
         {
+          lovelace = lib.mkMerge [
+            { mode = "storage"; }
+            (lib.mkIf cfg.ostrom.enable {
+              dashboards.mares-home = {
+                mode = "yaml";
+                title = "Mares Home";
+                icon = "mdi:home-lightning-bolt";
+                filename = "${maresHomeDashboard}";
+                show_in_sidebar = true;
+              };
+            })
+          ];
+
           homeassistant = {
             name = "Home";
             time_zone = "Europe/Berlin";

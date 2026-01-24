@@ -163,5 +163,9 @@ in
     wasteCollectionSchedule = {
       enable = mkEnableOption "Waste Collection Schedule for garbage collection calendars";
     };
+
+    ostrom = {
+      enable = mkEnableOption "Ostrom energy provider integration (dynamic electricity prices)";
+    };
   };
 }
