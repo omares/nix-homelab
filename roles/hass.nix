@@ -51,34 +51,53 @@ in
     bindAddress = nodeCfg.host;
     trustedProxies = [ proxyNode.host ];
 
-    homekit.enable = true;
-    meross.enable = true;
-    scenePresets.enable = true;
-    evcc.enable = true;
-    fronius.enable = true;
+    components = {
+      # Built-in HA components
+      homekit.enable = true;
+      fronius.enable = true;
+      samsung-tv.enable = true;
+      roborock.enable = true;
 
-    influxdb = {
-      enable = true;
-      host = monNode.dns.fqdn;
-    };
+      # Custom components (nixpkgs)
+      scene-presets.enable = true;
+      waste-collection-schedule.enable = true;
+      home-connect-alt.enable = false;
 
-    shelly = {
-      enable = true;
-      deviceIds = [
-        "shellies/carport_garden_path_light_relay"
-        "shellies/guest_bathroom_shutter_cover"
-        "shellies/garden_pool_circulation_pump_relay"
-        "shellies/garden_pool_heating_pump_relay"
-        "shellies/hallway_shutter_cover"
-        "shellies/kitchen_shutter_cover"
-        "shellies/living_room_shutter_left_cover"
-        "shellies/living_room_shutter_right_cover"
-        "shellies/living_room_shutter_terrace_door_cover"
-        "shellies/living_room_shutter_terrace_window_cover"
-        "shellies/office_shutter_fixed_cover"
-        "shellies/office_shutter_cover"
-        "shellies/utility_room_shutter_cover"
-      ];
+      # Custom components (local packages)
+      meross-lan.enable = true;
+      evcc.enable = true;
+      syr-connect.enable = true;
+      scrypted.enable = true;
+      home-connect-local.enable = true;
+      ostrom.enable = true;
+
+      # Lovelace modules
+      apexcharts.enable = true;
+
+      # Integrations with extra config
+      influxdb = {
+        enable = true;
+        host = monNode.dns.fqdn;
+      };
+
+      shelly = {
+        enable = true;
+        deviceIds = [
+          "shellies/carport_garden_path_light_relay"
+          "shellies/guest_bathroom_shutter_cover"
+          "shellies/garden_pool_circulation_pump_relay"
+          "shellies/garden_pool_heating_pump_relay"
+          "shellies/hallway_shutter_cover"
+          "shellies/kitchen_shutter_cover"
+          "shellies/living_room_shutter_left_cover"
+          "shellies/living_room_shutter_right_cover"
+          "shellies/living_room_shutter_terrace_door_cover"
+          "shellies/living_room_shutter_terrace_window_cover"
+          "shellies/office_shutter_fixed_cover"
+          "shellies/office_shutter_cover"
+          "shellies/utility_room_shutter_cover"
+        ];
+      };
     };
   };
 

@@ -11,7 +11,7 @@ in
   config = lib.mkIf cfg.enable {
     services.home-assistant.config = lib.mkMerge [
       # Battery energy helpers (requires evcc)
-      (lib.mkIf cfg.evcc.enable {
+      (lib.mkIf cfg.components.evcc.enable {
         template = [
           {
             sensor = [
