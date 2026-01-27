@@ -502,6 +502,22 @@ in
         };
       };
 
+      nas-02 = {
+        managed = false;
+
+        host = "10.10.22.191";
+
+        dns = {
+          vlan = "vm";
+        };
+
+        proxy = {
+          port = 80;
+          subdomains = [ "truenas-backup" ];
+          websockets = true;
+        };
+      };
+
       pve-01 = {
         managed = false;
 
