@@ -74,6 +74,9 @@ in
       # Lovelace modules
       apexcharts.enable = true;
 
+      # External integrations
+      wmbusmeters.enable = true;
+
       # Integrations with extra config
       influxdb = {
         enable = true;
