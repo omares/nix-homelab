@@ -7,7 +7,7 @@ let
 in
 {
   imports = [
-    ../services/atuin-client.nix
+    ./atuin
   ];
 
   sops-vault.items = [
@@ -23,7 +23,7 @@ in
     };
   };
 
-  mares.services.atuin-client = {
+  mares.shell.atuin = {
     enable = true;
     passwordPath = config.sops.secrets.atuin_password.path;
     keyPath = config.sops.secrets.atuin_key.path;

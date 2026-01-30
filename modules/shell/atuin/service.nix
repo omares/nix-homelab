@@ -1,63 +1,16 @@
-# atuin-client.nix
 {
   config,
   lib,
   pkgs,
   ...
 }:
-
 let
   tomlFormat = pkgs.formats.toml { };
-  cfg = config.mares.services.atuin-client;
+  cfg = config.mares.shell.atuin;
   userInfo = config.users.users.${cfg.owner};
   configDir = "${userInfo.home}/.config/atuin";
 in
 {
-  options.mares.services.atuin-client = {
-    enable = lib.mkEnableOption "Atuin shell history client";
-
-    package = lib.mkOption {
-      type = lib.types.package;
-      default = pkgs.atuin;
-      description = "The atuin package to use.";
-    };
-
-    username = lib.mkOption {
-      type = lib.types.str;
-      description = "Atuin service username.";
-    };
-
-    passwordPath = lib.mkOption {
-      type = lib.types.path;
-      description = "Path to the sops-nix secret containing the atuin password.";
-    };
-
-    keyPath = lib.mkOption {
-      type = lib.types.path;
-      description = "Path to the sops-nix secret containing the atuin key.";
-    };
-
-    owner = lib.mkOption {
-      type = lib.types.str;
-      description = "The local system user to configure atuin for.";
-      default = "root";
-    };
-
-    settings = lib.mkOption {
-      type = with lib.types; attrsOf anything;
-      description = "Atuin client settings.";
-      example = ''
-        {
-          sync_address = "https://atuin.example.com";
-          key_path = "/home/user/.atuin/key";
-          auto_sync = true;
-          dialect = "uk";
-          style = "auto";
-        }
-      '';
-    };
-  };
-
   config = lib.mkIf cfg.enable {
     systemd.tmpfiles.settings.atuin-client = {
       "${configDir}" = {
