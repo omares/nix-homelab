@@ -16,6 +16,9 @@ NC='\033[0m'
 VERBOSITY=0
 DEPLOY_ALL=false
 INIT_MODE=false
+SHOW_COMPLETION=false
+GET_NODES=false
+GET_TAGS=false
 
 show_help() {
   echo "Usage: d [options] <targets...>"
@@ -23,21 +26,30 @@ show_help() {
   echo "       d [options] --all"
   echo ""
   echo "Options:"
-  echo "  -i, --init   First-time deployment (prompts for sudo password)"
-  echo "  -v           Verbose (nix -v)"
-  echo "  -vv          Very verbose (nix -vv, deploy-rs debug)"
-  echo "  -vvv         Maximum verbosity (nix -vvv, deploy-rs debug)"
-  echo "  -a, --all    Deploy all tagged nodes"
-  echo "  -h, --help   Show help"
+  echo "  -i, --init     First-time deployment (prompts for sudo password)"
+  echo "  -v             Verbose (nix -v)"
+  echo "  -vv            Very verbose (nix -vv, deploy-rs debug)"
+  echo "  -vvv           Maximum verbosity (nix -vvv, deploy-rs debug)"
+  echo "  -a, --all      Deploy all tagged nodes"
+  echo "  --completion   Output zsh completion script"
+  echo "  --get-nodes    List all node names (for completion)"
+  echo "  --get-tags     List all tag names (for completion)"
+  echo "  -h, --help     Show help"
   echo ""
   echo "Examples:"
-  echo "  d .#dns-01              Deploy single node"
-  echo "  d .#dns-01 .#dns-02     Deploy multiple nodes"
+  echo "  d dns-01                Deploy single node (auto-prefixed)"
+  echo "  d .#dns-01              Deploy single node (explicit prefix)"
+  echo "  d dns-01 dns-02         Deploy multiple nodes"
   echo "  d tag starr             Deploy nodes with 'starr' tag"
   echo "  d --all                 Deploy all tagged nodes"
   echo "  d -v tag infra          Verbose deploy"
-  echo "  d -vvv .#dns-01         Maximum verbosity"
-  echo "  d --init .#mqtt-01      First-time deploy (interactive sudo)"
+  echo "  d -vvv dns-01           Maximum verbosity"
+  echo "  d --init mqtt-01        First-time deploy (interactive sudo)"
+}
+
+# Get all node names from flake
+get_all_nodes() {
+  nix eval "$FLAKE_ROOT#nodes" --json 2>/dev/null | jq -r '.[]'
 }
 
 # Get nodes for a tag from flake
@@ -56,7 +68,7 @@ get_all_tags() {
 list_tags() {
   echo "Available tags:"
   nix eval "$FLAKE_ROOT#tags" --json 2>/dev/null | \
-    jq -r 'to_entries[] | "  \(.key) - \(.value | join(", "))"'
+    jq -r $'to_entries[] | "  \(.key): \(.value | join(\", \"))"'
 }
 
 # Deploy a single target
@@ -71,7 +83,7 @@ deploy_target() {
   [[ $VERBOSITY -ge 2 ]] && nix_args="-vv" && deploy_args="$deploy_args -d"
   [[ $VERBOSITY -ge 3 ]] && nix_args="-vvv"
 
-  local name="${target#.#}"
+  local name="${target#.}"
   local tag_suffix=""
   [[ -n "$tag" ]] && tag_suffix="  🏷️  ${tag}"
 
@@ -117,18 +129,107 @@ deploy_all() {
   done
 }
 
+# Output zsh completion script
+output_completion() {
+  cat <<'EOF'
+#compdef d
+# zsh completion script for nix-proxmox deployment wrapper
+# Save this file as _d in your fpath directory
+
+_d() {
+  local curcontext="$curcontext" state line
+  typeset -A opt_args
+
+  # Get available tags and nodes
+  local -a tags nodes flags
+  local script_path="/Users/ota/development/omares/nix-proxmox/bin/d"
+  tags=($($script_path --get-tags 2>/dev/null))
+  nodes=($($script_path --get-nodes 2>/dev/null))
+  flags=(-i --init -v -vv -vvv -a --all -h --help --completion --get-nodes --get-tags)
+
+  # Check if we're completing after 'tag' command
+  if [[ ${words[CURRENT-1]} == "tag" ]]; then
+    _describe -t tags 'tags' tags
+    return 0
+  fi
+
+  # Check if we're completing a flag argument
+  if [[ ${words[CURRENT-1]} == -* ]]; then
+    _describe -t commands 'commands' nodes
+    return 0
+  fi
+
+  _arguments -C \
+    '-i[First-time deployment (prompts for sudo password)]' \
+    '--init[First-time deployment (prompts for sudo password)]' \
+    '-v[Verbose (nix -v)]' \
+    '-vv[Very verbose (nix -vv)]' \
+    '-vvv[Maximum verbosity (nix -vvv)]' \
+    '-a[Deploy all tagged nodes]' \
+    '--all[Deploy all tagged nodes]' \
+    '-h[Show help]' \
+    '--help[Show help]' \
+    '1: :->cmds' \
+    '*:: :->nodes'
+
+  case "$state" in
+    cmds)
+      _describe -t commands 'commands' "(tag:tag)"
+      _describe -t nodes 'nodes' nodes
+      ;;
+    nodes)
+      _describe -t nodes 'nodes' nodes
+      ;;
+  esac
+}
+
+compdef _d d
+EOF
+}
+
+# Normalize target - add .# prefix if missing
+normalize_target() {
+  local target="$1"
+  if [[ ! "$target" =~ ^\.# ]]; then
+    echo ".#$target"
+  else
+    echo "$target"
+  fi
+}
+
 # Parse arguments
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    -vvv)      VERBOSITY=3; shift ;;
-    -vv)       VERBOSITY=2; shift ;;
-    -v)        VERBOSITY=1; shift ;;
-    -i|--init) INIT_MODE=true; shift ;;
-    -a|--all)  DEPLOY_ALL=true; shift ;;
-    -h|--help) show_help; exit 0 ;;
-    *)         break ;;
+    -vvv)       VERBOSITY=3; shift ;;
+    -vv)        VERBOSITY=2; shift ;;
+    -v)         VERBOSITY=1; shift ;;
+    -i|--init)  INIT_MODE=true; shift ;;
+    -a|--all)   DEPLOY_ALL=true; shift ;;
+    --completion) SHOW_COMPLETION=true; shift ;;
+    --get-nodes) GET_NODES=true; shift ;;
+    --get-tags)  GET_TAGS=true; shift ;;
+    -h|--help)  show_help; exit 0 ;;
+    *)          break ;;
   esac
 done
+
+# Handle completion output
+if $SHOW_COMPLETION; then
+  output_completion
+  exit 0
+fi
+
+# Handle get-nodes
+if $GET_NODES; then
+  get_all_nodes
+  exit 0
+fi
+
+# Handle get-tags
+if $GET_TAGS; then
+  get_all_tags
+  exit 0
+fi
 
 # Main logic
 if $DEPLOY_ALL; then
@@ -158,6 +259,11 @@ case "${1:-}" in
     show_help
     ;;
   *)
-    deploy_targets "" "$@"
+    # Normalize all targets (add .# prefix if missing)
+    normalized_targets=()
+    for target in "$@"; do
+      normalized_targets+=("$(normalize_target "$target")")
+    done
+    deploy_targets "" "${normalized_targets[@]}"
     ;;
 esac
