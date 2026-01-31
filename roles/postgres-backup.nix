@@ -8,14 +8,14 @@ in
 {
   imports = [
     ../modules/storage/truenas.nix
-    ../modules/services/postgresql-backup.nix
+    ../modules/backup/postgresql.nix
   ];
 
   mares.storage.truenas.postgres-backup = {
     enable = true;
   };
 
-  mares.services.postgresql-backup = {
+  mares.backup.postgresql = {
     dbs-daily = {
       enable = true;
       databases = [

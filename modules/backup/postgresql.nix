@@ -149,7 +149,7 @@ let
 
 in
 {
-  options.mares.services.postgresql-backup = lib.mkOption {
+  options.mares.backup.postgresql = lib.mkOption {
     type = lib.types.attrsOf (lib.types.submodule backupInstanceOpts);
     default = { };
     description = "PostgreSQL backup instances configuration.";
@@ -159,11 +159,11 @@ in
     let
       fullBackups = lib.filterAttrs (
         name: cfg: cfg.enable && cfg.backupAll
-      ) config.mares.services.postgresql-backup;
+      ) config.mares.backup.postgresql;
 
       dbBackups = lib.filterAttrs (
         name: cfg: cfg.enable && !cfg.backupAll
-      ) config.mares.services.postgresql-backup;
+      ) config.mares.backup.postgresql;
 
       fullBackupServices = lib.mapAttrs' (
         name: cfg:
@@ -196,7 +196,7 @@ in
               || (cfg.compression == "zstd" && cfg.compressionLevel >= 1 && cfg.compressionLevel <= 19);
             message = "compressionLevel must be set between 1 and 9 for gzip and 1 and 19 for zstd in instance ${name}";
           }
-        ]) config.mares.services.postgresql-backup
+        ]) config.mares.backup.postgresql
       );
 
       systemd.tmpfiles.rules = map (location: "d '${location}' 0700 postgres - - -") (
