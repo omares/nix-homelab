@@ -140,6 +140,9 @@ in
 
       # Lovelace modules
       apexcharts.enable = mkEnableOption "ApexCharts card for advanced data visualization";
+
+      # External integrations
+      wmbusmeters.enable = mkEnableOption "Water meter helpers (rates and pricing)";
     };
   };
 }

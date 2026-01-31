@@ -470,6 +470,21 @@ in
         };
       };
 
+      wmbus-01 = {
+        tags = [ "automation" ];
+        roles = [
+          config.flake.nixosModules.role-wmbusmeters
+          config.flake.nixosModules.role-monitoring-client
+          config.flake.nixosModules.role-atuin-client
+        ];
+
+        host = "10.10.22.171";
+
+        dns = {
+          vlan = "vm";
+        };
+      };
+
       unifi = {
         managed = false;
 
