@@ -172,7 +172,7 @@ nix flake check
 | `nix flake check` | Validate flake, run deploy-rs checks, verify formatting |
 | `nix develop` | Enter development shell with deploy-rs, compose2nix |
 | `nix build .#<template>` | Build a Proxmox VM template |
-| `./bin/d .#<host>` | Deploy configuration to a host |
+| `./bin/d <host>` | Deploy configuration to a host |
 | `./bin/ssh-config` | Generate SSH config for all managed nodes |
 
 ### Deployment
@@ -180,11 +180,14 @@ nix flake check
 Use `d` for deployments:
 
 ```bash
-# Single node
+# Single node (no .# prefix needed)
+./bin/d db-01
+
+# Or with explicit .# prefix (both work)
 ./bin/d .#db-01
 
 # Multiple nodes
-./bin/d .#dns-01 .#dns-02
+./bin/d dns-01 dns-02
 
 # Deploy by tag
 ./bin/d tag starr
@@ -196,12 +199,54 @@ Use `d` for deployments:
 ./bin/d --all
 
 # Verbose modes
-./bin/d -v .#dns-01      # nix -v
-./bin/d -vv .#dns-01     # nix -vv + deploy-rs debug
-./bin/d -vvv .#dns-01    # nix -vvv + deploy-rs debug
+./bin/d -v dns-01      # nix -v
+./bin/d -vv dns-01     # nix -vv + deploy-rs debug
+./bin/d -vvv dns-01    # nix -vvv + deploy-rs debug
 ```
 
 Nodes are assigned tags via the `tags` attribute in `modules/infrastructure/nodes.nix`. Tags are used for deployment grouping and feature filtering. A node can have multiple tags.
+
+### Shell Completions
+
+The `d` command supports zsh tab completions for node names, tags, and flags.
+
+#### Home Manager Setup
+
+Add to your Home Manager configuration:
+
+```nix
+{ config, ... }:
+let
+  nixProxmoxPath = "/path/to/nix-proxmox";
+in
+{
+  # Generate completions on home-manager switch
+  home.activation.dCompletions = config.lib.dag.entryAfter ["writeBoundary"] ''
+    $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.zsh/completions
+    $DRY_RUN_CMD ${nixProxmoxPath}/bin/d --completion > ${config.home.homeDirectory}/.zsh/completions/_d
+  '';
+
+  programs.zsh = {
+    enable = true;
+    enableCompletion = true;
+    initContent = lib.mkMerge [
+      (lib.mkOrder 550 ''
+        fpath+=("$HOME/.zsh/completions")
+      '')
+
+      (lib.mkOrder 1000 ''
+        # Other initContent entries...
+      '')
+
+    ];
+  };
+}
+```
+
+This enables tab completion for:
+- `./bin/d dns-<TAB>` - completes node names
+- `./bin/d tag <TAB>` - completes tag names
+- `./bin/d -<TAB>` - completes flags
 
 ### SSH Configuration
 
