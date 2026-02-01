@@ -48,7 +48,7 @@ Enable seamless remote access to home infrastructure while traveling, with the a
    [atuin-01]        [UDM Pro]           [cameras]
    [db-01]           [PVE hosts]         [scrypted]
    [dns-03]          [IoT devices]
-   [proxy-01]        
+   [proxy-01]
    [jellyfin]
 ```
 
@@ -70,7 +70,7 @@ Enable seamless remote access to home infrastructure while traveling, with the a
 - **Interface 3 (eth2)**: 192.168.30.x/24 (NVR/Cameras - VLAN tagged, optional)
 - **Routes advertised via Tailscale**:
   - `10.10.22.0/24` (VM network)
-  - `192.168.20.0/24` (IoT/PVE network)  
+  - `192.168.20.0/24` (IoT/PVE network)
   - `192.168.30.0/24` (NVR/Cameras network)
 
 **Key Features**:
@@ -150,36 +150,36 @@ modules/networking/tailscale/
 {
   mares.networking.tailscale = {
     enable = mkEnableOption "Tailscale VPN client";
-    
+
     authKeyFile = mkOption {
       type = types.path;
       description = "Path to Tailscale auth key file (via sops)";
     };
-    
+
     useAsExitNode = mkOption {
       type = types.bool;
       default = false;
       description = "Allow this node to be an exit node (route all internet traffic)";
     };
-    
+
     advertiseRoutes = mkOption {
       type = types.listOf types.str;
       default = [];
       description = "Subnets to advertise via Tailscale (e.g., [\"10.10.22.0/24\", \"192.168.20.0/24\"])";
     };
-    
+
     acceptRoutes = mkOption {
       type = types.bool;
       default = false;
       description = "Accept routes advertised by other Tailscale nodes";
     };
-    
+
     useTailscaleSSH = mkOption {
       type = types.bool;
       default = true;
       description = "Enable Tailscale SSH (authenticate via Tailscale identity)";
     };
-    
+
     extraUpFlags = mkOption {
       type = types.listOf types.str;
       default = [];
@@ -205,14 +205,14 @@ in lib.mkIf cfg.enable {
       if (cfg.advertiseRoutes != [] || cfg.useAsExitNode) then "server"
       else if cfg.acceptRoutes then "client"
       else "none";
-    extraUpFlags = cfg.extraUpFlags ++ 
+    extraUpFlags = cfg.extraUpFlags ++
       (lib.optional cfg.useTailscaleSSH "--ssh") ++
-      (lib.optionals (cfg.advertiseRoutes != []) 
+      (lib.optionals (cfg.advertiseRoutes != [])
         ["--advertise-routes" (lib.concatStringsSep "," cfg.advertiseRoutes)]) ++
       (lib.optional cfg.acceptRoutes "--accept-routes") ++
       (lib.optional cfg.useAsExitNode "--advertise-exit-node");
   };
-  
+
   # Trust tailscale0 interface in firewall
   networking.firewall.trustedInterfaces = [ "tailscale0" ];
 }
@@ -226,16 +226,16 @@ in lib.mkIf cfg.enable {
 { config, nodeCfg, ... }:
 {
   imports = [ ../modules/networking/tailscale ];
-  
+
   sops-vault.items = [ "tailscale" ];
-  
-  sops.secrets.tailscale_authkey = { };
-  
+
+  sops.secrets.tailscale-authkey = { };
+
   mares.networking.tailscale = {
     enable = true;
-    authKeyFile = config.sops.secrets.tailscale_authkey.path;
+    authKeyFile = config.sops.secrets.tailscale-authkey.path;
     useTailscaleSSH = true;
-    
+
     # Advertise all internal networks
     advertiseRoutes = [
       "10.10.22.0/24"      # VM network
@@ -243,10 +243,10 @@ in lib.mkIf cfg.enable {
       "192.168.30.0/24"    # NVR/Cameras network
     ];
   };
-  
+
   # Trust internal interfaces for forwarding traffic between networks
   # tailscale0 is already trusted by the module
-  networking.firewall.trustedInterfaces = [ 
+  networking.firewall.trustedInterfaces = [
     "eth0"  # 192.168.20.x (IoT/PVE - default)
     "eth1"  # 10.10.22.x (VM network - VLAN tagged)
     "eth2"  # 192.168.30.x (NVR/Cameras - VLAN tagged)
@@ -258,7 +258,7 @@ in lib.mkIf cfg.enable {
 
 ```yaml
 # secrets/tailscale.yaml
-tailscale_authkey: tskey-auth-XXXXXXXXXXXXXXXXXXXX
+tailscale-authkey: tskey-auth-XXXXXXXXXXXXXXXXXXXX
 ```
 
 ### Node Configuration
@@ -274,11 +274,11 @@ vpn-01 = {
     config.flake.nixosModules.role-monitoring-client
   ];
   host = "192.168.20.XXX";  # Primary IP on IoT/PVE network
-  
+
   dns = {
     vlan = "pve";  # Or appropriate VLAN for primary interface
   };
-  
+
   # Note: vpn-01 will have triple network interfaces configured in Proxmox:
   # - eth0 (default): 192.168.20.x/24 (IoT/PVE network)
   # - eth1 (VLAN tagged): 10.10.22.x/24 (VM network)
@@ -351,19 +351,19 @@ vpn-01 = {
    ```bash
    # Install Tailscale
    # Connect to tailnet
-   
+
    # Test DNS resolution
    dig grafana.mares.id  # Should resolve to 10.10.22.241
-   
+
    # Test web access
    curl https://grafana.mares.id
-   
+
    # Test SSH to VM
    ssh 10.10.22.247
-   
+
    # Test SSH to IoT network
    ssh 192.168.20.21
-   
+
    # Test SSH via Tailscale to gateway
    tailscale ssh vpn-01
    ```
@@ -508,7 +508,7 @@ ip addr show
 ## Success Criteria
 
 - [ ] Can access `https://grafana.mares.id` from remote location via browser
-- [ ] Can access `https://jellyfin.mares.id` from remote location via browser  
+- [ ] Can access `https://jellyfin.mares.id` from remote location via browser
 - [ ] Can SSH to `10.10.22.247` (atuin-01) directly from remote device
 - [ ] Can SSH to `192.168.20.21` (PVE host) directly from remote device
 - [ ] Can access `https://scrypted.mares.id` (NVR network via proxy)
