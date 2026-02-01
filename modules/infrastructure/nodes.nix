@@ -592,6 +592,24 @@ in
           websockets = true;
         };
       };
+
+      vpn-01 = {
+        tags = [
+          "infra"
+          "tailscale"
+          "vpn"
+        ];
+        roles = [
+          config.flake.nixosModules.role-tailscale-subnet-router
+          config.flake.nixosModules.role-atuin-client
+          config.flake.nixosModules.role-monitoring-client
+        ];
+        host = "192.168.20.228"; # Primary IP on IoT/PVE network
+
+        dns = {
+          vlan = "iot"; # Matches primary interface network (192.168.20.x)
+        };
+      };
     };
   };
 
