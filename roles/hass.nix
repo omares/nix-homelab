@@ -59,6 +59,7 @@ in
       roborock.enable = true;
 
       # Custom components (nixpkgs)
+      dwd-weather.enable = true;
       scene-presets.enable = true;
       waste-collection-schedule.enable = true;
       home-connect-alt.enable = false;
@@ -73,6 +74,12 @@ in
 
       # Lovelace modules
       apexcharts.enable = true;
+      auto-entities.enable = true;
+      bubble-card.enable = true;
+      card-tools.enable = true;
+      clock-weather-card.enable = true;
+      horizon-card.enable = true;
+      layout-card.enable = true;
 
       # External integrations
       wmbusmeters.enable = true;

@@ -33,6 +33,10 @@ let
         ;
     };
     ostrom = python.pkgs.callPackage ../../../packages/home-assistant/ostrom.nix { };
+    card-tools = pkgs.callPackage ../../../packages/home-assistant/card-tools.nix { };
+    horizon-card = pkgs.callPackage ../../../packages/home-assistant/horizon-card.nix { };
+    bubble-card-tools = pkgs.callPackage ../../../packages/home-assistant/bubble-card-tools.nix { };
+    layout-card = pkgs.callPackage ../../../packages/home-assistant/layout-card.nix { };
   };
 
   # Helper functions
@@ -47,10 +51,12 @@ let
     (optional "scrypted" packages.scrypted)
     (optional "home-connect-local" packages.homeconnect-local)
     (optional "ostrom" packages.ostrom)
+    (optional "bubble-card" packages.bubble-card-tools)
   ];
 
   # Custom components (nixpkgs)
   nixpkgsComponents = lib.concatLists [
+    (optional "dwd-weather" pkgs.home-assistant-custom-components.dwd)
     (optional "scene-presets" pkgs.home-assistant-custom-components.scene_presets)
     (optional "home-connect-alt" pkgs.home-assistant-custom-components.home_connect_alt)
     (optional "waste-collection-schedule" pkgs.home-assistant-custom-components.waste_collection_schedule)
@@ -86,6 +92,12 @@ let
   # Lovelace modules
   lovelaceModules = lib.concatLists [
     (optional "apexcharts" pkgs.home-assistant-custom-lovelace-modules.apexcharts-card)
+    (optional "auto-entities" pkgs.home-assistant-custom-lovelace-modules.auto-entities)
+    (optional "bubble-card" pkgs.home-assistant-custom-lovelace-modules.bubble-card)
+    (optional "card-tools" packages.card-tools)
+    (optional "clock-weather-card" pkgs.home-assistant-custom-lovelace-modules.clock-weather-card)
+    (optional "horizon-card" packages.horizon-card)
+    (optional "layout-card" packages.layout-card)
   ];
 in
 {

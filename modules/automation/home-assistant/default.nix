@@ -7,5 +7,6 @@
     ./automations.nix
     ./shelly.nix
     ./helpers.nix
+    ./templates.nix
   ];
 }

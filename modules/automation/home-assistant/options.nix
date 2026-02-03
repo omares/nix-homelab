@@ -126,6 +126,7 @@ in
       roborock.enable = mkEnableOption "Roborock vacuum integration";
 
       # Custom components from nixpkgs
+      dwd-weather.enable = mkEnableOption "DWD Weather integration for German weather data";
       scene-presets.enable = mkEnableOption "Scene Presets - Hue-like color picker for lights";
       home-connect-alt.enable = mkEnableOption "Home Connect Alt for Bosch/Siemens appliances (cloud)";
       waste-collection-schedule.enable = mkEnableOption "Waste Collection Schedule for garbage collection calendars";
@@ -140,6 +141,12 @@ in
 
       # Lovelace modules
       apexcharts.enable = mkEnableOption "ApexCharts card for advanced data visualization";
+      auto-entities.enable = mkEnableOption "Auto-entities card for dynamic entity lists";
+      bubble-card.enable = mkEnableOption "Bubble Card collection for pop-ups and buttons";
+      card-tools.enable = mkEnableOption "Card tools - required dependency for some lovelace cards";
+      clock-weather-card.enable = mkEnableOption "Clock Weather card with iOS-style display";
+      horizon-card.enable = mkEnableOption "Horizon card for sun/moon rise/set visualization";
+      layout-card.enable = mkEnableOption "Layout Card for advanced grid layouts";
 
       # External integrations
       wmbusmeters.enable = mkEnableOption "Water meter helpers (rates and pricing)";

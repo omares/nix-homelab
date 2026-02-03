@@ -17,12 +17,14 @@ in
   config = lib.mkIf cfg.enable {
     services.home-assistant.config.lovelace = {
       mode = "storage";
-      dashboards.mares-home = {
-        mode = "yaml";
-        title = "Mares Home";
-        icon = "mdi:home-lightning-bolt";
-        filename = "${maresHomeDashboard}";
-        show_in_sidebar = true;
+      dashboards = {
+        mares-energy = {
+          mode = "yaml";
+          title = "Mares Energy";
+          icon = "mdi:home-lightning-bolt";
+          filename = "${maresHomeDashboard}";
+          show_in_sidebar = true;
+        };
       };
     };
   };

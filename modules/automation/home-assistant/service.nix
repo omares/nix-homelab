@@ -37,6 +37,17 @@ in
           latitude = "!secret latitude";
           longitude = "!secret longitude";
           country = "DE";
+
+          # Restore state for old Shelly sensors after restart
+          # These devices only report on change, so state becomes unavailable after HA restart
+          customize_glob = {
+            "sensor.ambient_*_climate_*" = {
+              restore_state = true;
+            };
+            "sensor.kitchen_water_leak_*" = {
+              restore_state = true;
+            };
+          };
         };
 
         # Home zone with 50m radius for tighter geofencing
