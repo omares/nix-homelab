@@ -500,6 +500,8 @@ in
     # Public sabnzbd settings
     services.sabnzbd = {
       settings = publicSettings;
+      configFile = null;
+      allowConfigWrite = false;
       secretFiles = [ config.sops.templates."sabnzbd-secrets.ini".path ];
     };
 
