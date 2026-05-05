@@ -12,7 +12,7 @@ let
     || cfg.sonarr.enable
     || cfg.recyclarr.enable
     || cfg.jellyfin.enable
-    || cfg.jellyseerr.enable;
+    || cfg.seerr.enable;
 in
 {
   config =
@@ -29,7 +29,7 @@ in
           group = "starr";
         };
 
-        jellyseerr = lib.mkIf cfg.jellyseerr.enable {
+        jellyseerr = lib.mkIf cfg.seerr.enable {
           home = "${cfg.pathPrefix}/jellyseerr";
           uid = config.ids.uids.jellyseerr;
           group = "starr";

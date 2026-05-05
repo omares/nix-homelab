@@ -2,7 +2,7 @@
 {
   imports = [
     ./jellyfin
-    ./jellyseerr
+    ./seerr
     ./options.nix
     ./prowlarr.nix
     ./radarr.nix

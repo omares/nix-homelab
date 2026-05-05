@@ -16,8 +16,9 @@
   mares.starr = {
     enable = true;
 
-    jellyseerr = {
+    seerr = {
       enable = true;
+      user = "jellyseerr";
       bindAddress = nodeCfg.host;
     };
   };

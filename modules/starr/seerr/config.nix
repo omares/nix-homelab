@@ -256,15 +256,15 @@ let
   };
 in
 {
-  config = lib.mkIf (cfg.enable && cfg.jellyseerr.enable) {
-    sops.templates."jellyseerr-config.json" = {
-      path = "${config.services.jellyseerr.configDir}/settings.json";
+  config = lib.mkIf (cfg.enable && cfg.seerr.enable) {
+    sops.templates."seerr-config.json" = {
+      path = "${config.services.seerr.configDir}/settings.json";
       content = lib.generators.toJSON { } settings;
 
-      owner = cfg.jellyseerr.user;
+      owner = cfg.seerr.user;
       group = cfg.group;
       mode = "0660";
-      restartUnits = [ "jellyseerr.service" ];
+      restartUnits = [ "seerr.service" ];
     };
   };
 }

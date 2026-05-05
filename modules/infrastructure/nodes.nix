@@ -321,7 +321,7 @@ in
       starr-jellyseerr-01 = {
         tags = [ "starr" ];
         roles = [
-          config.flake.nixosModules.role-starr-jellyseerr
+          config.flake.nixosModules.role-starr-seerr
           config.flake.nixosModules.role-proxmox-legacy
           config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
