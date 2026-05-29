@@ -3,8 +3,8 @@
 { mkScryptedPlugin }:
 mkScryptedPlugin {
   pname = "llm";
-  version = "0.0.83";
-  hash = "sha512-mrezwrda5BVMHqrPvnkyXbnDOiYPoKQWSJ/h0w46w7eqGzakeSyumVJG3+328B2xBQDWkgQsyvEAFpVJMMUOJg==";
+  version = "0.0.92";
+  hash = "sha512-syUoWuu+kH3UM8ARzjjn5wjxnYqiGdTxQzQbmTf7NeR8jioI4TAsPoTNFgD3xw3V4q4P7qoqPWVGhfnslpr4Wg==";
   passthru = _finalAttrs: { };
   meta.description = "Large Language Model Plugin - The Scrypted LLM plugin allows connecting to various LLM providers, or running your own locally.";
 }

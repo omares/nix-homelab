@@ -3,8 +3,8 @@
 { mkScryptedPlugin }:
 mkScryptedPlugin {
   pname = "snapshot";
-  version = "0.2.67";
-  hash = "sha512-eoU9rB9Ubxsgxpv6WCPOgBfEwVOag00H0Wo0oEOrDsGfTQLcdiapo2baohfjNLjWDeGWhqTXiV9joLXfQHMGmg==";
+  version = "0.2.68";
+  hash = "sha512-ySpVcMf1XQgNYL8DtFN1FcrySYuNV+DbwJhzN67UOTNsNEYab3boGRD/zGHMnZ4WC9H6mnji1ZTi/om2CaIUMg==";
   passthru = _finalAttrs: { };
   meta.description = "Snapshot Plugin - Snapshot Plugin for Scrypted";
 }

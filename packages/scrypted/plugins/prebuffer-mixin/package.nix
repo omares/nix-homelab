@@ -3,8 +3,8 @@
 { mkScryptedPlugin }:
 mkScryptedPlugin {
   pname = "prebuffer-mixin";
-  version = "0.10.63";
-  hash = "sha512-vNa4RWALK9HCdcwW4uEcbp0zWy9g7sCJ/ky02jjMzH23yzcS3XBpgDGGezqnypjWY8V8Q/QT3NrO6Xtpj+eZyA==";
+  version = "0.10.66";
+  hash = "sha512-UzhRscPQ6CkhKDmW3NEPT3Xi5YrNAnmY7GMxPHrdgbIpQzP5RO/TCbicLjYgLl8d2BYS1d3JlOvyFeX2V4DYYg==";
   passthru = _finalAttrs: { };
   meta.description = "Rebroadcast Plugin - Video Stream Rebroadcast, Prebuffer, and Management Plugin for Scrypted.";
 }

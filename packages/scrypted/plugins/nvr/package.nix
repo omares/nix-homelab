@@ -3,8 +3,8 @@
 { mkScryptedPlugin }:
 mkScryptedPlugin {
   pname = "nvr";
-  version = "0.12.43";
-  hash = "sha512-p+QYIgLMDB894hR3arpNRd3dy5rvEZ0TLBU/ZiGD52fnwkxv29X+7wrIJYb80ViRrrRaJw10fUlC1wiiZYQ6iA==";
+  version = "0.12.61";
+  hash = "sha512-FrVVzmk1rDYbr1vI+hHRkmJTIke5JGkbWSq+84XAg8Qex3JWmNJVtFcjZgBZbksrwa6dsNdXKYo03J4TcNUSZQ==";
   passthru = _finalAttrs: { };
   meta.description = "Scrypted NVR - NVR plugin for Scrypted.";
 }
