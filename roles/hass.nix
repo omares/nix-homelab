@@ -71,6 +71,7 @@ in
       scrypted.enable = true;
       home-connect-local.enable = true;
       ostrom.enable = true;
+      stiebel-eltron-isg.enable = true;
 
       # Lovelace modules
       apexcharts.enable = true;

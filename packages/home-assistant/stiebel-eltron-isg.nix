@@ -1,35 +1,27 @@
 {
   lib,
-  stdenv,
-  fetchurl,
-  unzip,
+  buildHomeAssistantComponent,
+  fetchFromGitHub,
+  pystiebeleltron,
 }:
 
-stdenv.mkDerivation rec {
-  pname = "stiebel-eltron-isg";
-  version = "2025.8";
+buildHomeAssistantComponent rec {
+  owner = "pail23";
+  domain = "stiebel_eltron_isg";
+  version = "2026.2";
 
-  src = fetchurl {
-    url = "https://github.com/pail23/stiebel_eltron_isg_component/releases/download/${version}/stiebel_eltron_isg.zip";
-    hash = "sha256-e6dc925252c147d12c00f2036a73cd61c74b20f02da66d29148ff905456cc172";
+  src = fetchFromGitHub {
+    owner = "pail23";
+    repo = "stiebel_eltron_isg_component";
+    rev = version;
+    hash = "sha256-t7SdG50QidWJOspu9QqAyw3tuL1hKA97A565fntG9dM=";
   };
 
-  nativeBuildInputs = [ unzip ];
+  dependencies = [ pystiebeleltron ];
 
-  unpackPhase = ''
-    unzip $src
-  '';
-
-  installPhase = ''
-    mkdir -p $out
-    cp -r stiebel_eltron_isg $out/
-  '';
-
-  passthru.isHomeAssistantComponent = true;
-
-  meta = {
-    description = "Stiebel Eltron ISG component for Home Assistant";
+  meta = with lib; {
+    description = "Stiebel Eltron ISG heat pump controller integration for Home Assistant";
     homepage = "https://github.com/pail23/stiebel_eltron_isg_component";
-    license = lib.licenses.mit;
+    license = licenses.mit;
   };
 }

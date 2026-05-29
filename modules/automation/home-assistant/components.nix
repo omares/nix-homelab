@@ -33,6 +33,9 @@ let
         ;
     };
     ostrom = python.pkgs.callPackage ../../../packages/home-assistant/ostrom.nix { };
+    stiebel-eltron-isg =
+      python.pkgs.callPackage ../../../packages/home-assistant/stiebel-eltron-isg.nix
+        { };
     card-tools = pkgs.callPackage ../../../packages/home-assistant/card-tools.nix { };
     horizon-card = pkgs.callPackage ../../../packages/home-assistant/horizon-card.nix { };
     bubble-card-tools = pkgs.callPackage ../../../packages/home-assistant/bubble-card-tools.nix { };
@@ -51,6 +54,7 @@ let
     (optional "scrypted" packages.scrypted)
     (optional "home-connect-local" packages.homeconnect-local)
     (optional "ostrom" packages.ostrom)
+    (optional "stiebel-eltron-isg" packages.stiebel-eltron-isg)
     (optional "bubble-card" packages.bubble-card-tools)
   ];
 

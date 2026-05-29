@@ -138,6 +138,7 @@ in
       scrypted.enable = mkEnableOption "Scrypted integration for NVR and camera management";
       home-connect-local.enable = mkEnableOption "Home Connect Local for Bosch/Siemens appliances (offline)";
       ostrom.enable = mkEnableOption "Ostrom energy provider integration (dynamic electricity prices)";
+      stiebel-eltron-isg.enable = mkEnableOption "Stiebel Eltron ISG heat pump controller integration";
 
       # Lovelace modules
       apexcharts.enable = mkEnableOption "ApexCharts card for advanced data visualization";
