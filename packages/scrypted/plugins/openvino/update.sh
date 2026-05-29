@@ -66,7 +66,32 @@ TELEMETRY_HASH_RAW=$(curl -s "https://pypi.org/pypi/openvino-telemetry/${TELEMET
 TELEMETRY_HASH=$(nix hash convert --hash-algo sha256 --to sri "$TELEMETRY_HASH_RAW")
 echo "    openvino-telemetry: $TELEMETRY_VERSION"
 
-# 5. Fetch models hash (downloads ~2GB from HuggingFace)
+# 5. numpy override (openvino requires numpy<2.2.0)
+# Find the latest numpy version compatible with openvino's constraint
+NUMPY_COMPAT_VERSION=$(curl -s "https://pypi.org/pypi/numpy/json" \
+  | jq -r '[.releases | keys[] | select(startswith("2.1."))]| sort | last // empty')
+if [ -z "$NUMPY_COMPAT_VERSION" ]; then
+  echo "    Warning: No compatible numpy 2.1.x found, preserving existing"
+  NUMPY_COMPAT_VERSION=$(nix eval --raw -f ./versions.nix numpyVersion 2>/dev/null || echo "2.1.3")
+  NUMPY_HASH_X86=$(nix eval --raw -f ./versions.nix numpyHashes.x86_64-linux 2>/dev/null || echo "")
+  NUMPY_HASH_ARM=$(nix eval --raw -f ./versions.nix numpyHashes.aarch64-linux 2>/dev/null || echo "")
+  NUMPY_PLATFORM_X86=$(nix eval --raw -f ./versions.nix numpyWheelPlatforms.x86_64-linux 2>/dev/null || echo "")
+  NUMPY_PLATFORM_ARM=$(nix eval --raw -f ./versions.nix numpyWheelPlatforms.aarch64-linux 2>/dev/null || echo "")
+else
+  echo "    numpy (compat): $NUMPY_COMPAT_VERSION"
+  NUMPY_INFO=$(curl -s "https://pypi.org/pypi/numpy/${NUMPY_COMPAT_VERSION}/json")
+  NUMPY_HASH_X86_RAW=$(echo "$NUMPY_INFO" | jq -r '.urls[] | select(.filename | test("cp312.*manylinux.*x86_64.*\\.whl")) | .digests.sha256' | head -1)
+  NUMPY_HASH_ARM_RAW=$(echo "$NUMPY_INFO" | jq -r '.urls[] | select(.filename | test("cp312.*manylinux.*aarch64.*\\.whl")) | .digests.sha256' | head -1)
+  NUMPY_WHEEL_X86=$(echo "$NUMPY_INFO" | jq -r '.urls[] | select(.filename | test("cp312.*manylinux.*x86_64.*\\.whl")) | .filename' | head -1)
+  NUMPY_WHEEL_ARM=$(echo "$NUMPY_INFO" | jq -r '.urls[] | select(.filename | test("cp312.*manylinux.*aarch64.*\\.whl")) | .filename' | head -1)
+  # Extract platform tag from wheel filename: numpy-VER-cp312-cp312-<PLATFORM>.whl
+  NUMPY_PLATFORM_X86=$(echo "$NUMPY_WHEEL_X86" | sed 's/.*-cp312-cp312-\(.*\)\.whl/\1/')
+  NUMPY_PLATFORM_ARM=$(echo "$NUMPY_WHEEL_ARM" | sed 's/.*-cp312-cp312-\(.*\)\.whl/\1/')
+  NUMPY_HASH_X86="sha256:$NUMPY_HASH_X86_RAW"
+  NUMPY_HASH_ARM="sha256:$NUMPY_HASH_ARM_RAW"
+fi
+
+# 6. Fetch models hash (downloads ~2GB from HuggingFace)
 echo "==> Fetching models hash (this may take a while)..."
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 
@@ -106,6 +131,17 @@ cat > versions.nix << EOF
   openvinoTelemetryVersion = "$TELEMETRY_VERSION";
   openvinoTelemetryHash = "$TELEMETRY_HASH";
 
+  # numpy override (openvino requires numpy<2.2.0)
+  numpyVersion = "$NUMPY_COMPAT_VERSION";
+  numpyHashes = {
+    x86_64-linux = "$NUMPY_HASH_X86";
+    aarch64-linux = "$NUMPY_HASH_ARM";
+  };
+  numpyWheelPlatforms = {
+    x86_64-linux = "$NUMPY_PLATFORM_X86";
+    aarch64-linux = "$NUMPY_PLATFORM_ARM";
+  };
+
   # HuggingFace models (scrypted/plugin-models, openai/clip-vit-base-patch32, koushd/clip)
   modelsHash = "$MODELS_HASH";
 }
@@ -119,4 +155,5 @@ echo "  - hash: $PLUGIN_HASH"
 echo "  - openvinoVersion: $OPENVINO_VERSION"
 echo "  - openvinoWheelBuild: $WHEEL_BUILD"
 echo "  - openvinoTelemetryVersion: $TELEMETRY_VERSION"
+echo "  - numpyVersion: $NUMPY_COMPAT_VERSION"
 echo "  - modelsHash: $MODELS_HASH"

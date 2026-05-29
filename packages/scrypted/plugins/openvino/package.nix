@@ -7,6 +7,7 @@
   level-zero,
   ocl-icd,
   unzip,
+  zlib,
   mkScryptedPlugin,
 }:
 let
@@ -34,7 +35,40 @@ let
     }
     .${stdenv.hostPlatform.system} or (throw "Unsupported platform: ${stdenv.hostPlatform.system}");
 
-  openvino-telemetry = python312.pkgs.buildPythonPackage rec {
+  python312-ov = python312.override {
+    self = python312-ov;
+    packageOverrides = self: super: {
+      numpy = super.buildPythonPackage rec {
+        pname = "numpy";
+        version = versions.numpyVersion;
+        format = "wheel";
+
+        src = super.fetchPypi {
+          inherit pname version;
+          format = "wheel";
+          python = "cp312";
+          abi = "cp312";
+          dist = "cp312";
+          platform = versions.numpyWheelPlatforms.${stdenv.hostPlatform.system};
+          hash = versions.numpyHashes.${stdenv.hostPlatform.system};
+        };
+
+        nativeBuildInputs = [ autoPatchelfHook ];
+        buildInputs = [ stdenv.cc.cc.lib zlib ];
+      };
+
+      aiohttp = super.aiohttp.overridePythonAttrs {
+        disabledTests = [
+          "test_shutdown_handler_cancellation_suppressed"
+          "test_tcp_connector_ssl_shutdown_timeout_passed_to_create_connection"
+          "test_tcp_connector_ssl_shutdown_timeout_zero_not_passed"
+          "test_tcp_connector_ssl_shutdown_timeout_nonzero_passed"
+        ];
+      };
+    };
+  };
+
+  openvino-telemetry = python312-ov.pkgs.buildPythonPackage rec {
     pname = "openvino-telemetry";
     version = versions.openvinoTelemetryVersion;
     format = "wheel";
@@ -55,7 +89,7 @@ let
     };
   };
 
-  openvino-2024 = python312.pkgs.buildPythonPackage rec {
+  openvino-2024 = python312-ov.pkgs.buildPythonPackage rec {
     pname = "openvino";
     version = versions.openvinoVersion;
     format = "wheel";
@@ -79,9 +113,9 @@ let
     ];
 
     dependencies = [
-      python312.pkgs.numpy
+      python312-ov.pkgs.numpy
       openvino-telemetry
-      python312.pkgs.packaging
+      python312-ov.pkgs.packaging
     ];
 
     pythonImportsCheck = [ "openvino" ];
@@ -97,7 +131,7 @@ let
     };
   };
 
-  pythonEnv = python312.withPackages (
+  pythonEnv = python312-ov.withPackages (
     ps: with ps; [
       openvino-2024
       pillow
