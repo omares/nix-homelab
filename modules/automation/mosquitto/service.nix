@@ -36,6 +36,13 @@ in
               };
             }
           ];
+
+          # mosquitto 2.1+ always loads the acl_file/password_file plugins
+          # alongside authPlugins; since we only manage users via Dynamic
+          # Security, an empty acl/passwd file would otherwise veto every
+          # login and publish (https://github.com/NixOS/nixpkgs/issues/498959)
+          omitPasswordAuth = cfg.dynamicSecurity.enable;
+          acl = lib.mkIf cfg.dynamicSecurity.enable [ "pattern readwrite #" ];
         }
       ];
     };
