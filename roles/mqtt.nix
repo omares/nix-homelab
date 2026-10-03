@@ -35,8 +35,6 @@ in
     enable = true;
     bindAddress = nodeCfg.host;
     certDirectory = config.security.acme.certs.${acmeHost}.directory;
-
-    dynamicSecurity.enable = true;
   };
 
 }

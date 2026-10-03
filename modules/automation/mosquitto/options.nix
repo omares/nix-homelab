@@ -29,8 +29,6 @@ in
     };
 
     dynamicSecurity = {
-      enable = mkEnableOption "Mosquitto Dynamic Security plugin for flexible authentication";
-
       configFile = mkOption {
         type = types.str;
         default = "/var/lib/mosquitto/dynamic-security.json";
