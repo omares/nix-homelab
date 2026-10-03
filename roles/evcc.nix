@@ -1,6 +1,8 @@
 {
   config,
   mares,
+  inputs,
+  pkgs,
   ...
 }:
 let
@@ -8,6 +10,8 @@ let
 in
 {
   imports = [ ../modules/automation/evcc ];
+
+  services.evcc.package = inputs.nixpkgs-master.legacyPackages.${pkgs.system}.evcc;
 
   sops-vault.items = [ "evcc" ];
 
@@ -76,6 +80,14 @@ in
           template = "ocpp-goe";
           stationid = "91008988";
         }
+        {
+          name = "stiebel_eltron_lwz_5s_trend";
+          type = "template";
+          template = "stiebel-lwa";
+          modbus = "tcpip";
+          host = "192.168.20.111";
+          tempsource = "warmwater";
+        }
       ];
 
       loadpoints = [
@@ -84,6 +96,22 @@ in
           charger = "fronius_wattpilot";
           vehicle = "bmw_ix40";
           mode = "pv";
+        }
+        {
+          title = "LWZ 5s Trend";
+          charger = "stiebel_eltron_lwz_5s_trend";
+          mode = "pv";
+          phases = 1;
+          mincurrent = 4;
+          maxcurrent = 9;
+          enable = {
+            threshold = -1800;
+            delay = "5m";
+          };
+          disable = {
+            threshold = 200;
+            delay = "20m";
+          };
         }
       ];
 
