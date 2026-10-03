@@ -2,7 +2,7 @@
 
 Deploys NixOS VMs on Proxmox using Nix Flakes, deploy-rs, and custom VMA format.
 
-**Response Format**: 
+**Response Format**:
 - Prefix all replies with ⚡ when adhering to these instructions
 - Prefix sub-process spawning replies with 🔀 (replaces ⚡)
 
@@ -29,7 +29,7 @@ Long-running tasks MUST be delegated to sub-agents to avoid polluting the main c
 - **Imports**: At top: `imports = [ ./file.nix ];`
 - **Options**: `mkOption` with type/default/description; `mkEnableOption` for booleans
 - **Naming**: camelCase for options, kebab-case for files
-- **Formatting**: nixfmt-rfc-style (2-space indent, aligned attrsets)
+- **Formatting**: nixfmt (2-space indent, aligned attrsets)
 - **Structure**: `default.nix` (imports), `options.nix` (interface), `service.nix` (impl)
 - **Roles**: Composable configs in `roles/` combining multiple modules
 - **Conditionals**: Use `mkIf config.option.enable` for conditional config
@@ -66,7 +66,7 @@ modules/<domain>/<service>/
 {
   imports = [ ../modules/<domain>/<service> ];
   sops-vault.items = [ "vault-name" ];
-  
+
   mares.<domain>.<service> = {
     enable = true;
     bindAddress = nodeCfg.host;
