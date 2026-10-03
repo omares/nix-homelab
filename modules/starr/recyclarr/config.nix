@@ -106,6 +106,33 @@ let
     }
   ];
 
+  # Anime Dual Audio boost - prefers Japanese+English dual-audio releases a tier
+  # above equivalent Japanese-only releases (TRaSH anime guide "prefer a tier above" option)
+  # https://trash-guides.info/Sonarr/sonarr-setup-quality-profiles-anime/#dual-audio-scoring
+  radarrAnimeCustomFormats = profileName: [
+    {
+      trash_ids = [ "4a3b087eea2ce012fcc1ce319259a3be" ]; # Anime Dual Audio
+      assign_scores_to = [
+        {
+          name = profileName;
+          score = 101;
+        }
+      ];
+    }
+  ];
+
+  sonarrAnimeCustomFormats = profileName: [
+    {
+      trash_ids = [ "418f50b10f1907201b6cfdf881f467b7" ]; # Anime Dual Audio
+      assign_scores_to = [
+        {
+          name = profileName;
+          score = 101;
+        }
+      ];
+    }
+  ];
+
   # Quality profile with merged 4K + 1080p qualities (no 720p, no Remux)
   # Allows 1080p as fallback when 4K isn't available, upgrades to 4K when it becomes available
   # Must use "Merged QPs" name to satisfy template's until_quality setting
@@ -172,7 +199,8 @@ in
             ];
 
             # Custom format overrides for resolution priority and device compatibility
-            custom_formats = radarrCustomFormats "UHD Bluray + WEB (GER)";
+            custom_formats =
+              radarrCustomFormats "UHD Bluray + WEB (GER)" ++ radarrAnimeCustomFormats "Remux-1080p - Anime";
           };
         };
 
@@ -218,7 +246,8 @@ in
             ];
 
             # Custom format overrides for resolution priority and device compatibility
-            custom_formats = sonarrCustomFormats "UHD Bluray + WEB (GER)";
+            custom_formats =
+              sonarrCustomFormats "UHD Bluray + WEB (GER)" ++ sonarrAnimeCustomFormats "Remux-1080p - Anime";
           };
         };
       };

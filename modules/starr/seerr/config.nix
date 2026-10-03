@@ -110,6 +110,11 @@ let
         "activeProfileId" = 1;
         "activeProfileName" = "Any";
         "activeDirectory" = "${mntPath}/tv";
+        # TODO: replace with the real numeric ID of the "Remux-1080p - Anime" quality
+        # profile once recyclarr has synced it to starr-sonarr-01 (profile IDs are
+        # assigned at creation time by Sonarr, so this can't be derived from Nix).
+        # Look it up via Settings -> Profiles in the Sonarr UI, or:
+        #   curl -H "X-Api-Key: <sonarr-api_key>" https://<sonarr-host>/api/v3/qualityprofile
         "activeAnimeProfileId" = 1;
         "activeAnimeProfileName" = "Any";
         "activeAnimeDirectory" = "${mntPath}/tv";
