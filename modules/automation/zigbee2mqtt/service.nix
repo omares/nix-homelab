@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   utils,
   ...
 }:
@@ -103,7 +104,11 @@ in
         "ext_pan_id:${cfg.extPanIdFile}"
       ];
 
-      preStart = lib.mkForce (utils.genJqSecretsReplacementSnippet settings configPath);
+      serviceConfig.ExecStartPre = lib.mkForce [
+        "${pkgs.writeShellScript "zigbee2mqtt-secrets-replace" (
+          utils.genJqSecretsReplacementSnippet settings configPath
+        )}"
+      ];
     };
 
     systemd.tmpfiles.rules = [
