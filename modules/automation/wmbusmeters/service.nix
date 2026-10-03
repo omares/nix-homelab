@@ -8,7 +8,7 @@
 }:
 let
   cfg = config.mares.automation.wmbusmeters;
-  wmbusmeters = pkgs.callPackage ../../../packages/wmbusmeters/package.nix { };
+  wmbusmeters = pkgs.wmbusmeters;
 
   # Discovery templates define Home Assistant sensor attributes for each meter driver.
   # Based on wmbusmeters-ha-addon discovery mechanism.
