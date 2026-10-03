@@ -99,6 +99,7 @@ in
           "shellies/garden_pool_circulation_pump_relay"
           "shellies/garden_pool_heating_pump_relay"
           "shellies/hallway_shutter_cover"
+          "shellies/harry_light_relay"
           "shellies/kitchen_shutter_cover"
           "shellies/living_room_shutter_left_cover"
           "shellies/living_room_shutter_right_cover"
