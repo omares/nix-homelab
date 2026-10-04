@@ -39,6 +39,23 @@ let
     card-tools = pkgs.callPackage ../../../packages/home-assistant/card-tools.nix { };
     bubble-card-tools = pkgs.callPackage ../../../packages/home-assistant/bubble-card-tools.nix { };
     layout-card = pkgs.callPackage ../../../packages/home-assistant/layout-card.nix { };
+    # 3.4 adds Jinja templates; drop once nixpkgs catches up
+    bubble-card = pkgs.home-assistant-custom-lovelace-modules.bubble-card.overrideAttrs (
+      final: _: {
+        version = "3.4.1";
+        src = pkgs.fetchFromGitHub {
+          owner = "Clooos";
+          repo = "Bubble-Card";
+          rev = "v${final.version}";
+          hash = "sha256-Pxc0fenLIjDdmxJGQulkqqgmISeodwOPRucIhrp15Ms=";
+        };
+        npmDeps = pkgs.fetchNpmDeps {
+          inherit (final) src;
+          name = "bubble-card-${final.version}-npm-deps";
+          hash = "sha256-oEkd6qK2YR0roDsXvNMBhMoOuMfcqzYh85tjFjvhwX8=";
+        };
+      }
+    );
   };
 
   # Helper functions
@@ -97,7 +114,7 @@ let
   lovelaceModules = lib.concatLists [
     (optional "apexcharts" pkgs.home-assistant-custom-lovelace-modules.apexcharts-card)
     (optional "auto-entities" pkgs.home-assistant-custom-lovelace-modules.auto-entities)
-    (optional "bubble-card" pkgs.home-assistant-custom-lovelace-modules.bubble-card)
+    (optional "bubble-card" packages.bubble-card)
     (optional "card-tools" packages.card-tools)
     (optional "clock-weather-card" pkgs.home-assistant-custom-lovelace-modules.clock-weather-card)
     (optional "mushroom" pkgs.home-assistant-custom-lovelace-modules.mushroom)
