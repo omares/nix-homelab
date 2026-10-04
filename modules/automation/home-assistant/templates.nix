@@ -236,10 +236,10 @@ in
           {
             name = "Dashboard Icon Vacuum SOC";
             unique_id = "dashboard_icon_vacuum_soc";
-            state = "{{ states('sensor.office_robot_vacuum_dock_battery') }}";
+            state = "{{ states('sensor.office_robot_vacuum_battery') }}";
             unit_of_measurement = "%";
             icon = ''
-              {% set soc = states('sensor.office_robot_vacuum_dock_battery') | int(0) %}
+              {% set soc = states('sensor.office_robot_vacuum_battery') | int(0) %}
               {% if soc == 0 %}mdi:battery-outline
               {% elif soc <= 10 %}mdi:battery-10
               {% elif soc <= 20 %}mdi:battery-20
