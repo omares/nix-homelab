@@ -4,6 +4,7 @@
   fetchFromGitHub,
   pycryptodomex,
   defusedxml,
+  babel,
 }:
 let
   version = "1.26.0";
@@ -23,9 +24,10 @@ buildHomeAssistantComponent {
   dependencies = [
     pycryptodomex
     defusedxml
+    babel
   ];
 
-  # manifest pins upper bounds that do not match nixpkgs versions
+  # manifest pins upper bounds that do not match nixpkgs versions and omits babel
   dontCheckManifest = true;
 
   meta = with lib; {
