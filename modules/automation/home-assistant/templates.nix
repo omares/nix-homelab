@@ -109,7 +109,7 @@ in
         ];
         action = [
           {
-            service = "weather.get_forecasts";
+            action = "weather.get_forecasts";
             data = {
               type = "daily";
             };
@@ -165,7 +165,7 @@ in
         ];
         action = [
           {
-            service = "calendar.get_events";
+            action = "calendar.get_events";
             target.entity_id = "calendar.abfallwirtschaft_potsdam_mittelmark_apm";
             data = {
               duration.days = 14;

@@ -205,7 +205,7 @@ let
             conditions = "{{ trigger.calendar_event.summary == 'Evening' }}";
             sequence = [
               {
-                service = "input_button.press";
+                action = "input_button.press";
                 target.entity_id = "input_button.routine_evening";
               }
             ];
@@ -214,7 +214,7 @@ let
             conditions = "{{ trigger.calendar_event.summary == 'Night' }}";
             sequence = [
               {
-                service = "input_button.press";
+                action = "input_button.press";
                 target.entity_id = "input_button.routine_night";
               }
             ];
@@ -223,7 +223,7 @@ let
             conditions = "{{ trigger.calendar_event.summary == 'Late Night' }}";
             sequence = [
               {
-                service = "input_button.press";
+                action = "input_button.press";
                 target.entity_id = "input_button.routine_late_night";
               }
             ];
@@ -232,7 +232,7 @@ let
             conditions = "{{ trigger.calendar_event.summary == 'Morning' }}";
             sequence = [
               {
-                service = "input_button.press";
+                action = "input_button.press";
                 target.entity_id = "input_button.routine_morning";
               }
             ];
@@ -255,7 +255,7 @@ let
     ];
     actions = [
       {
-        service = "input_button.press";
+        action = "input_button.press";
         target.entity_id = "input_button.routine_sunset";
       }
     ];
@@ -274,7 +274,7 @@ let
     ];
     actions = [
       {
-        service = "input_button.press";
+        action = "input_button.press";
         target.entity_id = "input_button.routine_sunrise";
       }
     ];
@@ -294,7 +294,7 @@ let
     ];
     actions = [
       {
-        service = "input_button.press";
+        action = "input_button.press";
         target.entity_id = "input_button.routine_dusk";
       }
     ];
@@ -315,7 +315,7 @@ let
     ];
     actions = [
       {
-        service = "scene.turn_on";
+        action = "scene.turn_on";
         target.entity_id = "scene.routine_dusk";
       }
     ];
@@ -332,7 +332,7 @@ let
     ];
     actions = [
       {
-        service = "scene.turn_on";
+        action = "scene.turn_on";
         target.entity_id = "scene.routine_evening";
       }
     ];
@@ -349,7 +349,7 @@ let
     ];
     actions = [
       {
-        service = "scene.turn_on";
+        action = "scene.turn_on";
         target.entity_id = "scene.routine_night";
       }
     ];
@@ -366,7 +366,7 @@ let
     ];
     actions = [
       {
-        service = "scene.turn_on";
+        action = "scene.turn_on";
         target.entity_id = "scene.routine_late_night";
       }
     ];
@@ -383,7 +383,7 @@ let
     ];
     actions = [
       {
-        service = "scene.turn_on";
+        action = "scene.turn_on";
         target.entity_id = "scene.routine_morning";
       }
     ];
@@ -400,7 +400,7 @@ let
     ];
     actions = [
       {
-        service = "scene.turn_on";
+        action = "scene.turn_on";
         target.entity_id = "scene.routine_sunset";
       }
     ];
@@ -417,7 +417,7 @@ let
     ];
     actions = [
       {
-        service = "scene.turn_on";
+        action = "scene.turn_on";
         target.entity_id = "scene.routine_sunrise";
       }
     ];
