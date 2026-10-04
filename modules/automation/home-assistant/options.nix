@@ -111,6 +111,7 @@ in
       bubble-card.enable = mkEnableOption "Bubble Card collection for pop-ups and buttons";
       card-tools.enable = mkEnableOption "Card tools - required dependency for some lovelace cards";
       clock-weather-card.enable = mkEnableOption "Clock Weather card with iOS-style display";
+      mushroom.enable = mkEnableOption "Mushroom cards (tile-based template card)";
       horizon-card.enable = mkEnableOption "Horizon card for sun/moon rise/set visualization";
       layout-card.enable = mkEnableOption "Layout Card for advanced grid layouts";
 

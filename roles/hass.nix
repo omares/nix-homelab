@@ -70,6 +70,7 @@ in
       bubble-card.enable = true;
       card-tools.enable = true;
       clock-weather-card.enable = true;
+      mushroom.enable = true;
       horizon-card.enable = true;
       layout-card.enable = true;
 

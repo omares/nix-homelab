@@ -100,6 +100,7 @@ let
     (optional "bubble-card" pkgs.home-assistant-custom-lovelace-modules.bubble-card)
     (optional "card-tools" packages.card-tools)
     (optional "clock-weather-card" pkgs.home-assistant-custom-lovelace-modules.clock-weather-card)
+    (optional "mushroom" pkgs.home-assistant-custom-lovelace-modules.mushroom)
     (optional "horizon-card" pkgs.home-assistant-custom-lovelace-modules.horizon-card)
     (optional "layout-card" packages.layout-card)
   ];
