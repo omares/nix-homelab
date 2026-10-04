@@ -24,17 +24,6 @@ in
       description = "Home Assistant configuration directory.";
     };
 
-    bindAddress = mkOption {
-      type = types.str;
-      description = "IP address to bind the Home Assistant web interface to.";
-    };
-
-    trustedProxies = mkOption {
-      type = types.listOf types.str;
-      default = [ ];
-      description = "List of trusted proxy IP addresses for X-Forwarded-For headers.";
-    };
-
     extraComponents = mkOption {
       type = types.listOf types.str;
       default = [ ];

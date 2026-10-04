@@ -1,13 +1,11 @@
 {
   config,
-  nodeCfg,
   mares,
   ...
 }:
 let
   dbNode = mares.infrastructure.nodes.db-01;
   monNode = mares.infrastructure.nodes.mon-01;
-  proxyNode = mares.infrastructure.nodes.proxy-01;
 in
 {
   imports = [
@@ -48,8 +46,6 @@ in
 
   mares.home-assistant = {
     enable = true;
-    bindAddress = nodeCfg.host;
-    trustedProxies = [ proxyNode.host ];
 
     components = {
       # Built-in HA components

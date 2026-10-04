@@ -1,6 +1,6 @@
 # Home Assistant Core Service Configuration
 #
-# Contains core HA setup: http, recorder, zones, logger, prometheus.
+# Contains core HA setup: recorder, zones, logger, prometheus.
 # Component wiring is in components.nix
 # Automations and scenes are in automations.nix
 # Shelly discovery is in shelly.nix
@@ -63,13 +63,6 @@ in
 
         # Enables zeroconf/mDNS discovery for Shelly and other devices
         default_config = { };
-
-        http = {
-          server_host = cfg.bindAddress;
-          server_port = cfg.port;
-          use_x_forwarded_for = cfg.trustedProxies != [ ];
-          trusted_proxies = cfg.trustedProxies;
-        };
 
         recorder = {
           db_url = "!secret recorder_db_url";

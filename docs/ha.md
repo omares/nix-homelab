@@ -366,12 +366,8 @@ services.nginx.virtualHosts."ha.mares.id" = {
 
 ### HA HTTP Configuration
 
-```nix
-config.http = {
-  use_x_forwarded_for = true;
-  trusted_proxies = [ "proxy-01.vm.mares.id" ];
-};
-```
+Configured in the UI under Settings > System > Network (YAML `http:` is deprecated).
+Required: enable `use_x_forwarded_for` and add proxy-01 to the trusted proxies.
 
 ## PostgreSQL Setup
 
