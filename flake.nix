@@ -55,5 +55,7 @@
         ./flake
         ./modules/infrastructure
       ];
+
+      perSystem.treefmt.imports = [ ./treefmt.nix ];
     };
 }
