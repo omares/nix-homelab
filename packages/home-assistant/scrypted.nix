@@ -14,8 +14,8 @@ buildHomeAssistantComponent {
   src = fetchFromGitHub {
     owner = "koush";
     repo = "ha_scrypted";
-    rev = "main";
-    hash = "sha256-A7vx7aXnmCMztKRUScmWqwBxpFGSVe3DVia3LGxpvkU=";
+    rev = "eb1f6de0be8f116023e62d3440615c6b4161f502";
+    hash = "sha256-zJpbwLSDioEMm0YVJizec1JDY49GRq0to69Q1nncWB8=";
   };
 
   meta = with lib; {
