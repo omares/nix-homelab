@@ -11,18 +11,18 @@
 let
   cfg = config.mares.home-assistant;
   cmp = cfg.components;
-  python = pkgs.home-assistant.python;
+  pythonPackages = pkgs.home-assistant.python3Packages;
 
   # Local packages (in packages/home-assistant/)
   packages = {
     meross-lan = pkgs.callPackage ../../../packages/home-assistant/meross-lan.nix { };
     evcc = pkgs.callPackage ../../../packages/home-assistant/evcc.nix { };
     syr-connect = pkgs.callPackage ../../../packages/home-assistant/syr-connect.nix {
-      inherit (python.pkgs) pycryptodomex;
+      inherit (pythonPackages) pycryptodomex;
     };
     scrypted = pkgs.callPackage ../../../packages/home-assistant/scrypted.nix { };
     homeconnect-local = pkgs.callPackage ../../../packages/home-assistant/homeconnect-local.nix {
-      inherit (python.pkgs)
+      inherit (pythonPackages)
         buildPythonPackage
         fetchPypi
         setuptools
@@ -32,9 +32,9 @@ let
         pycryptodome
         ;
     };
-    ostrom = python.pkgs.callPackage ../../../packages/home-assistant/ostrom.nix { };
+    ostrom = pythonPackages.callPackage ../../../packages/home-assistant/ostrom.nix { };
     stiebel-eltron-isg =
-      python.pkgs.callPackage ../../../packages/home-assistant/stiebel-eltron-isg.nix
+      pythonPackages.callPackage ../../../packages/home-assistant/stiebel-eltron-isg.nix
         { };
     card-tools = pkgs.callPackage ../../../packages/home-assistant/card-tools.nix { };
     horizon-card = pkgs.callPackage ../../../packages/home-assistant/horizon-card.nix { };
