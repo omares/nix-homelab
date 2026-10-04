@@ -16,7 +16,6 @@ in
 {
   config = lib.mkIf cfg.enable {
     services.home-assistant.config.lovelace = {
-      mode = "storage";
       dashboards = {
         mares-energy = {
           mode = "yaml";
