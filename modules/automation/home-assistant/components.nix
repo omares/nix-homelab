@@ -18,7 +18,7 @@ let
     meross-lan = pkgs.callPackage ../../../packages/home-assistant/meross-lan.nix { };
     evcc = pkgs.callPackage ../../../packages/home-assistant/evcc.nix { };
     syr-connect = pkgs.callPackage ../../../packages/home-assistant/syr-connect.nix {
-      inherit (pythonPackages) pycryptodomex;
+      inherit (pythonPackages) pycryptodomex defusedxml;
     };
     scrypted = pkgs.callPackage ../../../packages/home-assistant/scrypted.nix { };
     homeconnect-local = pkgs.callPackage ../../../packages/home-assistant/homeconnect-local.nix {

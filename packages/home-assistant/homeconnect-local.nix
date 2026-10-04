@@ -11,7 +11,7 @@
   pycryptodome,
 }:
 let
-  websocketVersion = "1.4.5";
+  websocketVersion = "1.5.4";
   homeconnect-websocket = buildPythonPackage {
     pname = "homeconnect-websocket";
     version = websocketVersion;
@@ -20,7 +20,7 @@ let
     src = fetchPypi {
       pname = "homeconnect_websocket";
       version = websocketVersion;
-      hash = "sha256-TFI8rEqyRSQkPJEL6N4OMq9gP8AwMlR7yp6KMdWzRT8=";
+      hash = "sha256-NBdDVcIDJ+AXPG23BX5Kngk54MRePVN/LhnPOJ948iM=";
     };
 
     build-system = [
@@ -45,7 +45,7 @@ let
     };
   };
 
-  version = "1.0.4";
+  version = "1.0.6";
 in
 buildHomeAssistantComponent {
   owner = "chris-mc1";
@@ -56,7 +56,7 @@ buildHomeAssistantComponent {
     owner = "chris-mc1";
     repo = "homeconnect_local_hass";
     rev = version;
-    hash = "sha256-MJ6Yx2HUSueSNiyOgVrA57OBekgxwmfFx4exNIdPjvk=";
+    hash = "sha256-7+2MM4sHcr9NcYJqXauiXKNjDLLfdgkDtc60Cc2jG4g=";
   };
 
   dependencies = [ homeconnect-websocket ];

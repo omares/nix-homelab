@@ -7,13 +7,13 @@
 buildHomeAssistantComponent rec {
   owner = "krahabb";
   domain = "meross_lan";
-  version = "5.7.1";
+  version = "5.8.0";
 
   src = fetchFromGitHub {
     owner = "krahabb";
     repo = "meross_lan";
     rev = "v${version}";
-    hash = "sha256-JR67bUl1rJcw0CXKiYezS8sR9unj/wZSox1Cq04EuCw=";
+    hash = "sha256-Ru/YmoCJPmnnrIGls87vmEo44+FxcUXi0MSYg+Jvdz0=";
   };
 
   meta = with lib; {

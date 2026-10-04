@@ -3,9 +3,10 @@
   buildHomeAssistantComponent,
   fetchFromGitHub,
   pycryptodomex,
+  defusedxml,
 }:
 let
-  version = "1.0.8";
+  version = "1.26.0";
 in
 buildHomeAssistantComponent {
   owner = "alexhass";
@@ -16,12 +17,15 @@ buildHomeAssistantComponent {
     owner = "alexhass";
     repo = "syr_connect";
     rev = "v${version}";
-    hash = "sha256-vW7AjNJeqxRagd+tUSbtTyUXa564td8HdHf93/j4ERA=";
+    hash = "sha256-B2ComFtSPwtpYJjzJI2Q4P5a+6rDqN9j0W/wsXHmlkU=";
   };
 
-  dependencies = [ pycryptodomex ];
+  dependencies = [
+    pycryptodomex
+    defusedxml
+  ];
 
-  # nixpkgs has pycryptodomex 3.23.0, manifest requires 3.19.0
+  # manifest pins upper bounds that do not match nixpkgs versions
   dontCheckManifest = true;
 
   meta = with lib; {
