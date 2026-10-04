@@ -4,3 +4,5 @@
 result
 /backup/
 *vma.zst
+.claude/settings.local.json
+.claude/*.lock
