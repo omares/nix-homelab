@@ -115,13 +115,6 @@ in
         # InfluxDB config
         (lib.mkIf cmp.influxdb.enable {
           influxdb = {
-            api_version = 2;
-            ssl = false;
-            host = cmp.influxdb.host;
-            port = cmp.influxdb.port;
-            organization = cmp.influxdb.organization;
-            bucket = cmp.influxdb.bucket;
-            token = "!secret influxdb_token";
             max_retries = cmp.influxdb.maxRetries;
             include.entity_globs = [ "sensor.*" ];
           };

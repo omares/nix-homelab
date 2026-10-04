@@ -5,7 +5,6 @@
 }:
 let
   dbNode = mares.infrastructure.nodes.db-01;
-  monNode = mares.infrastructure.nodes.mon-01;
 in
 {
   imports = [
@@ -17,7 +16,6 @@ in
     "hass"
     "mqtt"
     "pgsql"
-    "influxdb"
     "restic"
   ];
 
@@ -34,9 +32,6 @@ in
 
       # MQTT
       mqtt_password: ${config.sops.placeholder."mqtt-hass_password"}
-
-      # InfluxDB
-      influxdb_token: ${config.sops.placeholder."influxdb-hass_token"}
     '';
     path = "/var/lib/hass/secrets.yaml";
     owner = "hass";
@@ -82,10 +77,7 @@ in
       wmbusmeters.enable = true;
 
       # Integrations with extra config
-      influxdb = {
-        enable = true;
-        host = monNode.dns.fqdn;
-      };
+      influxdb.enable = true;
 
       shelly = {
         enable = true;

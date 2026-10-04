@@ -77,30 +77,6 @@ in
       influxdb = {
         enable = mkEnableOption "InfluxDB integration for long-term history";
 
-        host = mkOption {
-          type = types.str;
-          default = "";
-          description = "InfluxDB host.";
-        };
-
-        port = mkOption {
-          type = types.port;
-          default = 8086;
-          description = "InfluxDB port.";
-        };
-
-        organization = mkOption {
-          type = types.str;
-          default = "mares";
-          description = "InfluxDB organization.";
-        };
-
-        bucket = mkOption {
-          type = types.str;
-          default = "home-assistant";
-          description = "InfluxDB bucket.";
-        };
-
         maxRetries = mkOption {
           type = types.int;
           default = 3;

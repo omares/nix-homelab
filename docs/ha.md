@@ -311,7 +311,6 @@ modules/home-assistant/
 |-------|--------|---------|
 | `mqtt` | `mqtt-hass_password` | HA → MQTT broker |
 | `pgsql` | `pgsql-hass_password` | HA → PostgreSQL |
-| `influxdb` | `influxdb-hass_token` | HA → InfluxDB |
 | `restic` | `restic-hass_password` | Backup encryption |
 
 ### secrets.yaml Template
@@ -330,9 +329,6 @@ sops.templates."ha-secrets.yaml" = {
     
     # MQTT
     mqtt_password: ${config.sops.placeholder."mqtt-hass_password"}
-    
-    # InfluxDB
-    influxdb_token: ${config.sops.placeholder."influxdb-hass_token"}
   '';
   path = "/var/lib/hass/secrets.yaml";
   owner = "hass";
