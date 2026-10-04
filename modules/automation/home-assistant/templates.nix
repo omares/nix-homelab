@@ -216,7 +216,7 @@ in
             action = "calendar.get_events";
             target.entity_id = "calendar.abfallwirtschaft_potsdam_mittelmark_apm";
             data = {
-              duration.days = 14;
+              duration.days = 60;
             };
             response_variable = "calendar_events";
           }
@@ -297,6 +297,14 @@ in
                 {% set events = calendar_events['calendar.abfallwirtschaft_potsdam_mittelmark_apm'].events | default([]) %}
                 {% if events | length > 0 %}{{ (events | sort(attribute='start') | first).summary }}{% endif %}
               '';
+              upcoming = ''
+                {% set events = calendar_events['calendar.abfallwirtschaft_potsdam_mittelmark_apm'].events | default([]) %}
+                {% set ns = namespace(items=[]) %}
+                {% for e in events | sort(attribute='start') %}
+                  {% set ns.items = ns.items + [strptime(e.start[:10], '%Y-%m-%d').strftime('%a %d.%m.') ~ ' ' ~ e.summary] %}
+                {% endfor %}
+                {{ ns.items }}
+              '';
             };
           }
           {
@@ -338,6 +346,34 @@ in
               {% elif soc <= 90 %}mdi:battery-90
               {% else %}mdi:battery{% endif %}
             '';
+          }
+          {
+            name = "Car Status";
+            unique_id = "car_status";
+            state = ''
+              {% set soc = states('sensor.evcc_carport_vehicle_soc') | int(0) %}
+              {% if is_state('binary_sensor.evcc_carport_charging', 'on') %}
+                Charging {{ states('sensor.evcc_carport_charge_power') | float(0) | round(1) }} kW · {{ soc }} % → {{ states('sensor.evcc_carport_vehicle_limit_soc') | int(0) }} %
+              {% else %}
+                {{ soc }} % · {{ states('sensor.evcc_carport_vehicle_range') | int(0) }} km{{ ' · not plugged in' if is_state('binary_sensor.evcc_carport_connected', 'off') else "" }}
+              {% endif %}
+            '';
+            icon = ''
+              {% if is_state('binary_sensor.evcc_carport_charging', 'on') %}mdi:ev-station
+              {% elif is_state('binary_sensor.evcc_carport_connected', 'on') %}mdi:car-electric
+              {% else %}mdi:car{% endif %}
+            '';
+            attributes = {
+              battery = "{{ states('sensor.evcc_carport_vehicle_soc') | int(0) }} %";
+              range = "{{ states('sensor.evcc_carport_vehicle_range') | int(0) }} km";
+              charge_limit = "{{ states('sensor.evcc_carport_vehicle_limit_soc') | int(0) }} %";
+              plugged_in = "{{ is_state('binary_sensor.evcc_carport_connected', 'on') }}";
+              charging = "{{ is_state('binary_sensor.evcc_carport_charging', 'on') }}";
+              charge_power = "{{ states('sensor.evcc_carport_charge_power') | float(0) | round(1) }} kW";
+              charged_this_session = "{{ states('sensor.evcc_carport_session_energy') | float(0) | round(1) }} kWh";
+              time_to_limit = "{{ (states('sensor.evcc_carport_charge_remaining_duration') | int(0) / 60) | round(0) | int }} min";
+              charge_mode = "{{ states('select.evcc_carport_mode') }}";
+            };
           }
           {
             name = "Dashboard Icon EV SOC";
