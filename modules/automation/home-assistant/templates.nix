@@ -299,9 +299,14 @@ in
               '';
               upcoming = ''
                 {% set events = calendar_events['calendar.abfallwirtschaft_potsdam_mittelmark_apm'].events | default([]) %}
-                {% set ns = namespace(items=[]) %}
+                {% set ns = namespace(items=[], seen=[]) %}
                 {% for e in events | sort(attribute='start') %}
-                  {% set ns.items = ns.items + [strptime(e.start[:10], '%Y-%m-%d').strftime('%a %d.%m.') ~ ' ' ~ e.summary] %}
+                  {% set type = e.summary | regex_replace(' [0-9].*$', "") %}
+                  {% set key = e.start[:10] ~ type %}
+                  {% if key not in ns.seen %}
+                    {% set ns.seen = ns.seen + [key] %}
+                    {% set ns.items = ns.items + [{'date': e.start[:10], 'type': type}] %}
+                  {% endif %}
                 {% endfor %}
                 {{ ns.items }}
               '';
