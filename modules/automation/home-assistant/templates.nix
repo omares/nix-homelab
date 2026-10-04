@@ -7,6 +7,50 @@
 let
   cfg = config.mares.home-assistant;
   hideLabel = "hide-dashboard";
+
+  # Rooms shown with counters on the dashboard; members are resolved via area_entities
+  lightRooms = {
+    living_room = "Living Room";
+    kitchen = "Kitchen";
+    office = "Office";
+    utility_room = "Utility Room";
+    staircase = "Staircase";
+    patio = "Patio";
+  };
+  coverRooms = {
+    living_room = "Living Room";
+    kitchen = "Kitchen";
+    office = "Office";
+    utility_room = "Utility Room";
+    guest_bathroom = "Guest Bathroom";
+    hallway = "Hallway";
+  };
+
+  # Light groups and hidden entities are skipped so lights are not counted twice
+  mkLightsOn = area: name: {
+    name = "${name} Lights On";
+    unique_id = "${area}_lights_on";
+    state = ''
+      {% set ns = namespace(n=0) %}
+      {% for e in area_entities('${area}') if e.startswith('light.') and is_state(e, 'on')
+           and not is_hidden_entity(e) and state_attr(e, 'entity_id') is none
+           and device_attr(e, 'model') != 'Group' %}
+        {% set ns.n = ns.n + 1 %}
+      {% endfor %}
+      {{ ns.n }}
+    '';
+    icon = "{{ 'mdi:lightbulb-group' if this.state | int(0) > 0 else 'mdi:lightbulb-group-off' }}";
+  };
+
+  mkShuttersOpen = area: name: {
+    name = "${name} Shutters Open";
+    unique_id = "${area}_shutters_open";
+    state = ''
+      {{ area_entities('${area}') | select('match', 'cover\.')
+         | select('is_state', ['open', 'opening']) | list | count }}
+    '';
+    icon = "{{ 'mdi:window-shutter-open' if this.state | int(0) > 0 else 'mdi:window-shutter' }}";
+  };
 in
 {
   config = lib.mkIf (cfg.enable) {
@@ -159,6 +203,10 @@ in
             hours = "/1";
           }
           {
+            platform = "time";
+            at = "00:00:05";
+          }
+          {
             platform = "homeassistant";
             event = "start";
           }
@@ -210,6 +258,44 @@ in
                   {% elif 'schad' in message %}#F44336
                   {% else %}#9E9E9E{% endif %}
                 {% else %}#9E9E9E{% endif %}
+              '';
+            };
+          }
+          {
+            name = "Waste Next Collection";
+            unique_id = "waste_next_collection";
+            state = ''
+              {% set events = calendar_events['calendar.abfallwirtschaft_potsdam_mittelmark_apm'].events | default([]) %}
+              {% if events | length > 0 %}
+                {% set next_event = events | sort(attribute='start') | first %}
+                {% set days = (strptime(next_event.start[:10], '%Y-%m-%d').date() - now().date()).days %}
+                {% if days <= 0 %}Today{% elif days == 1 %}Tomorrow{% else %}In {{ days }} days{% endif %}: {{ next_event.summary }}
+              {% else %}unknown{% endif %}
+            '';
+            icon = ''
+              {% set events = calendar_events['calendar.abfallwirtschaft_potsdam_mittelmark_apm'].events | default([]) %}
+              {% set message = (events | sort(attribute='start') | first).summary | lower if events | length > 0 else "" %}
+              {% if 'grün' in message or 'bio' in message %}mdi:leaf
+              {% elif 'gelb' in message %}mdi:recycle
+              {% elif 'rest' in message or 'müll' in message %}mdi:trash-can
+              {% elif 'papier' in message %}mdi:file-document
+              {% elif 'schad' in message %}mdi:alert
+              {% else %}mdi:calendar{% endif %}
+            '';
+            attributes = {
+              days = ''
+                {% set events = calendar_events['calendar.abfallwirtschaft_potsdam_mittelmark_apm'].events | default([]) %}
+                {% if events | length > 0 %}
+                  {{ (strptime((events | sort(attribute='start') | first).start[:10], '%Y-%m-%d').date() - now().date()).days }}
+                {% endif %}
+              '';
+              date = ''
+                {% set events = calendar_events['calendar.abfallwirtschaft_potsdam_mittelmark_apm'].events | default([]) %}
+                {% if events | length > 0 %}{{ (events | sort(attribute='start') | first).start[:10] }}{% endif %}
+              '';
+              type = ''
+                {% set events = calendar_events['calendar.abfallwirtschaft_potsdam_mittelmark_apm'].events | default([]) %}
+                {% if events | length > 0 %}{{ (events | sort(attribute='start') | first).summary }}{% endif %}
               '';
             };
           }
@@ -269,6 +355,9 @@ in
             };
           }
         ];
+      }
+      {
+        sensor = lib.mapAttrsToList mkLightsOn lightRooms ++ lib.mapAttrsToList mkShuttersOpen coverRooms;
       }
     ];
   };
