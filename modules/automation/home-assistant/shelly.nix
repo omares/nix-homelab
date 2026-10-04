@@ -194,6 +194,9 @@ let
       device_ids = cfg.components.shelly.deviceIds;
     };
     actions = [
+      # MQTT subscriptions are not ready right at startup; replies to the first
+      # device would otherwise be lost
+      { delay.seconds = 15; }
       {
         repeat = {
           for_each = "{{ device_ids }}";
