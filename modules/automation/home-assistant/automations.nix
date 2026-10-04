@@ -3,8 +3,8 @@
 # Architecture:
 #   Trigger (sun/calendar) → input_button → scene automation → scene
 #
-# Scenes are Nix-managed, defining exact entity states for each routine.
-# Scenes are written to scenes.yaml for compatibility with HA scene editor.
+# Scenes are seeded once from Nix into a writable scenes.yaml and managed in
+# the HA scene editor afterwards.
 {
   config,
   lib,
@@ -428,7 +428,7 @@ in
     services.home-assistant.config = {
       input_button = routineInputButtons;
 
-      # Use !include to reference scenes.yaml (deployed via preStart)
+      # Writable scenes.yaml, edited in the UI scene editor
       scene = "!include scenes.yaml";
 
       "automation nix" = [
@@ -448,9 +448,13 @@ in
       ];
     };
 
-    # Deploy scenes.yaml to Home Assistant config directory
+    # Scenes are managed in the UI scene editor. The Nix scenes only seed a
+    # writable scenes.yaml once, replacing the former read-only store symlink.
     systemd.services.home-assistant.preStart = lib.mkAfter ''
-      ln -fns ${scenesYaml} "${cfg.configDir}/scenes.yaml"
+      if [ -L "${cfg.configDir}/scenes.yaml" ] || [ ! -e "${cfg.configDir}/scenes.yaml" ]; then
+        rm -f "${cfg.configDir}/scenes.yaml"
+        install -m 0644 ${scenesYaml} "${cfg.configDir}/scenes.yaml"
+      fi
     '';
   };
 }

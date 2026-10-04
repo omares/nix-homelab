@@ -171,6 +171,7 @@ in
       paths = [
         "/var/lib/hass/.storage"
         "/var/lib/hass/automations.yaml"
+        "/var/lib/hass/scenes.yaml"
       ];
       timerConfig = {
         OnCalendar = "*-*-* 03:00:00";
