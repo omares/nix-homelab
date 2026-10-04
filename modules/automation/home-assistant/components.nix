@@ -37,7 +37,6 @@ let
       pythonPackages.callPackage ../../../packages/home-assistant/stiebel-eltron-isg.nix
         { };
     card-tools = pkgs.callPackage ../../../packages/home-assistant/card-tools.nix { };
-    horizon-card = pkgs.callPackage ../../../packages/home-assistant/horizon-card.nix { };
     bubble-card-tools = pkgs.callPackage ../../../packages/home-assistant/bubble-card-tools.nix { };
     layout-card = pkgs.callPackage ../../../packages/home-assistant/layout-card.nix { };
   };
@@ -100,7 +99,7 @@ let
     (optional "bubble-card" pkgs.home-assistant-custom-lovelace-modules.bubble-card)
     (optional "card-tools" packages.card-tools)
     (optional "clock-weather-card" pkgs.home-assistant-custom-lovelace-modules.clock-weather-card)
-    (optional "horizon-card" packages.horizon-card)
+    (optional "horizon-card" pkgs.home-assistant-custom-lovelace-modules.horizon-card)
     (optional "layout-card" packages.layout-card)
   ];
 in
