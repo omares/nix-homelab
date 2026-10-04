@@ -120,7 +120,10 @@ in
     jobs.hass = {
       repoPath = "hass";
       passwordFile = config.sops.secrets.restic-hass_repo_key.path;
-      paths = [ "/var/lib/hass/.storage" ];
+      paths = [
+        "/var/lib/hass/.storage"
+        "/var/lib/hass/automations.yaml"
+      ];
       timerConfig = {
         OnCalendar = "*-*-* 03:00:00";
       };

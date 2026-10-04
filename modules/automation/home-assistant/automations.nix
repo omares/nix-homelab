@@ -431,7 +431,7 @@ in
       # Use !include to reference scenes.yaml (deployed via preStart)
       scene = "!include scenes.yaml";
 
-      automation = [
+      "automation nix" = [
         # Bridge automations
         routineCalendarBridgeAutomation
         routineSunsetBridgeAutomation

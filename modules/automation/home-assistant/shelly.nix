@@ -107,7 +107,7 @@ in
       # Enable python_script integration for Shelly Gen2+ discovery
       python_script = { };
 
-      automation = [
+      "automation nix" = [
         shellyDiscoveryAutomation
       ]
       ++ lib.optionals (cfg.components.shelly.deviceIds != [ ]) [ shellyAnnounceAutomation ];
