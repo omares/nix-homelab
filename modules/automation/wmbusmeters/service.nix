@@ -23,32 +23,6 @@ let
         enabled_by_default = true;
         name = "total";
       };
-      flow_m3h = {
-        component = "sensor";
-        state_class = "measurement";
-        unit_of_measurement = "m³/h";
-        icon = "mdi:waves-arrow-right";
-        enabled_by_default = true;
-        name = "flow";
-      };
-      flow_temperature_c = {
-        component = "sensor";
-        device_class = "temperature";
-        state_class = "measurement";
-        unit_of_measurement = "°C";
-        icon = "mdi:thermometer-water";
-        enabled_by_default = false;
-        name = "water temperature";
-      };
-      external_temperature_c = {
-        component = "sensor";
-        device_class = "temperature";
-        state_class = "measurement";
-        unit_of_measurement = "°C";
-        icon = "mdi:thermometer";
-        enabled_by_default = false;
-        name = "ambient temperature";
-      };
       rssi_dbm = {
         component = "sensor";
         device_class = "signal_strength";
@@ -118,11 +92,14 @@ let
     lib.concatMapStringsSep "\n" (attribute: ''
       echo "Publishing discovery for ${meter.name}/${attribute}..."
       publish "${cfg.discovery.prefix}/sensor/wmbusmeters/''${METER_ID_${meter.name}}_${attribute}/config" '${
-        builtins.toJSON (mkDiscoveryPayload {
-          inherit meter attribute;
-          meterId = "\${METER_ID_${meter.name}}";
-          template = template.${attribute};
-        })
+        # The payload is single-quoted, so step out of the quotes to expand the meter ID
+        lib.replaceStrings [ "@METER_ID@" ] [ "'\"\${METER_ID_${meter.name}}\"'" ] (
+          builtins.toJSON (mkDiscoveryPayload {
+            inherit meter attribute;
+            meterId = "@METER_ID@";
+            template = template.${attribute};
+          })
+        )
       }'
     '') (lib.attrNames template);
 
