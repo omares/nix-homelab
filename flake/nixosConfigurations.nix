@@ -27,7 +27,8 @@ let
           networking.hostName = name;
         }
         config.flake.nixosModules.role-default
-      ] ++ nodeCfg.roles;
+      ]
+      ++ nodeCfg.roles;
     };
 
 in

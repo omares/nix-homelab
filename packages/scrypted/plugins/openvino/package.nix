@@ -54,7 +54,10 @@ let
         };
 
         nativeBuildInputs = [ autoPatchelfHook ];
-        buildInputs = [ stdenv.cc.cc.lib zlib ];
+        buildInputs = [
+          stdenv.cc.cc.lib
+          zlib
+        ];
       };
 
       aiohttp = super.aiohttp.overridePythonAttrs {

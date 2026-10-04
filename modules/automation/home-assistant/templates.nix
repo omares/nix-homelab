@@ -54,12 +54,12 @@ in
           {
             name = "Sunrise Time";
             unique_id = "sunrise_time";
-            state = ''{{ as_timestamp(state_attr('sun.sun', 'next_rising')) | timestamp_custom('%H:%M') }}'';
+            state = "{{ as_timestamp(state_attr('sun.sun', 'next_rising')) | timestamp_custom('%H:%M') }}";
           }
           {
             name = "Sunset Time";
             unique_id = "sunset_time";
-            state = ''{{ as_timestamp(state_attr('sun.sun', 'next_setting')) | timestamp_custom('%H:%M') }}'';
+            state = "{{ as_timestamp(state_attr('sun.sun', 'next_setting')) | timestamp_custom('%H:%M') }}";
           }
           {
             name = "Day Progress";
@@ -91,7 +91,7 @@ in
           {
             name = "Current Date Time";
             unique_id = "current_date_time";
-            state = ''{{ now().strftime('%a, %d %b %H:%M') }}'';
+            state = "{{ now().strftime('%a, %d %b %H:%M') }}";
             icon = "mdi:clock-outline";
           }
         ];
@@ -216,7 +216,7 @@ in
           {
             name = "Dashboard Icon Battery SOC";
             unique_id = "dashboard_icon_battery_soc";
-            state = ''{{ states('sensor.evcc_battery_soc') }}'';
+            state = "{{ states('sensor.evcc_battery_soc') }}";
             unit_of_measurement = "%";
             icon = ''
               {% set soc = states('sensor.evcc_battery_soc') | int(0) %}
@@ -236,7 +236,7 @@ in
           {
             name = "Dashboard Icon Vacuum SOC";
             unique_id = "dashboard_icon_vacuum_soc";
-            state = ''{{ states('sensor.office_robot_vacuum_dock_battery') }}'';
+            state = "{{ states('sensor.office_robot_vacuum_dock_battery') }}";
             unit_of_measurement = "%";
             icon = ''
               {% set soc = states('sensor.office_robot_vacuum_dock_battery') | int(0) %}
@@ -256,7 +256,7 @@ in
           {
             name = "Dashboard Icon EV SOC";
             unique_id = "dashboard_icon_ev_soc";
-            state = ''{{ states('sensor.evcc_carport_vehicle_soc') | int(0) }} → {{ states('sensor.evcc_carport_vehicle_limit_soc') | int(0) }}'';
+            state = "{{ states('sensor.evcc_carport_vehicle_soc') | int(0) }} → {{ states('sensor.evcc_carport_vehicle_limit_soc') | int(0) }}";
             icon = ''
               {% if is_state('binary_sensor.evcc_carport_connected', 'on') %}
                 {% if is_state('binary_sensor.evcc_carport_charging', 'on') %}mdi:lightning-bolt
@@ -264,8 +264,8 @@ in
               {% else %}mdi:car-off{% endif %}
             '';
             attributes = {
-              is_charging = ''{{ is_state('binary_sensor.evcc_carport_charging', 'on') }}'';
-              limit_soc = ''{{ states('sensor.evcc_carport_vehicle_limit_soc') | int(0) }}'';
+              is_charging = "{{ is_state('binary_sensor.evcc_carport_charging', 'on') }}";
+              limit_soc = "{{ states('sensor.evcc_carport_vehicle_limit_soc') | int(0) }}";
             };
           }
         ];

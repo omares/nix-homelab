@@ -10,7 +10,7 @@ let
   cfg = config.mares.starr;
 in
 {
-config = lib.mkIf (cfg.enable && cfg.seerr.enable) {
+  config = lib.mkIf (cfg.enable && cfg.seerr.enable) {
 
     sops.templates."seerr-config.env" = {
       content = ''
