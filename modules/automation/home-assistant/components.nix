@@ -80,6 +80,7 @@ let
     "apple_tv"
     "unifiprotect"
     "local_calendar"
+    "workday"
   ];
 
   # Optional built-in HA components
