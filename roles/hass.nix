@@ -101,6 +101,66 @@ in
     };
   };
 
+  # Shelly BLU Door/Window paired to the harry light relay. shellies-discovery-gen2
+  # does not support it, so its BTHome components are mapped by hand.
+  services.home-assistant.config.mqtt =
+    let
+      topic = id: "shellies/harry_light_relay/status/bthomesensor:${toString id}";
+      device = {
+        identifiers = [ "38:39:8f:9e:0b:ff" ];
+        name = "Harry Door Contact";
+        manufacturer = "Shelly";
+        model = "BLU Door/Window";
+        via_device = "30:30:f9:e6:45:b4";
+      };
+    in
+    {
+      binary_sensor = [
+        {
+          name = null;
+          unique_id = "harry_door_contact_door";
+          state_topic = topic 202;
+          value_template = "{{ 'ON' if value_json.value else 'OFF' }}";
+          device_class = "door";
+          inherit device;
+        }
+      ];
+
+      sensor = [
+        {
+          name = "Battery";
+          unique_id = "harry_door_contact_battery";
+          state_topic = topic 200;
+          value_template = "{{ value_json.value }}";
+          device_class = "battery";
+          unit_of_measurement = "%";
+          state_class = "measurement";
+          entity_category = "diagnostic";
+          inherit device;
+        }
+        {
+          name = "Illuminance";
+          unique_id = "harry_door_contact_illuminance";
+          state_topic = topic 201;
+          value_template = "{{ value_json.value }}";
+          device_class = "illuminance";
+          unit_of_measurement = "lx";
+          state_class = "measurement";
+          inherit device;
+        }
+        {
+          name = "Rotation";
+          unique_id = "harry_door_contact_rotation";
+          state_topic = topic 203;
+          value_template = "{{ value_json.value }}";
+          unit_of_measurement = "°";
+          state_class = "measurement";
+          icon = "mdi:rotate-3d-variant";
+          inherit device;
+        }
+      ];
+    };
+
   mares.backup.restic = {
     enable = true;
     sshKeyFile = config.sops.secrets.restic-ssh_private_key.path;
