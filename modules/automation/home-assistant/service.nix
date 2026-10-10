@@ -81,11 +81,13 @@ in
         # Nix-managed automations live under "automation nix" (read-only in the UI);
         # automations created in the UI editor are stored here
         "automation ui" = "!include automations.yaml";
+        scene = "!include scenes.yaml";
       };
     };
 
     systemd.services.home-assistant.preStart = lib.mkAfter ''
       [ -f "${cfg.configDir}/automations.yaml" ] || echo "[]" > "${cfg.configDir}/automations.yaml"
+      [ -f "${cfg.configDir}/scenes.yaml" ] || echo "[]" > "${cfg.configDir}/scenes.yaml"
     '';
   };
 }
