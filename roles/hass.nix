@@ -172,6 +172,7 @@ in
       paths = [
         "/var/lib/hass/.storage"
         "/var/lib/hass/automations.yaml"
+        "/var/lib/hass/scripts.yaml"
         "/var/lib/hass/scenes.yaml"
       ];
       timerConfig = {
