@@ -485,6 +485,21 @@ in
         };
       };
 
+      gv2mqtt-01 = {
+        tags = [ "automation" ];
+        roles = [
+          config.flake.nixosModules.role-govee2mqtt
+          config.flake.nixosModules.role-monitoring-client
+          config.flake.nixosModules.role-atuin-client
+        ];
+
+        host = "10.10.22.134";
+
+        dns = {
+          vlan = "vm";
+        };
+      };
+
       unifi = {
         managed = false;
 
