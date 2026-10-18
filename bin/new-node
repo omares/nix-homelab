@@ -1,0 +1,160 @@
+#!/usr/bin/env zsh
+
+setopt ERR_EXIT PIPE_FAIL WARN_CREATE_GLOBAL
+
+for cmd in ssh jq; do
+  if ! command -v $cmd >/dev/null; then
+    print -P "%F{red}Error:%f $cmd not found in PATH"
+    exit 1
+  fi
+done
+
+typeset PROXMOX_HOST="192.168.20.21"
+typeset PROXMOX_USER="root"
+typeset TEMPLATE_PREFIX="nixos-template-"
+typeset IP_TIMEOUT=300
+
+usage() {
+  cat <<EOF
+Usage: $0 <name> --vmid <id> [options]
+
+Clones the Proxmox template of the target host into a new VM, starts it and
+waits for the IP it gets via DHCP. Add that IP as host in nodes.nix, then
+deploy with ./bin/d --init <name>.
+
+Options:
+  -i, --vmid      VM ID for the new VM (required)
+  -t, --target    Proxmox host to create the VM on (default: most free RAM)
+  -p, --proxmox   Proxmox host to run commands through (default: $PROXMOX_HOST)
+      --apply     Execute; without it only the plan is shown
+      --help      Show this help message
+EOF
+}
+
+if [[ $# -eq 0 ]]; then
+  usage
+  exit 0
+fi
+
+zmodload zsh/zutil
+if ! zparseopts -D -E -F -A opts \
+  i:=vmid -vmid:=vmid \
+  t:=target -target:=target \
+  p:=proxmox -proxmox:=proxmox \
+  -apply=apply \
+  -help=help 2>/dev/null; then
+  print -P "%F{red}Error:%f Invalid option provided"
+  print
+  usage
+  exit 1
+fi
+
+if (( ${#help} )); then
+  usage
+  exit 0
+fi
+
+typeset NAME="$1"
+typeset VM_ID="${vmid[-1]}"
+[[ -n "${proxmox[-1]}" ]] && PROXMOX_HOST="${proxmox[-1]}"
+
+if [[ -z "$NAME" ]]; then
+  print -P "%F{red}Error:%f No name given"
+  exit 1
+fi
+
+if [[ ! "$VM_ID" =~ ^[0-9]+$ ]]; then
+  print -P "%F{red}Error:%f --vmid is required and must be numeric"
+  exit 1
+fi
+
+typeset SSH_CONTROL_DIR=$(mktemp -d)
+typeset SSH_CONTROL_PATH="$SSH_CONTROL_DIR/socket"
+trap 'ssh -o ControlPath="$SSH_CONTROL_PATH" -O exit "$PROXMOX_USER@$PROXMOX_HOST" 2>/dev/null; rm -rf "$SSH_CONTROL_DIR"' EXIT
+
+# One master connection, so the password is only asked once. No agent forwarding:
+# pvesh proxies to other cluster nodes via ssh and would offer the forwarded keys
+# first, failing with "Too many authentication failures".
+if ! ssh -a -o ControlMaster=yes -o ControlPath="$SSH_CONTROL_PATH" -o ControlPersist=10m \
+    -fN "$PROXMOX_USER@$PROXMOX_HOST"; then
+  print -P "%F{red}Error:%f Cannot connect to $PROXMOX_USER@$PROXMOX_HOST"
+  exit 1
+fi
+
+pve() {
+  ssh -o ControlPath="$SSH_CONTROL_PATH" "$PROXMOX_USER@$PROXMOX_HOST" "$@"
+}
+
+typeset RESOURCES
+if ! RESOURCES=$(pve pvesh get /cluster/resources --output-format json); then
+  print -P "%F{red}Error:%f Cannot query cluster via $PROXMOX_USER@$PROXMOX_HOST"
+  exit 1
+fi
+
+typeset EXISTING=$(jq -r --argjson id "$VM_ID" --arg name "$NAME" \
+  '.[] | select(.type == "qemu" and (.vmid == $id or .name == $name)) | "\(.vmid) \(.name) on \(.node)"' \
+  <<< "$RESOURCES")
+if [[ -n "$EXISTING" ]]; then
+  print -P "%F{red}Error:%f VM ID or name already in use: ${EXISTING//$'\n'/, }"
+  exit 1
+fi
+
+typeset TARGET="${target[-1]}"
+if [[ -z "$TARGET" ]]; then
+  TARGET=$(jq -r '[.[] | select(.type == "node" and .status == "online")]
+    | max_by(.maxmem - .mem) | .node' <<< "$RESOURCES")
+fi
+
+typeset TEMPLATE=$(jq -r --arg node "$TARGET" --arg prefix "$TEMPLATE_PREFIX" \
+  '.[] | select(.template == 1 and .node == $node and (.name | startswith($prefix))) | "\(.vmid) \(.name)"' \
+  <<< "$RESOURCES" | head -n 1)
+if [[ -z "$TEMPLATE" ]]; then
+  print -P "%F{red}Error:%f No template named $TEMPLATE_PREFIX* found on $TARGET"
+  print "Templates in the cluster:"
+  jq -r '.[] | select(.template == 1) | "  \(.vmid) \(.name) on \(.node)"' <<< "$RESOURCES"
+  print "Nodes: $(jq -r '[.[] | select(.type == "node") | .node] | join(", ")' <<< "$RESOURCES")"
+  exit 1
+fi
+typeset TEMPLATE_ID=${TEMPLATE%% *}
+typeset TEMPLATE_NAME=${TEMPLATE#* }
+
+print -P "Plan for %F{green}$NAME%f:"
+print -P "  Host:      %F{yellow}$TARGET%f (via $PROXMOX_HOST)"
+print -P "  Template:  %F{blue}$TEMPLATE_NAME%f ($TEMPLATE_ID)"
+print -P "  VM ID:     %F{magenta}$VM_ID%f"
+print
+
+if (( ${#apply} == 0 )); then
+  print -P "%F{yellow}Note:%f Use --apply to execute"
+  exit 0
+fi
+
+typeset API="/nodes/$TARGET/qemu"
+
+print -P "%F{blue}Cloning template...%f"
+pve pvesh create "$API/$TEMPLATE_ID/clone" --newid "$VM_ID" --name "$NAME" --full 1
+
+print -P "%F{blue}Starting VM...%f"
+pve pvesh create "$API/$VM_ID/status/start"
+
+print -P "%F{blue}Waiting for DHCP address via guest agent...%f"
+typeset IP=""
+typeset -i waited=0
+while [[ -z "$IP" ]]; do
+  if (( waited >= IP_TIMEOUT )); then
+    print -P "%F{red}Error:%f No IP reported by $NAME after ${IP_TIMEOUT}s"
+    exit 1
+  fi
+  sleep 5
+  (( waited += 5 ))
+  IP=$(pve pvesh get "$API/$VM_ID/agent/network-get-interfaces" --output-format json 2>/dev/null \
+    | jq -r '[.result[] | select(.name != "lo") | ."ip-addresses"[]?
+        | select(."ip-address-type" == "ipv4") | ."ip-address"] | first // empty' 2>/dev/null) || true
+done
+
+print
+print -P "%F{green}$NAME is up at $IP%f"
+print
+print "Next steps:"
+print "  1. Add the node to modules/infrastructure/nodes.nix with: host = \"$IP\";"
+print "  2. Deploy: ./bin/d --init $NAME"

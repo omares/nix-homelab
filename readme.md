@@ -82,9 +82,14 @@ This project manages NixOS virtual machines running on [Proxmox VE](https://www.
 
 ### Adding a New Node
 
-1. **Clone and boot a VM** from a NixOS template in Proxmox (see [Proxmox VM Templates](#proxmox-vm-templates) for creating templates), then note the assigned IP address
+1. **Create the VM** with [new-node](bin/new-node):
+   ```bash
+   ./bin/new-node my-service-01 --vmid 281                    # show plan
+   ./bin/new-node my-service-01 --vmid 281 --target pve-02 --apply
+   ```
+   It clones the `nixos-template-*` template of the target host (default: the host with the most free RAM), starts the VM and prints the IP it got via DHCP.
 
-2. **Register the node** in `modules/infrastructure/nodes.nix`:
+2. **Register the node** in `modules/infrastructure/nodes.nix` with that IP:
    ```nix
    my-service-01 = {
      roles = [
@@ -97,7 +102,7 @@ This project manages NixOS virtual machines running on [Proxmox VE](https://www.
 
 3. **Deploy the configuration**:
    ```bash
-   deploy .#my-service-01 --skip-checks
+   ./bin/d --init my-service-01
    ```
 
 The node is now managed by this flake and receives updates via deploy-rs.
@@ -172,6 +177,7 @@ nix flake check
 | `nix flake check` | Validate flake, run deploy-rs checks, verify formatting |
 | `nix develop` | Enter development shell with deploy-rs, compose2nix |
 | `nix build .#<template>` | Build a Proxmox VM template |
+| `./bin/new-node <name> --vmid <id>` | Create a VM from the host template via DHCP |
 | `./bin/d <host>` | Deploy configuration to a host |
 | `./bin/ssh-config` | Generate SSH config for all managed nodes |
 
