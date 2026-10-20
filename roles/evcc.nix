@@ -69,6 +69,9 @@ in
           type = "template";
           template = "varta";
           usage = "battery";
+          # Pulse Neo 6 datasheet: 6.5 kWh at 90 % DoD, 2.5 / 2.3 kW AC charge / discharge
+          capacity = 6.5;
+          maxdischargepower = 2300;
           host = "192.168.20.129";
         }
       ];
@@ -95,17 +98,21 @@ in
           title = "Carport";
           charger = "fronius_wattpilot";
           vehicle = "bmw_ix40";
-          mode = "pv";
+          mode = "smart";
         }
         {
           title = "LWZ 5s Trend";
           charger = "stiebel_eltron_lwz_5s_trend";
-          mode = "pv";
+          mode = "smart";
+          # Gets surplus before the car (Carport has the default priority 0)
+          priority = 1;
+          # Compressor only (no backup heater, SG-Ready WW setpoint 50 °C): ~1.0-1.5 kW typical,
+          # ~2.1 kW max, single-phase 230 V
           phases = 1;
-          mincurrent = 4;
+          mincurrent = 5;
           maxcurrent = 9;
           enable = {
-            threshold = -1800;
+            threshold = -1300;
             delay = "5m";
           };
           disable = {
@@ -123,7 +130,8 @@ in
           template = "cardata";
           clientid = "\${BMW_CLIENTID}";
           vin = "\${BMW_VIN}";
-          capacity = 76.6;
+          # usable capacity (76.6 kWh gross)
+          capacity = 71;
           streaming = true;
         }
       ];
@@ -139,10 +147,26 @@ in
           type = "fixed";
           price = 0.0877;
         };
+        solar = [
+          {
+            type = "template";
+            template = "open-meteo";
+            lat = 52.396;
+            lon = 13.293;
+            # 24 x 310 Wp on the south-east roof (131 deg compass, 0 = south)
+            kwp = 7.44;
+            dec = 22;
+            az = -49;
+            # Fronius Symo 7.0-3-M AC limit
+            ac = 7.0;
+          }
+        ];
       };
 
       site = {
         title = "Mares Home";
+        # Keep ~100 W export as buffer while following PV surplus
+        residualPower = 100;
         meters = {
           grid = "fronius_smart_meter";
           pv = [ "fronius_symo_inverter" ];
