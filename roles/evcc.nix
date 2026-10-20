@@ -157,8 +157,8 @@ in
             kwp = 7.44;
             dec = 22;
             az = -49;
-            # Fronius Symo 7.0-3-M AC limit
-            ac = 7.0;
+            # Fronius Symo 7.0-3-M: measured output caps at ~6.74 kW (no feed-in limit set)
+            ac = 6.75;
           }
         ];
       };
