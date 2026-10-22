@@ -14,7 +14,8 @@ let
     profiles.system = {
       sshUser = nodeCfg.user;
       user = "root";
-      fastConnection = true;
+      # Let targets substitute public paths from the binary cache instead of copying everything over SSH
+      fastConnection = false;
       path =
         inputs.deploy-rs.lib.${nodeCfg.system}.activate.nixos
           config.flake.nixosConfigurations.${name};
