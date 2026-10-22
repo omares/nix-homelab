@@ -41,7 +41,7 @@ let
       port = 8080;
       https_port = "";
       bandwidth_max = "14M";
-      cache_limit = "978.8 M";
+      cache_limit = "500M";
       web_dir = "Glitter";
       web_color = "Auto";
       https_cert = null;

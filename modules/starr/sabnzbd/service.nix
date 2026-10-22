@@ -23,6 +23,12 @@ in
       after = [
         "sops-nix.service"
       ];
+
+      # Memory grows over weeks until the OOM killer stops it; come back up instead of staying down
+      serviceConfig = {
+        Restart = "on-failure";
+        RestartSec = "30s";
+      };
     };
   };
 }
