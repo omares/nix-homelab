@@ -21,6 +21,7 @@ in
     services.govee2mqtt = {
       enable = true;
       inherit (cfg) environmentFile;
+      extraArgs = [ "--http-port=${toString cfg.httpPort}" ];
     };
 
     systemd.services.govee2mqtt = {
@@ -36,6 +37,9 @@ in
       };
     };
 
-    networking.firewall.allowedUDPPorts = lib.mkIf cfg.openFirewall [ 4002 ];
+    networking.firewall = lib.mkIf cfg.openFirewall {
+      allowedUDPPorts = [ 4002 ];
+      allowedTCPPorts = [ cfg.httpPort ];
+    };
   };
 }

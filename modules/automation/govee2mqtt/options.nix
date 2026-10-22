@@ -42,10 +42,16 @@ in
       description = "Device IPs to query directly, needed when multicast discovery does not reach the devices (e.g., across VLANs).";
     };
 
+    httpPort = mkOption {
+      type = types.port;
+      default = 8056;
+      description = "Port of the govee2mqtt web UI.";
+    };
+
     openFirewall = mkOption {
       type = types.bool;
       default = true;
-      description = "Open UDP 4002 for Govee LAN API responses.";
+      description = "Open UDP 4002 for Govee LAN API responses and the web UI port.";
     };
   };
 }

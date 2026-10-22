@@ -498,6 +498,11 @@ in
         dns = {
           vlan = "vm";
         };
+
+        proxy = {
+          port = 8056;
+          subdomains = [ "govee" ];
+        };
       };
 
       unifi = {
