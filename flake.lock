@@ -83,11 +83,11 @@
         "sops-nix": "sops-nix"
       },
       "locked": {
-        "lastModified": 1792359075,
-        "narHash": "sha256-+uDwrD1q6Epfiid3hF3zHFf2sW97pbiGQxH4MIKCrBk=",
+        "lastModified": 1792697780,
+        "narHash": "sha256-pkvho/GGg0wIpiS/fDxkxHwTVAj2xdHC2KeEgX9rkC4=",
         "ref": "refs/heads/main",
-        "rev": "6c4f5995702e201da7b383e8d66692a58c5ed3c4",
-        "revCount": 52,
+        "rev": "b3ffa7bcd0f9aea143eb611818542ae8c4c651a5",
+        "revCount": 53,
         "type": "git",
         "url": "ssh://git@github.com/omares/nix-sops-vault.git"
       },
