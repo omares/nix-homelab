@@ -49,21 +49,6 @@ let
     [Asserts]
     jsonpath "$.status" == "ok"
 
-    # Install Apps
-    POST http://127.0.0.1:5380/api/apps/downloadAndInstall
-    [FormParams]
-    token: {{token}}
-    name: Advanced Blocking
-    url: https://download.technitium.com/dns/apps/AdvancedBlockingApp-v9.1.zip
-    HTTP *
-
-    POST http://127.0.0.1:5380/api/apps/downloadAndInstall
-    [FormParams]
-    token: {{token}}
-    name: Query Logs (Sqlite)
-    url: https://download.technitium.com/dns/apps/QueryLogsSqliteApp-v8.zip
-    HTTP *
-
     # Create ${cfg.zone} Zone
     POST http://127.0.0.1:5380/api/zones/create
     [FormParams]
@@ -193,9 +178,13 @@ let
     ${configEntries}
   '';
 
-  # Manual re-runs: login with custom password, apply config
-  provisionedAccountHurl = pkgs.writeText "provisioned-account.hurl" ''
-    # Login with custom password
+  # Versions must match the server version, see https://go.technitium.com/?id=44
+  apps = {
+    "Advanced Blocking" = "https://download.technitium.com/dns/apps/AdvancedBlockingApp-v11.2.1.zip";
+    "Query Logs (Sqlite)" = "https://download.technitium.com/dns/apps/QueryLogsSqliteApp-v9.1.3.zip";
+  };
+
+  provisionedLogin = ''
     POST http://127.0.0.1:5380/api/user/login
     [FormParams]
     user: admin
@@ -205,7 +194,35 @@ let
     token: jsonpath "$.token"
     [Asserts]
     jsonpath "$.status" == "ok"
+  '';
 
+  loginCheckHurl = pkgs.writeText "login-check.hurl" provisionedLogin;
+
+  # Update fails if the app is missing and install fails if it exists, so both run and either may fail
+  appsHurl = pkgs.writeText "apps.hurl" ''
+    ${provisionedLogin}
+    ${lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (name: url: ''
+        POST http://127.0.0.1:5380/api/apps/downloadAndUpdate
+        [FormParams]
+        token: {{token}}
+        name: ${name}
+        url: ${url}
+        HTTP *
+
+        POST http://127.0.0.1:5380/api/apps/downloadAndInstall
+        [FormParams]
+        token: {{token}}
+        name: ${name}
+        url: ${url}
+        HTTP *
+      '') apps
+    )}
+  '';
+
+  # Manual re-runs: login with custom password, apply config
+  provisionedAccountHurl = pkgs.writeText "provisioned-account.hurl" ''
+    ${provisionedLogin}
     ${configEntries}
   '';
 
@@ -222,14 +239,19 @@ let
     done
     echo "Technitium API ready"
 
-    # Try provisioned account, if fails run bootstrap (first boot)
-    if ${lib.getExe pkgs.hurl} --secrets-file "$SECRETS" ${provisionedAccountHurl}; then
+    # Bootstrap only when the provisioned password does not work yet (first boot)
+    if ${lib.getExe pkgs.hurl} --secrets-file "$SECRETS" ${loginCheckHurl} >/dev/null; then
+      ${lib.getExe pkgs.hurl} --secrets-file "$SECRETS" ${provisionedAccountHurl}
       echo "Configuration applied successfully"
     else
       echo "First boot detected, running setup..."
       ${lib.getExe pkgs.hurl} --secrets-file "$SECRETS" ${bootstrapAccountHurl}
       echo "Setup completed successfully"
     fi
+
+    # Apps are downloaded from download.technitium.com, which can be slow; never block DNS config on it
+    ${lib.getExe pkgs.hurl} --secrets-file "$SECRETS" --max-time 900 ${appsHurl} >/dev/null \
+      || echo "Warning: installing or updating Technitium apps failed"
   '';
 in
 {
@@ -278,6 +300,7 @@ in
       restartTriggers = [
         bootstrapAccountHurl
         provisionedAccountHurl
+        appsHurl
       ];
     };
   };
