@@ -4,9 +4,9 @@
 {
   services.resolved = {
     enable = true;
-    dnssec = "false";
-    extraConfig = ''
-      DNSStubListener=no
-    '';
+    settings.Resolve = {
+      DNSSEC = false;
+      DNSStubListener = false;
+    };
   };
 }
