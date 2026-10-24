@@ -443,23 +443,7 @@ let
         ];
     };
 
-    exportarr = {
-      # Unified "Media Dashboard" from exportarr GitHub repo
-      # Covers: Prowlarr, Sabnzbd, Radarr, Sonarr, Lidarr, Readarr
-      url = "https://raw.githubusercontent.com/onedr0p/exportarr/86a455425ab5299a36b85c14d881c51b05aa2629/examples/grafana/dashboard2.json";
-      sha256 = "0sgry76hl5qp9fnz9picmyns5b59kyvn7m41zx2vgspfad85ypmh";
-      transform =
-        dashboard:
-        lib.pipe dashboard [
-          (dashLib.setUid "exportarr")
-          (dashLib.replaceDatasources [
-            {
-              key = "DS_PROMETHEUS";
-              value = "prometheus-main";
-            }
-          ])
-        ];
-    };
+    exportarr.dashboard = import ./dashboards/media.nix { inherit lib; };
 
     prometheus-stats = {
       id = 2;

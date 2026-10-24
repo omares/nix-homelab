@@ -55,7 +55,14 @@ rec {
     {
       inherit id title datasource;
       type = "stat";
-      gridPos = { inherit x y w h; };
+      gridPos = {
+        inherit
+          x
+          y
+          w
+          h
+          ;
+      };
       targets =
         if queries != null then
           targets { instant = true; } queries

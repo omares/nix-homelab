@@ -11,8 +11,7 @@ let
 
   # Matches both the old "prometheus.scrape.<app>" and the plain "<app>" job names
   appLabel =
-    expr:
-    "label_replace(${expr}, \"app\", \"$1\", \"job\", \".*?(radarr|sonarr|prowlarr|sabnzbd)\")";
+    expr: "label_replace(${expr}, \"app\", \"$1\", \"job\", \".*?(radarr|sonarr|prowlarr|sabnzbd)\")";
   healthIssues = "radarr_system_health_issues or sonarr_system_health_issues or prowlarr_system_health_issues";
 
   upDown = [
@@ -41,13 +40,15 @@ let
     ]
   ];
 
-  appStat = id: x: title: expr: mkStat {
-    inherit id x title;
-    w = 3;
-    expr = "${expr} or vector(0)";
-    thresholds = upThresholds;
-    mappings = upDown;
-  };
+  appStat =
+    id: x: title: expr:
+    mkStat {
+      inherit id x title;
+      w = 3;
+      expr = "${expr} or vector(0)";
+      thresholds = upThresholds;
+      mappings = upDown;
+    };
 
   libraryStat =
     id: x: title: queries:
@@ -99,16 +100,19 @@ in
         text = "month";
         value = "month";
       };
-      options = map (p: {
-        text = p;
-        value = p;
-        selected = p == "month";
-      }) [
-        "day"
-        "week"
-        "month"
-        "total"
-      ];
+      options =
+        map
+          (p: {
+            text = p;
+            value = p;
+            selected = p == "month";
+          })
+          [
+            "day"
+            "week"
+            "month"
+            "total"
+          ];
     }
   ];
 
