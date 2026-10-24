@@ -278,7 +278,7 @@ let
     exportarr = {
       # Unified "Media Dashboard" from exportarr GitHub repo
       # Covers: Prowlarr, Sabnzbd, Radarr, Sonarr, Lidarr, Readarr
-      url = "https://raw.githubusercontent.com/onedr0p/exportarr/master/examples/grafana/dashboard2.json";
+      url = "https://raw.githubusercontent.com/onedr0p/exportarr/86a455425ab5299a36b85c14d881c51b05aa2629/examples/grafana/dashboard2.json";
       sha256 = "0sgry76hl5qp9fnz9picmyns5b59kyvn7m41zx2vgspfad85ypmh";
       transform =
         dashboard:
@@ -384,6 +384,16 @@ in
   config = lib.mkIf cfg.enable {
     services.grafana = {
       enable = true;
+
+      # Grafana 13 no longer bundles these datasources and would download them at startup
+      declarativePlugins = with pkgs.grafanaPlugins; [
+        prometheus
+        loki
+        influxdb
+        grafana-lokiexplore-app
+        grafana-metricsdrilldown-app
+      ];
+
       settings = {
         server = {
           http_addr = "0.0.0.0";
@@ -394,10 +404,13 @@ in
 
         security = {
           admin_user = "admin";
-          admin_password = lib.mkIf (
-            cfg.adminPasswordFile == null
-          ) "$__file{/var/lib/grafana/admin-password}";
-          admin_password_file = lib.mkIf (cfg.adminPasswordFile != null) cfg.adminPasswordFile;
+          admin_password =
+            if cfg.adminPasswordFile != null then
+              "$__file{/run/credentials/grafana.service/admin-password}"
+            else
+              "$__file{/var/lib/grafana/admin-password}";
+          # Former nixpkgs default; changing it breaks secrets already encrypted in grafana.db
+          secret_key = "SW2YcwTIb9zpOOhoPsMm";
         };
 
         analytics.reporting_enabled = false;
@@ -446,7 +459,8 @@ in
 
     systemd.services.grafana.serviceConfig.LoadCredential = [
       "influxdb-token:${cfg.influxdbTokenFile}"
-    ];
+    ]
+    ++ lib.optional (cfg.adminPasswordFile != null) "admin-password:${cfg.adminPasswordFile}";
 
     systemd.tmpfiles.rules = lib.optional (
       cfg.adminPasswordFile == null
