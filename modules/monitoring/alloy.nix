@@ -64,8 +64,20 @@ let
   alloyConfig = ''
     prometheus.exporter.unix "default" {
       include_exporter_metrics = true
-      disable_collectors = ["mdadm"]
-      enable_collectors  = ["systemd"]
+      // nfs is kept: it only succeeds on hosts with NFS mounts
+      disable_collectors = ["mdadm", "bonding", "fibrechannel", "infiniband", "ipvs", "nfsd", "nvme", "tapestats", "zfs"]
+      enable_collectors  = ["systemd", "tcpstat"]
+
+      // Alloy defaults plus tmpfs/ramfs and the /nix/store bind mount
+      filesystem {
+        fs_types_exclude     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|ramfs|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tmpfs|tracefs)$"
+        mount_points_exclude = "^/(dev|proc|run/credentials/.+|sys|var/lib/docker/.+|nix/store)($|/)"
+      }
+
+      // Alloy default plus CD-ROM drives
+      disk {
+        device_exclude = "^(ram|loop|fd|sr|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
+      }
     }
 
     discovery.relabel "local" {
