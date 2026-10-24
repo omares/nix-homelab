@@ -65,7 +65,7 @@ let
                       type = "loki";
                       uid = "loki-main";
                     };
-                    query = "label_values(job)";
+                    query = ''label_values({host=~"$host"}, job)'';
                     refresh = 1;
                     includeAll = true;
                     allValue = ".+";
@@ -131,37 +131,171 @@ let
               };
             }
           )
-          # Update queries to use new variables: {host=~"$host", job=~"$service", priority=~"$level"}
           (
             d:
+            let
+              datasource = {
+                type = "loki";
+                uid = "loki-main";
+              };
+              selector = ''{host=~"$host", job=~"$service", priority=~"$level"} |~ "(?i)$search"'';
+              levels = [
+                {
+                  priority = "0";
+                  name = "emergency";
+                  color = "dark-red";
+                }
+                {
+                  priority = "1";
+                  name = "alert";
+                  color = "dark-red";
+                }
+                {
+                  priority = "2";
+                  name = "critical";
+                  color = "dark-red";
+                }
+                {
+                  priority = "3";
+                  name = "error";
+                  color = "red";
+                }
+                {
+                  priority = "4";
+                  name = "warning";
+                  color = "orange";
+                }
+                {
+                  priority = "5";
+                  name = "notice";
+                  color = "yellow";
+                }
+                {
+                  priority = "6";
+                  name = "info";
+                  color = "green";
+                }
+                {
+                  priority = "7";
+                  name = "debug";
+                  color = "blue";
+                }
+              ];
+            in
             d
             // {
-              panels = map (
-                panel:
-                if panel ? targets then
-                  panel
-                  // {
-                    targets = map (
-                      target:
-                      if target ? expr then
-                        target
-                        // {
-                          expr =
-                            builtins.replaceStrings
-                              [ ''job="$app"'' ''{job=~"$app"}'' ]
-                              [
-                                ''host=~"$host", job=~"$service", priority=~"$level"''
-                                ''{host=~"$host", job=~"$service", priority=~"$level"}''
-                              ]
-                              target.expr;
+              panels = [
+                {
+                  id = 6;
+                  title = "Log volume by level";
+                  type = "timeseries";
+                  inherit datasource;
+                  gridPos = {
+                    h = 7;
+                    w = 16;
+                    x = 0;
+                    y = 0;
+                  };
+                  targets = [
+                    {
+                      refId = "A";
+                      inherit datasource;
+                      expr = "sum by (priority) (count_over_time(${selector} [$__auto]))";
+                      legendFormat = "{{priority}}";
+                    }
+                  ];
+                  fieldConfig = {
+                    defaults.custom = {
+                      drawStyle = "bars";
+                      fillOpacity = 80;
+                      lineWidth = 0;
+                      stacking.mode = "normal";
+                    };
+                    overrides = map (l: {
+                      matcher = {
+                        id = "byName";
+                        options = l.priority;
+                      };
+                      properties = [
+                        {
+                          id = "displayName";
+                          value = l.name;
                         }
-                      else
-                        target
-                    ) panel.targets;
-                  }
-                else
-                  panel
-              ) d.panels;
+                        {
+                          id = "color";
+                          value = {
+                            mode = "fixed";
+                            fixedColor = l.color;
+                          };
+                        }
+                      ];
+                    }) levels;
+                  };
+                  options = {
+                    legend = {
+                      displayMode = "list";
+                      placement = "right";
+                    };
+                    tooltip.mode = "multi";
+                  };
+                }
+                {
+                  id = 7;
+                  title = "Errors by host / service";
+                  type = "bargauge";
+                  inherit datasource;
+                  gridPos = {
+                    h = 7;
+                    w = 8;
+                    x = 16;
+                    y = 0;
+                  };
+                  targets = [
+                    {
+                      refId = "A";
+                      inherit datasource;
+                      queryType = "instant";
+                      expr = ''topk(10, sum by (host, job) (count_over_time({host=~"$host", job=~"$service", priority=~"[0-3]"} |~ "(?i)$search" [$__range])))'';
+                      legendFormat = "{{host}} / {{job}}";
+                    }
+                  ];
+                  fieldConfig.defaults = {
+                    color.mode = "fixed";
+                    color.fixedColor = "red";
+                  };
+                  options = {
+                    orientation = "horizontal";
+                    displayMode = "basic";
+                    reduceOptions.calcs = [ "lastNotNull" ];
+                  };
+                }
+                {
+                  id = 2;
+                  title = "Logs";
+                  type = "logs";
+                  inherit datasource;
+                  gridPos = {
+                    h = 24;
+                    w = 24;
+                    x = 0;
+                    y = 7;
+                  };
+                  targets = [
+                    {
+                      refId = "A";
+                      inherit datasource;
+                      expr = "${selector} | logfmt | drop __error__, __error_details__";
+                    }
+                  ];
+                  options = {
+                    showTime = true;
+                    showLabels = false;
+                    wrapLogMessage = true;
+                    enableLogDetails = true;
+                    sortOrder = "Descending";
+                  };
+                }
+              ];
             }
           )
         ];
