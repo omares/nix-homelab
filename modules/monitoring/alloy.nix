@@ -65,6 +65,7 @@ let
     prometheus.exporter.unix "default" {
       include_exporter_metrics = true
       disable_collectors = ["mdadm"]
+      enable_collectors  = ["systemd"]
     }
 
     discovery.relabel "local" {
