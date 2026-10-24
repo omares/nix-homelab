@@ -27,6 +27,8 @@ let
       target:
       let
         safeName = builtins.replaceStrings [ "." ] [ "_" ] target;
+        # Cluster data is identical on every node, collect it once to avoid duplicate series
+        cluster = if target == builtins.head cfg.pveTargets then "1" else "0";
       in
       ''
         prometheus.scrape "pve_${safeName}" {
@@ -39,7 +41,7 @@ let
 
           params = {
             "target" = ["${target}"],
-            "cluster" = ["1"],
+            "cluster" = ["${cluster}"],
             "node" = ["1"],
           }
         }
