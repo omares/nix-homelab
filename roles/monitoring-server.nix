@@ -41,6 +41,7 @@
   mares.monitoring.grafana = {
     enable = true;
     adminPasswordFile = config.sops.secrets.grafana-password.path;
+    secretKeyFile = config.sops.secrets.grafana-secret_key.path;
     influxdbTokenFile = config.sops.secrets.influxdb-hass_token.path;
   };
 }

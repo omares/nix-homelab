@@ -374,6 +374,11 @@ in
       description = "Path to file containing admin password (for sops-nix integration)";
     };
 
+    secretKeyFile = lib.mkOption {
+      type = lib.types.path;
+      description = "Path to file containing the key Grafana encrypts secrets in its database with (loaded via systemd LoadCredential).";
+    };
+
     influxdbTokenFile = lib.mkOption {
       type = lib.types.path;
       description = "Path to file containing InfluxDB token (loaded via systemd LoadCredential).";
@@ -409,8 +414,7 @@ in
               "$__file{/run/credentials/grafana.service/admin-password}"
             else
               "$__file{/var/lib/grafana/admin-password}";
-          # Former nixpkgs default; changing it breaks secrets already encrypted in grafana.db
-          secret_key = "SW2YcwTIb9zpOOhoPsMm";
+          secret_key = "$__file{/run/credentials/grafana.service/secret-key}";
         };
 
         analytics.reporting_enabled = false;
@@ -459,6 +463,7 @@ in
 
     systemd.services.grafana.serviceConfig.LoadCredential = [
       "influxdb-token:${cfg.influxdbTokenFile}"
+      "secret-key:${cfg.secretKeyFile}"
     ]
     ++ lib.optional (cfg.adminPasswordFile != null) "admin-password:${cfg.adminPasswordFile}";
 
