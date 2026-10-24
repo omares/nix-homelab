@@ -12,9 +12,14 @@ let
   extraScrapeConfigs = lib.concatMapStringsSep "\n" (target: ''
     prometheus.scrape "${target.job}" {
       targets = [
-        ${lib.concatMapStringsSep ",\n      " (t: ''{"__address__" = "${t}"}'') target.targets},
+        ${
+          lib.concatMapStringsSep ",\n      " (
+            t: ''{"__address__" = "${t}", "instance" = "${hostname}"}''
+          ) target.targets
+        },
       ]
       forward_to = [prometheus.remote_write.default.receiver]
+      job_name   = "${target.job}"
 
       scrape_interval = "15s"
     }
