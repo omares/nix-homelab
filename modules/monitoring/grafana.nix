@@ -478,22 +478,7 @@ let
         ];
     };
 
-    proxmox = {
-      id = 10347;
-      version = 5;
-      sha256 = "1zwfhp312yxv5jm1js6vsnd46f5ph0np86c47dbdc3xg3d9m4yxc";
-      transform =
-        dashboard:
-        lib.pipe dashboard [
-          (dashLib.setUid "proxmox")
-          (dashLib.replaceDatasources [
-            {
-              key = "DS_PROMETHEUS";
-              value = "prometheus-main";
-            }
-          ])
-        ];
-    };
+    proxmox.dashboard = import ./dashboards/proxmox.nix { inherit lib; };
 
   };
 
@@ -501,7 +486,9 @@ let
     name: dashCfg:
     let
       dashboardPath =
-        if dashCfg ? id then
+        if dashCfg ? dashboard then
+          builtins.toFile "${name}.json" (builtins.toJSON dashCfg.dashboard)
+        else if dashCfg ? id then
           dashLib.fetchDashboard {
             inherit name;
             inherit (dashCfg) id version sha256;
@@ -515,7 +502,7 @@ let
     dashLib.dashboardEntry {
       inherit name;
       path = dashboardPath;
-      inherit (dashCfg) transform;
+      transform = dashCfg.transform or null;
     };
 
   dashboardProviders = lib.mapAttrsToList mkDashboardProvider dashboardConfigs;

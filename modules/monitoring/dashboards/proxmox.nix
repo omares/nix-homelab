@@ -8,7 +8,9 @@ let
   # Every series is wrapped in max by (...) so overlapping scrape targets never double count
   guestInfo = "max by (id, name) (pve_guest_info{node=~\"$node\", template=\"0\"})";
   byGuest = expr: "max by (name) ((${expr}) * on (id) group_left (name) ${guestInfo})";
-  byNode = metric: "max by (node) (label_replace(${metric}{id=~\"node/($node)\"}, \"node\", \"$1\", \"id\", \"node/(.+)\"))";
+  byNode =
+    metric:
+    "max by (node) (label_replace(${metric}{id=~\"node/($node)\"}, \"node\", \"$1\", \"id\", \"node/(.+)\"))";
 
   storageLabels =
     expr:
@@ -18,11 +20,13 @@ let
     "max by (id, node, storage) (${storageLabels "pve_disk_usage_bytes{id=~\"${idRegex}\"}"}) / max by (id, node, storage) (${storageLabels "pve_disk_size_bytes{id=~\"${idRegex}\"}"})";
   sharedStorage = "(max by (id) (pve_storage_shared) == 1)";
 
-  target = expr: extra: {
-    refId = "A";
-    inherit datasource expr;
-  }
-  // extra;
+  target =
+    expr: extra:
+    {
+      refId = "A";
+      inherit datasource expr;
+    }
+    // extra;
 
   steps = list: {
     mode = "absolute";
@@ -354,10 +358,13 @@ in
       inherit datasource;
       gridPos = half 0 12;
       targets = [
-        (target "max by (node, storage) (${storageRatio "storage/($node)/.+"} unless on (id) ${sharedStorage})" {
-          instant = true;
-          legendFormat = "{{node}}/{{storage}}";
-        })
+        (target
+          "max by (node, storage) (${storageRatio "storage/($node)/.+"} unless on (id) ${sharedStorage})"
+          {
+            instant = true;
+            legendFormat = "{{node}}/{{storage}}";
+          }
+        )
         (target "max by (storage) (${storageRatio "storage/.+"} and on (id) ${sharedStorage})" {
           refId = "B";
           instant = true;
