@@ -1,9 +1,15 @@
 { lib }:
 let
-  datasource = {
-    type = "prometheus";
-    uid = "prometheus-main";
-  };
+  inherit (import ./lib.nix { inherit lib; })
+    datasource
+    target
+    steps
+    mkStat
+    mkTimeseries
+    mkTable
+    half
+    third
+    ;
 
   # Every series is wrapped in max by (...) so overlapping scrape targets never double count
   guestInfo = "max by (id, name) (pve_guest_info{node=~\"$node\", template=\"0\"})";
@@ -20,154 +26,6 @@ let
     "max by (id, node, storage) (${storageLabels "pve_disk_usage_bytes{id=~\"${idRegex}\"}"}) / max by (id, node, storage) (${storageLabels "pve_disk_size_bytes{id=~\"${idRegex}\"}"})";
   sharedStorage = "(max by (id) (pve_storage_shared) == 1)";
 
-  target =
-    expr: extra:
-    {
-      refId = "A";
-      inherit datasource expr;
-    }
-    // extra;
-
-  steps = list: {
-    mode = "absolute";
-    steps = map (s: {
-      color = builtins.elemAt s 0;
-      value = builtins.elemAt s 1;
-    }) list;
-  };
-
-  mkStat =
-    {
-      id,
-      title,
-      x,
-      w,
-      expr,
-      thresholds,
-      mappings ? [ ],
-      textMode ? "value",
-      legendFormat ? "",
-    }:
-    {
-      inherit id title datasource;
-      type = "stat";
-      gridPos = {
-        h = 4;
-        y = 0;
-        inherit x w;
-      };
-      targets = [
-        (target expr {
-          instant = true;
-          inherit legendFormat;
-        })
-      ];
-      fieldConfig = {
-        defaults = {
-          thresholds = steps thresholds;
-          inherit mappings;
-        };
-        overrides = [ ];
-      };
-      options = {
-        colorMode = "background";
-        graphMode = "none";
-        inherit textMode;
-        reduceOptions.calcs = [ "lastNotNull" ];
-      };
-    };
-
-  mkTimeseries =
-    {
-      id,
-      title,
-      gridPos,
-      expr,
-      legendFormat,
-      unit,
-      max ? null,
-    }:
-    {
-      inherit
-        id
-        title
-        datasource
-        gridPos
-        ;
-      type = "timeseries";
-      targets = [ (target expr { inherit legendFormat; }) ];
-      fieldConfig = {
-        defaults = {
-          inherit unit;
-          min = 0;
-          custom = {
-            fillOpacity = 10;
-            lineWidth = 1;
-          };
-        }
-        // lib.optionalAttrs (max != null) { inherit max; };
-        overrides = [ ];
-      };
-      options = {
-        legend = {
-          displayMode = "list";
-          placement = "bottom";
-        };
-        tooltip.mode = "multi";
-      };
-    };
-
-  mkTable =
-    {
-      id,
-      title,
-      gridPos,
-      expr,
-      exclude,
-      overrides ? [ ],
-    }:
-    {
-      inherit
-        id
-        title
-        datasource
-        gridPos
-        ;
-      type = "table";
-      targets = [
-        (target expr {
-          format = "table";
-          instant = true;
-        })
-      ];
-      transformations = [
-        {
-          id = "organize";
-          options.excludeByName = lib.genAttrs exclude (_: true);
-        }
-      ];
-      fieldConfig = {
-        defaults = { };
-        inherit overrides;
-      };
-      options.sortBy = [
-        {
-          displayName = "name";
-          desc = false;
-        }
-      ];
-    };
-
-  half = x: y: {
-    h = 8;
-    w = 12;
-    inherit x y;
-  };
-  third = x: y: {
-    h = 8;
-    w = 8;
-    inherit x y;
-  };
 in
 {
   uid = "proxmox";

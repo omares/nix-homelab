@@ -16,6 +16,7 @@ NC='\033[0m'
 VERBOSITY=0
 DEPLOY_ALL=false
 INIT_MODE=false
+BOOT_MODE=false
 SHOW_COMPLETION=false
 GET_NODES=false
 GET_TAGS=false
@@ -27,6 +28,7 @@ show_help() {
   echo ""
   echo "Options:"
   echo "  -i, --init     First-time deployment (prompts for sudo password)"
+  echo "  -b, --boot     Activate on next boot instead of switching now"
   echo "  -v             Verbose (nix -v)"
   echo "  -vv            Very verbose (nix -vv, deploy-rs debug)"
   echo "  -vvv           Maximum verbosity (nix -vvv, deploy-rs debug)"
@@ -45,6 +47,7 @@ show_help() {
   echo "  d -v tag infra          Verbose deploy"
   echo "  d -vvv dns-01           Maximum verbosity"
   echo "  d --init mqtt-01        First-time deploy (interactive sudo)"
+  echo "  d --boot tag starr      Deploy, activate after reboot"
 }
 
 # Get all node names from flake
@@ -79,6 +82,7 @@ deploy_target() {
   local deploy_args="-s"
 
   [[ $INIT_MODE == true ]] && deploy_args="$deploy_args --interactive-sudo true"
+  [[ $BOOT_MODE == true ]] && deploy_args="$deploy_args --boot"
   [[ $VERBOSITY -ge 1 ]] && nix_args="-v"
   [[ $VERBOSITY -ge 2 ]] && nix_args="-vv" && deploy_args="$deploy_args -d"
   [[ $VERBOSITY -ge 3 ]] && nix_args="-vvv"
@@ -145,7 +149,7 @@ _d() {
   local script_path="/Users/ota/development/omares/nix-proxmox/bin/d"
   tags=($($script_path --get-tags 2>/dev/null))
   nodes=($($script_path --get-nodes 2>/dev/null))
-  flags=(-i --init -v -vv -vvv -a --all -h --help --completion --get-nodes --get-tags)
+  flags=(-i --init -b --boot -v -vv -vvv -a --all -h --help --completion --get-nodes --get-tags)
 
   # Check if we're completing after 'tag' command
   if [[ ${words[CURRENT-1]} == "tag" ]]; then
@@ -162,6 +166,8 @@ _d() {
   _arguments -C \
     '-i[First-time deployment (prompts for sudo password)]' \
     '--init[First-time deployment (prompts for sudo password)]' \
+    '-b[Activate on next boot]' \
+    '--boot[Activate on next boot]' \
     '-v[Verbose (nix -v)]' \
     '-vv[Very verbose (nix -vv)]' \
     '-vvv[Maximum verbosity (nix -vvv)]' \
@@ -204,6 +210,7 @@ while [[ $# -gt 0 ]]; do
     -vv)        VERBOSITY=2; shift ;;
     -v)         VERBOSITY=1; shift ;;
     -i|--init)  INIT_MODE=true; shift ;;
+    -b|--boot)  BOOT_MODE=true; shift ;;
     -a|--all)   DEPLOY_ALL=true; shift ;;
     --completion) SHOW_COMPLETION=true; shift ;;
     --get-nodes) GET_NODES=true; shift ;;
