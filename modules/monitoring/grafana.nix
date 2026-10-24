@@ -16,7 +16,41 @@ let
       id = 1860;
       version = 37;
       sha256 = "0qza4j8lywrj08bqbww52dgh2p2b9rkhq5p313g72i57lrlkacfl";
-      transform = dashLib.setUid "node-exporter-full";
+      transform =
+        dashboard:
+        let
+          # Panels without data on Proxmox VMs or with upstream bugs:
+          # Hardware Misc row, guest CPU, cpufreq, interrupts detail, process_* panels,
+          # NIC speed (virtio reports -1), IP forwarding (irate on a gauge)
+          dropIds = [
+            304
+            319
+            321
+            259
+            308
+            64
+            149
+            280
+            81
+          ];
+          # node_network_up has no operstate label
+          fixExpr =
+            builtins.replaceStrings
+              [ ''node_network_up{operstate="up",'' ]
+              [ ''node_network_info{operstate="up",'' ];
+          fixPanel =
+            panel:
+            panel
+            // lib.optionalAttrs (panel ? targets) {
+              targets = map (t: t // lib.optionalAttrs (t ? expr) { expr = fixExpr t.expr; }) panel.targets;
+            }
+            // lib.optionalAttrs (panel ? panels) { panels = cleanPanels panel.panels; };
+          cleanPanels = panels: map fixPanel (builtins.filter (p: !(builtins.elem p.id dropIds)) panels);
+        in
+        lib.pipe dashboard [
+          (dashLib.setUid "node-exporter-full")
+          (d: d // { panels = cleanPanels d.panels; })
+        ];
     };
 
     loki-logs = {
