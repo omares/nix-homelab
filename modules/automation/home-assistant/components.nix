@@ -20,7 +20,15 @@ let
     syr-connect = pkgs.callPackage ../../../packages/home-assistant/syr-connect.nix {
       inherit (pythonPackages) pycryptodomex defusedxml babel;
     };
-    scrypted = pkgs.callPackage ../../../packages/home-assistant/scrypted.nix { };
+    scrypted = pkgs.callPackage ../../../packages/home-assistant/scrypted.nix {
+      inherit (pythonPackages)
+        buildPythonPackage
+        fetchPypi
+        aiodns
+        aiohttp
+        python-engineio
+        ;
+    };
     homeconnect-local = pkgs.callPackage ../../../packages/home-assistant/homeconnect-local.nix {
       inherit (pythonPackages)
         buildPythonPackage
@@ -108,6 +116,8 @@ let
     (optional "fronius" "fronius")
     (optional "samsung-tv" "samsungtv")
     (optional "roborock" "roborock")
+    # ha_scrypted serves NVR clips through stream
+    (optional "scrypted" "stream")
   ];
 
   # Lovelace modules
