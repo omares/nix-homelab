@@ -37,6 +37,7 @@ in
     owner = "hass";
     group = "hass";
     mode = "0400";
+    restartUnits = [ "home-assistant.service" ];
   };
 
   mares.home-assistant = {
