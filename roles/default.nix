@@ -1,5 +1,6 @@
 {
   inputs,
+  config,
   ...
 }:
 
@@ -20,7 +21,10 @@
     ../modules/users
   ];
 
-  sops-vault.items = [ "atuin" ];
+  sops-vault.items = [ "all" ];
+
+  sops.secrets.users-omares_password.neededForUsers = true;
+  users.users.omares.hashedPasswordFile = config.sops.secrets.users-omares_password.path;
 
   # On the first boot, cloud-init manages the network setup to retrieve a proper DHCP address.
   # After applying any role (which always includes this default) to the node,

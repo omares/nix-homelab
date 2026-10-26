@@ -10,10 +10,6 @@ in
     ./atuin
   ];
 
-  sops-vault.items = [
-    "atuin"
-  ];
-
   sops.secrets = {
     atuin_password = {
       owner = owner;

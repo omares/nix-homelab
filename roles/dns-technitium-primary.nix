@@ -21,7 +21,6 @@ in
   ];
 
   sops-vault.items = [
-    "atuin"
     "easydns"
     "technitium"
   ];
