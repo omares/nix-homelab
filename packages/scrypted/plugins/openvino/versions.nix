@@ -5,29 +5,52 @@
   # npm integrity hash
   hash = "sha512-31Zkx8DtjFe3F6qDxqoIvpO3nGPrBOTgMp6VNbr5+4rMtaN0tm22Bay3YtMFPjYAKJVDMPvqb3jjFROCcbDrQQ==";
 
-  # OpenVINO Python package (from Scrypted requirements.txt)
-  openvinoVersion = "2024.5.0";
-  openvinoWheelBuild = "17288";
-  openvinoHashes = {
-    x86_64-linux = "sha256:a1b9de4ae4cd71dc9c2af53a7e347782dc9dd0ce469cf71aa3526daebe9e22bb";
-    aarch64-linux = "sha256:3ead7bed64a32d7fa186e707acf8e4a79974d40fc750322ee36487c9c1171eed";
+  # PyPI wheels resolved from the plugin's requirements.txt
+  wheels = {
+    numpy = {
+      version = "2.1.3";
+      url = "https://files.pythonhosted.org/packages/9e/3e/3757f304c704f2f0294a6b8340fcf2be244038be07da4cccf390fa678a9f/numpy-2.1.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl";
+      hash = "sha256-IxKyqonh9D7OptpuqagQ0GquCDIWCdjcDQ7abZRqVBs=";
+    };
+    openvino = {
+      version = "2024.5.0";
+      url = "https://files.pythonhosted.org/packages/8f/d1/b29864a78aca421ccba1361d06fef76935cdee96b9bcca3dd43128a2d9b8/openvino-2024.5.0-17288-cp312-cp312-manylinux2014_x86_64.whl";
+      hash = "sha256-obneSuTNcdycKvU6fjR3gtyd0M5GnPcao1Jtrr6eIrs=";
+    };
+    openvino-telemetry = {
+      version = "2025.2.0";
+      url = "https://files.pythonhosted.org/packages/3b/ac/5ab0ca0aa269ad3c73f7bfc3801b10e5f56f75a31bf68c1ae8bd51cf70a4/openvino_telemetry-2025.2.0-py3-none-any.whl";
+      hash = "sha256-vLZn6DpE8gLs9M+kkoFxXG1+IUmdrsBP+FO3+WSDNZk=";
+    };
+    opencv-python-headless = {
+      version = "4.10.0.84";
+      url = "https://files.pythonhosted.org/packages/d1/09/248f86a404567303cdf120e4a301f389b68e3b18e5c0cc428de327da609c/opencv_python_headless-4.10.0.84-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl";
+      hash = "sha256-N30Ip+SKFAW16Er8vkeYRkzn7hcIHBwjYZyLOY/xgpU=";
+    };
+    transformers = {
+      version = "5.2.0";
+      url = "https://files.pythonhosted.org/packages/4e/93/79754b0ca486e556c2b95d4f5afc66aaf4b260694f3d6e1b51da2d036691/transformers-5.2.0-py3-none-any.whl";
+      hash = "sha256-nsryQ9xFvuEafZP4yvA3RqzMDLBpGBu/SthWbFPoVLQ=";
+    };
+    huggingface-hub = {
+      version = "1.33.0";
+      url = "https://files.pythonhosted.org/packages/fc/16/963096d224b80909432dc16561a615fd33d2d13beef3ce4c63fa25e40867/huggingface_hub-1.33.0-py3-none-any.whl";
+      hash = "sha256-BOQ0sG4QDt286aboF9cmk6eISxCnm9Z6tICA1cB+uJk=";
+    };
+    tokenizers = {
+      version = "0.22.2";
+      url = "https://files.pythonhosted.org/packages/2e/76/932be4b50ef6ccedf9d3c6639b056a967a86258c6d9200643f01269211ca/tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl";
+      hash = "sha256-NpzJ/IzBDLJBQ4c6DZVDi7juJXu4DHGYnj7ikOjXLGc=";
+    };
+    safetensors = {
+      version = "0.8.0";
+      url = "https://files.pythonhosted.org/packages/28/50/f203ff3a3ddfe19308efc83c5a3a29ed02bf786732ec35e68bf9162f3365/safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl";
+      hash = "sha256-/W8/k8mgp8wniO5j+3YzU9S9LomwdRvHj8992gC+p3Q=";
+    };
+    hf-xet = {
+      version = "1.7.0";
+      url = "https://files.pythonhosted.org/packages/a3/4c/2bf3b66c215d409655f28de1622393dde04c9461280d48c7924bb3b2decd/hf_xet-1.7.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl";
+      hash = "sha256-KBSm6ZnRNGTE1nm3iMxdeE61pO38Y4ox8Q6aEatTHvg=";
+    };
   };
-
-  # openvino-telemetry dependency
-  openvinoTelemetryVersion = "2025.2.0";
-  openvinoTelemetryHash = "sha256-vLZn6DpE8gLs9M+kkoFxXG1+IUmdrsBP+FO3+WSDNZk=";
-
-  # numpy override (openvino 2024.5.0 requires numpy<2.2.0)
-  numpyVersion = "2.1.3";
-  numpyHashes = {
-    x86_64-linux = "sha256:2312b2aa89e1f43ecea6da6ea9a810d06aae08321609d8dc0d0eda6d946a541b";
-    aarch64-linux = "sha256:8637dcd2caa676e475503d1f8fdb327bc495554e10838019651b76d17b98e512";
-  };
-  numpyWheelPlatforms = {
-    x86_64-linux = "manylinux_2_17_x86_64.manylinux2014_x86_64";
-    aarch64-linux = "manylinux_2_17_aarch64.manylinux2014_aarch64";
-  };
-
-  # HuggingFace models (scrypted/plugin-models, openai/clip-vit-base-patch32, koushd/clip)
-  modelsHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
 }

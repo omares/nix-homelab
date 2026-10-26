@@ -1,117 +1,80 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p curl jq nix nurl coreutils
+#!nix-shell -i bash -p curl jq uv unzip nix gnutar gzip coreutils
 
 # Update script for scrypted-plugin-openvino
-# Regenerates versions.nix with latest versions from upstream sources.
+# Regenerates versions.nix: the latest plugin from npm plus the PyPI wheels pinned by the
+# plugin's own requirements.txt, resolved for Python 3.12 on x86_64 Linux.
 #
-# Usage: ./update.sh [--system <system>]
-#
-# Options:
-#   --system <system>   Target system for models hash (e.g., x86_64-linux)
-#                       Useful on macOS to use a remote Linux builder
+# Usage: ./update.sh
 
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-# Parse arguments
-TARGET_SYSTEM=""
-while [[ $# -gt 0 ]]; do
-  case $1 in
-    --system)
-      TARGET_SYSTEM="$2"
-      shift 2
-      ;;
-    *)
-      echo "Unknown option: $1"
-      exit 1
-      ;;
-  esac
-done
+# Taken from PyPI wheels: everything that depends on numpy (nixpkgs' numpy is too new for
+# openvino) and packages missing from the binary cache. The rest comes from nixpkgs.
+WHEELS=(
+  numpy
+  openvino
+  openvino-telemetry
+  opencv-python-headless
+  transformers
+  huggingface-hub
+  tokenizers
+  safetensors
+  hf-xet
+)
 
-echo "==> Fetching latest versions..."
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
 
-# 1. Plugin version and npm integrity hash
-PLUGIN_INFO=$(curl -s "https://registry.npmjs.org/@scrypted/openvino/latest")
-PLUGIN_VERSION=$(echo "$PLUGIN_INFO" | jq -r '.version')
-PLUGIN_HASH=$(echo "$PLUGIN_INFO" | jq -r '.dist.integrity')
+echo "==> Fetching @scrypted/openvino..."
+PLUGIN_INFO=$(curl -sf "https://registry.npmjs.org/@scrypted/openvino/latest")
+PLUGIN_VERSION=$(jq -r '.version' <<<"$PLUGIN_INFO")
+PLUGIN_HASH=$(jq -r '.dist.integrity' <<<"$PLUGIN_INFO")
+curl -sfL "$(jq -r '.dist.tarball' <<<"$PLUGIN_INFO")" | tar xz -C "$tmp"
+unzip -p "$tmp/package/dist/plugin.zip" requirements.txt >"$tmp/requirements.txt"
 echo "    @scrypted/openvino: $PLUGIN_VERSION"
 
-# 2. OpenVINO version from Scrypted's requirements.txt (uncommented line)
-OPENVINO_VERSION=$(curl -s "https://raw.githubusercontent.com/koush/scrypted/main/plugins/openvino/src/requirements.txt" \
-  | grep -E '^openvino==' | sed 's/openvino==//')
-echo "    OpenVINO: $OPENVINO_VERSION"
+echo "==> Resolving requirements.txt..."
+uv pip compile --quiet --no-header --no-annotate \
+  --python-version 3.12 --python-platform x86_64-manylinux_2_28 \
+  "$tmp/requirements.txt" -o "$tmp/lock.txt"
 
-# 3. OpenVINO wheel info from PyPI
-WHEEL_INFO=$(curl -s "https://pypi.org/pypi/openvino/${OPENVINO_VERSION}/json")
-WHEEL_BUILD=$(echo "$WHEEL_INFO" | jq -r '[.urls[] | select(.filename | test("cp312.*manylinux"))][0].filename' \
-  | grep -oE '[0-9]+-cp312' | sed 's/-cp312//')
-X86_HASH=$(echo "$WHEEL_INFO" | jq -r '.urls[] | select(.filename | test("cp312.*manylinux2014_x86_64")) | .digests.sha256')
-ARM_HASH=$(echo "$WHEEL_INFO" | jq -r '.urls[] | select(.filename | test("cp312.*manylinux_2_31_aarch64")) | .digests.sha256')
-echo "    OpenVINO wheel build: $WHEEL_BUILD"
+wheel_entry() {
+  local name="$1" version file
+  version=$(grep -i "^${name}==" "$tmp/lock.txt" | cut -d= -f3)
+  if [[ -z "$version" ]]; then
+    echo "ERROR: $name is not part of the resolved requirements" >&2
+    exit 1
+  fi
 
-# Validate we got both hashes
-if [ -z "$X86_HASH" ] || [ -z "$ARM_HASH" ]; then
-  echo "ERROR: Could not fetch wheel hashes for OpenVINO $OPENVINO_VERSION"
-  echo "       x86_64-linux: $X86_HASH"
-  echo "       aarch64-linux: $ARM_HASH"
-  exit 1
-fi
+  file=$(curl -sf "https://pypi.org/pypi/${name}/${version}/json" | jq -c '
+    [.urls[] | select(.packagetype == "bdist_wheel")] as $w
+    | ([$w[] | select(.filename | test("-cp312-cp312-manylinux.*x86_64"))]
+      + [$w[] | select(.filename | test("-abi3-manylinux.*x86_64"))]
+      + [$w[] | select(.filename | test("-py3-none-any"))])[0]')
+  if [[ "$file" == "null" ]]; then
+    echo "ERROR: no x86_64 cp312 wheel for $name $version" >&2
+    exit 1
+  fi
 
-# 4. openvino-telemetry from PyPI
-TELEMETRY_INFO=$(curl -s "https://pypi.org/pypi/openvino-telemetry/json")
-TELEMETRY_VERSION=$(echo "$TELEMETRY_INFO" | jq -r '.info.version')
-TELEMETRY_HASH_RAW=$(curl -s "https://pypi.org/pypi/openvino-telemetry/${TELEMETRY_VERSION}/json" \
-  | jq -r '.urls[] | select(.filename | test("py3-none-any")) | .digests.sha256')
-TELEMETRY_HASH=$(nix hash convert --hash-algo sha256 --to sri "$TELEMETRY_HASH_RAW")
-echo "    openvino-telemetry: $TELEMETRY_VERSION"
+  echo "    $name: $version" >&2
+  cat <<EOF
+    ${name} = {
+      version = "${version}";
+      url = "$(jq -r '.url' <<<"$file")";
+      hash = "$(nix hash convert --hash-algo sha256 --to sri "$(jq -r '.digests.sha256' <<<"$file")")";
+    };
+EOF
+}
 
-# 5. numpy override (openvino requires numpy<2.2.0)
-# Find the latest numpy version compatible with openvino's constraint
-NUMPY_COMPAT_VERSION=$(curl -s "https://pypi.org/pypi/numpy/json" \
-  | jq -r '[.releases | keys[] | select(startswith("2.1."))]| sort | last // empty')
-if [ -z "$NUMPY_COMPAT_VERSION" ]; then
-  echo "    Warning: No compatible numpy 2.1.x found, preserving existing"
-  NUMPY_COMPAT_VERSION=$(nix eval --raw -f ./versions.nix numpyVersion 2>/dev/null || echo "2.1.3")
-  NUMPY_HASH_X86=$(nix eval --raw -f ./versions.nix numpyHashes.x86_64-linux 2>/dev/null || echo "")
-  NUMPY_HASH_ARM=$(nix eval --raw -f ./versions.nix numpyHashes.aarch64-linux 2>/dev/null || echo "")
-  NUMPY_PLATFORM_X86=$(nix eval --raw -f ./versions.nix numpyWheelPlatforms.x86_64-linux 2>/dev/null || echo "")
-  NUMPY_PLATFORM_ARM=$(nix eval --raw -f ./versions.nix numpyWheelPlatforms.aarch64-linux 2>/dev/null || echo "")
-else
-  echo "    numpy (compat): $NUMPY_COMPAT_VERSION"
-  NUMPY_INFO=$(curl -s "https://pypi.org/pypi/numpy/${NUMPY_COMPAT_VERSION}/json")
-  NUMPY_HASH_X86_RAW=$(echo "$NUMPY_INFO" | jq -r '.urls[] | select(.filename | test("cp312.*manylinux.*x86_64.*\\.whl")) | .digests.sha256' | head -1)
-  NUMPY_HASH_ARM_RAW=$(echo "$NUMPY_INFO" | jq -r '.urls[] | select(.filename | test("cp312.*manylinux.*aarch64.*\\.whl")) | .digests.sha256' | head -1)
-  NUMPY_WHEEL_X86=$(echo "$NUMPY_INFO" | jq -r '.urls[] | select(.filename | test("cp312.*manylinux.*x86_64.*\\.whl")) | .filename' | head -1)
-  NUMPY_WHEEL_ARM=$(echo "$NUMPY_INFO" | jq -r '.urls[] | select(.filename | test("cp312.*manylinux.*aarch64.*\\.whl")) | .filename' | head -1)
-  # Extract platform tag from wheel filename: numpy-VER-cp312-cp312-<PLATFORM>.whl
-  NUMPY_PLATFORM_X86=$(echo "$NUMPY_WHEEL_X86" | sed 's/.*-cp312-cp312-\(.*\)\.whl/\1/')
-  NUMPY_PLATFORM_ARM=$(echo "$NUMPY_WHEEL_ARM" | sed 's/.*-cp312-cp312-\(.*\)\.whl/\1/')
-  NUMPY_HASH_X86="sha256:$NUMPY_HASH_X86_RAW"
-  NUMPY_HASH_ARM="sha256:$NUMPY_HASH_ARM_RAW"
-fi
+ENTRIES=""
+for name in "${WHEELS[@]}"; do
+  ENTRIES+=$(wheel_entry "$name")$'\n'
+done
 
-# 6. Fetch models hash (downloads ~2GB from HuggingFace)
-echo "==> Fetching models hash (this may take a while)..."
-REPO_ROOT="$(git rev-parse --show-toplevel)"
-
-# Use nurl to compute hash; NIX_CONFIG sets target system for remote builders
-SYSTEM_FOR_HASH="${TARGET_SYSTEM:-x86_64-linux}"
-NURL_EXPR="(builtins.getFlake (toString ${REPO_ROOT})).packages.${SYSTEM_FOR_HASH}.scrypted.plugins.openvino.models"
-
-if MODELS_HASH=$(NIX_CONFIG="system = ${SYSTEM_FOR_HASH}" nurl -e "$NURL_EXPR" 2>/dev/null); then
-  echo "    Models hash: $MODELS_HASH"
-else
-  CURRENT_MODELS_HASH=$(nix eval --raw -f ./versions.nix modelsHash 2>/dev/null || echo "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
-  echo "    Warning: Could not compute models hash"
-  echo "    Preserving existing: $CURRENT_MODELS_HASH"
-  MODELS_HASH="$CURRENT_MODELS_HASH"
-fi
-
-echo ""
-echo "==> Writing versions.nix..."
-
-cat > versions.nix << EOF
+cat >versions.nix <<EOF
 # Auto-generated by update.sh - do not edit manually
 {
   # Plugin version (@scrypted/openvino)
@@ -119,41 +82,12 @@ cat > versions.nix << EOF
   # npm integrity hash
   hash = "$PLUGIN_HASH";
 
-  # OpenVINO Python package (from Scrypted requirements.txt)
-  openvinoVersion = "$OPENVINO_VERSION";
-  openvinoWheelBuild = "$WHEEL_BUILD";
-  openvinoHashes = {
-    x86_64-linux = "sha256:$X86_HASH";
-    aarch64-linux = "sha256:$ARM_HASH";
-  };
-
-  # openvino-telemetry dependency
-  openvinoTelemetryVersion = "$TELEMETRY_VERSION";
-  openvinoTelemetryHash = "$TELEMETRY_HASH";
-
-  # numpy override (openvino requires numpy<2.2.0)
-  numpyVersion = "$NUMPY_COMPAT_VERSION";
-  numpyHashes = {
-    x86_64-linux = "$NUMPY_HASH_X86";
-    aarch64-linux = "$NUMPY_HASH_ARM";
-  };
-  numpyWheelPlatforms = {
-    x86_64-linux = "$NUMPY_PLATFORM_X86";
-    aarch64-linux = "$NUMPY_PLATFORM_ARM";
-  };
-
-  # HuggingFace models (scrypted/plugin-models, openai/clip-vit-base-patch32, koushd/clip)
-  modelsHash = "$MODELS_HASH";
+  # PyPI wheels resolved from the plugin's requirements.txt
+  wheels = {
+${ENTRIES}  };
 }
 EOF
 
-echo "==> Done!"
-echo ""
-echo "Updated versions.nix:"
-echo "  - version: $PLUGIN_VERSION"
-echo "  - hash: $PLUGIN_HASH"
-echo "  - openvinoVersion: $OPENVINO_VERSION"
-echo "  - openvinoWheelBuild: $WHEEL_BUILD"
-echo "  - openvinoTelemetryVersion: $TELEMETRY_VERSION"
-echo "  - numpyVersion: $NUMPY_COMPAT_VERSION"
-echo "  - modelsHash: $MODELS_HASH"
+echo "==> Provided by nixpkgs (resolved versions for comparison):"
+WHEEL_PATTERN=$(printf '%s|' "${WHEELS[@]}")
+grep -viE "^(${WHEEL_PATTERN%|})==" "$tmp/lock.txt" | sed 's/^/    /'
