@@ -151,7 +151,7 @@ in
                 description = "List of roles to apply to the node. Must be NixOS module references";
                 example = ''
                   [
-                    config.flake.nixosModules.role-dns
+                    config.flake.nixosModules.role-dns-technitium-primary
                     config.flake.nixosModules.role-builder
                   ]
                 '';

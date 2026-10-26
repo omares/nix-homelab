@@ -58,51 +58,6 @@ in
         };
       };
 
-      dns-01 = {
-        tags = [
-          "dns"
-          "infra"
-        ];
-        roles = [
-          config.flake.nixosModules.role-dns
-          config.flake.nixosModules.role-proxmox-legacy
-          config.flake.nixosModules.role-atuin-client
-          config.flake.nixosModules.role-monitoring-client
-        ];
-        host = "10.10.22.163";
-
-        dns = {
-          vlan = "vm";
-        };
-
-        proxy = {
-          port = 3000;
-        };
-      };
-
-      dns-02 = {
-        tags = [
-          "dns"
-          "infra"
-        ];
-        roles = [
-          config.flake.nixosModules.role-dns
-          config.flake.nixosModules.role-proxmox-legacy
-          config.flake.nixosModules.role-atuin-client
-          config.flake.nixosModules.role-monitoring-client
-        ];
-        host = "10.10.22.112";
-        system = "aarch64-linux";
-
-        dns = {
-          vlan = "vm";
-        };
-
-        proxy = {
-          port = 3000;
-        };
-      };
-
       dns-03 = {
         tags = [
           "dns"

@@ -193,7 +193,7 @@ Use `d` for deployments:
 ./bin/d .#db-01
 
 # Multiple nodes
-./bin/d dns-01 dns-02
+./bin/d dns-03 dns-04
 
 # Deploy by tag
 ./bin/d tag starr
@@ -205,9 +205,9 @@ Use `d` for deployments:
 ./bin/d --all
 
 # Verbose modes
-./bin/d -v dns-01      # nix -v
-./bin/d -vv dns-01     # nix -vv + deploy-rs debug
-./bin/d -vvv dns-01    # nix -vvv + deploy-rs debug
+./bin/d -v dns-03      # nix -v
+./bin/d -vv dns-03     # nix -vv + deploy-rs debug
+./bin/d -vvv dns-03    # nix -vvv + deploy-rs debug
 ```
 
 Nodes are assigned tags via the `tags` attribute in `modules/infrastructure/nodes.nix`. Tags are used for deployment grouping and feature filtering. A node can have multiple tags.
@@ -266,7 +266,7 @@ Generate an SSH config file for all managed nodes:
 ./bin/ssh-config
 
 # Then connect using just the node name
-ssh dns-01
+ssh dns-03
 ```
 
 The flake also exports `sshConfig` for use in Home Manager:
