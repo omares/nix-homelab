@@ -26,7 +26,7 @@ Required libraries are injected via `LD_LIBRARY_PATH`: `libstdc++` for pip-insta
 **node-pty Patch**
 Scrypted uses `@scrypted/node-pty` which depends on `@scrypted/prebuild-install`. This attempts to download prebuilt binaries during `npm install`, which fails in Nix's sandbox (no network access during build).
 
-The package patches this by replacing `@scrypted/node-pty` with the official `node-pty` package, which uses `node-addon-api` and compiles from source instead of downloading prebuilt binaries.
+The package patches this by installing the official `node-pty` package under the `@scrypted/node-pty` name (npm alias), which uses `node-addon-api` and compiles from source instead of downloading prebuilt binaries. The alias keeps `require("@scrypted/node-pty")` in the server working, which the web terminal needs.
 
 **install.json**
 An `install.json` file is generated containing the package version. Scrypted uses this to detect its installed version and skip self-update checks.

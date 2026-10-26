@@ -39,7 +39,7 @@ in
     hash = "sha256-FssBGdmWuE26Cni8DRSB3sxO+Uee3lgeXnYvIPpXuVc=";
   };
 
-  npmDepsHash = "sha256-lXHJ4UzU3XqWGz2B50m0EMB3EHlF855/j8MPy1TcgN0=";
+  npmDepsHash = "sha256-kZVpjhaAhib1mC2Vk6uQUeZeWaKahgUvsJlczCrzsfo=";
 
   sourceRoot = "${src.name}/server";
 
@@ -49,22 +49,20 @@ in
     moreutils
   ];
 
-  # Replace @scrypted/node-pty with official node-pty.
-  # @scrypted/node-pty depends on @scrypted/prebuild-install which tries to download
-  # prebuilt binaries during npm fetch - this fails in Nix's sandbox.
-  # The official node-pty uses node-addon-api and compiles from source instead.
+  # Install the official node-pty under the @scrypted/node-pty name the server requires.
+  # @scrypted/node-pty depends on @scrypted/prebuild-install, which tries to download prebuilt
+  # binaries during npm install - this fails in Nix's sandbox. node-pty compiles from source.
   postPatch = ''
-    # Patch package.json: replace @scrypted/node-pty with node-pty
     ${lib.getExe jq} --sort-keys \
-      'del(.dependencies["@scrypted/node-pty"]) | .dependencies["node-pty"] = "1.1.0"' \
+      '.dependencies["@scrypted/node-pty"] = "npm:node-pty@1.1.0"' \
       package.json \
       | ${lib.getExe' moreutils "sponge"} package.json
 
-    # Patch package-lock.json: remove @scrypted packages, add node-pty + node-addon-api
     ${lib.getExe jq} --sort-keys '
-      del(.packages["node_modules/@scrypted/node-pty"]) |
+      .packages[""].dependencies["@scrypted/node-pty"] = "npm:node-pty@1.1.0" |
       del(.packages["node_modules/prebuild-install"]) |
-      .packages["node_modules/node-pty"] = {
+      .packages["node_modules/@scrypted/node-pty"] = {
+        "name": "node-pty",
         "version": "1.1.0",
         "resolved": "https://registry.npmjs.org/node-pty/-/node-pty-1.1.0.tgz",
         "integrity": "sha512-20JqtutY6JPXTUnL0ij1uad7Qe1baT46lyolh2sSENDd4sTzKZ4nmAFkeAARDKwmlLjPx6XKRlwRUxwjOy+lUg==",
