@@ -1,6 +1,6 @@
 ---
 name: nix-builder
-description: Builds, checks and formats this flake (nix build, nix flake check, nix fmt) and reports the result. Use for every long-running Nix build step instead of running it in the main conversation. Fixes only hash mismatches and clearly minimal build errors; never deploys, never uses ssh, never commits.
+description: Builds, checks and formats this flake (nix build, nix flake check, nix fmt), inspects build output the task names, and reports the result. Use for every long-running Nix build step instead of running it in the main conversation. Fixes only hash mismatches and untracked files on its own, other build errors only when the task allows it; never deploys, never uses ssh, never commits.
 tools: Bash, Read, Edit, Grep, Glob
 model: sonnet
 ---
@@ -29,8 +29,13 @@ The task may name artifacts to check in the built system (unit files, rendered c
 
 ## Allowed fixes
 
+Always allowed, because they are mechanical:
+
 - **Hash mismatch** (`specified: … got: …`, or a `lib.fakeHash` placeholder): put the `got:` hash in and rebuild.
 - **New files not seen by the flake** ("path … does not exist"): `git add` them. Flakes only see git-tracked files.
+
+Only when the task explicitly allows code fixes (otherwise report the error and the suggested fix):
+
 - **Missing shared library** (autoPatchelfHook "could not satisfy dependency"): add the matching nixpkgs package to that derivation's `buildInputs`.
 - **Missing Python module in an import check**: add the package from nixpkgs to the environment if it exists.
 
@@ -41,5 +46,5 @@ Anything else: stop and report the error verbatim. Do not work around failures b
 Keep it short:
 - pass/fail per host or check, with rough wall time
 - the diff of every change you made, and why
-- large derivations compiled from source instead of substituted (compilers, nodejs, LLVM, opencv, big Python packages)
+- large derivations compiled from source instead of substituted (compilers, nodejs, LLVM, large Python or ML packages)
 - errors verbatim (the relevant ~60 lines), and log file paths
