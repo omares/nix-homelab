@@ -3,8 +3,8 @@
 { mkScryptedPlugin }:
 mkScryptedPlugin {
   pname = "amcrest";
-  version = "0.0.168";
-  hash = "sha512-HjN/jN6mmRYHuxVSla/U+yBO+h+pdvwHxlCq/zryoPCfz5JwXZ/Y1La2Z3xFjuVKhsm3FgtmnwZs4H4MvLC6QA==";
+  version = "0.0.170";
+  hash = "sha512-qVQrMcexq1cAHDuo0dTGJB4mptHmarOwSfpu0laIRvMjAHSXE//RPSsAc/JR+fOKEF5u/UrUxinRZdIcfG7leA==";
   passthru = _finalAttrs: { };
   meta.description = "Amcrest Plugin - Amcrest Plugin for Scrypted";
 }

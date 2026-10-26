@@ -3,8 +3,8 @@
 { mkScryptedPlugin }:
 mkScryptedPlugin {
   pname = "alexa";
-  version = "0.3.7";
-  hash = "sha512-TvD6tNXkUQHJgdFR9sA6sPqhRtFHPP4Sjvfp0bDYMyhwWlTkhwGxq057xZfcyGMnBlz36Ui0/NovU8S+uxFaQA==";
+  version = "0.5.0";
+  hash = "sha512-CdZK/F3PQkumTZGB5gk6DUtMDZFIsH3IazNxDKtlCwjwLx+G63dnBKqS3aPpDssll1V2qhKrO5V0tZGOdrpOVA==";
   passthru = _finalAttrs: { };
   meta.description = "Alexa - The Alexa Plugin lets you control your Scrypted devices from Amazon Alexa.";
 }

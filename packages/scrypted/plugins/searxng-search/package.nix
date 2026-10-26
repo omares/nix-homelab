@@ -3,8 +3,8 @@
 { mkScryptedPlugin }:
 mkScryptedPlugin {
   pname = "searxng-search";
-  version = "0.0.3";
-  hash = "sha512-Hxu70x7xXx19CkkMfa0+WE2cV/pbh61Y75ui1uy7noABRiuIHry5SUsSq+VWVffv7lExBUL74hIDsdLkHj0+JA==";
+  version = "0.0.4";
+  hash = "sha512-cWELZoYRHpouJ7GwnJvSsg6RDrHjlXeVfUlgjnIWN1S2rpHIcvG9ds2dxBU6GHhzp/p0YvpTTGs8oCu8zlY1aA==";
   passthru = _finalAttrs: { };
   meta.description = "SearXNG Web Search - Web search tool for LLMs using SearXNG with support for: * General web search * News search * Image search * Video search";
 }

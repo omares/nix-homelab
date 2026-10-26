@@ -3,8 +3,8 @@
 { mkScryptedPlugin }:
 mkScryptedPlugin {
   pname = "reolink";
-  version = "0.0.111";
-  hash = "sha512-nvnaxvm/Xq3dd2rBSdiZoq9fgmQtgeJtFFMTXw5qmyqU/mWv1ntUU/yExI2ZoK3Zuo/FhGH9/WPuYQgEZggPAw==";
+  version = "0.0.112";
+  hash = "sha512-mvfZR/GyIhdvh6hweJimZ4vimjlmv4XGH4TjOl+B4HmL23l6drs5HMKqC6opGIWwdj2IvalbLPZtRpUHgHU1gw==";
   passthru = _finalAttrs: { };
   meta.description = "Reolink Camera Plugin - Reolink Plugin for Scrypted";
 }

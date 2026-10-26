@@ -30,16 +30,16 @@ let
 in
 (buildNpmPackage.override { inherit nodejs; }) rec {
   pname = "scrypted";
-  version = "0.143.0";
+  version = "0.147.0";
 
   src = fetchFromGitHub {
     owner = "koush";
     repo = "${pname}";
     rev = "v${version}";
-    hash = "sha256-5fFyrphAHSAJYfcw5lg7X7zaLt4SXIHQL/3SEPcStiY=";
+    hash = "sha256-FssBGdmWuE26Cni8DRSB3sxO+Uee3lgeXnYvIPpXuVc=";
   };
 
-  npmDepsHash = "sha256-BDAWNudfRYY/uphvc/SFaKU29ceUIEt7DjJ1t7c5O60=";
+  npmDepsHash = "sha256-lXHJ4UzU3XqWGz2B50m0EMB3EHlF855/j8MPy1TcgN0=";
 
   sourceRoot = "${src.name}/server";
 

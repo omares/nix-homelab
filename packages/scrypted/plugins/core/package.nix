@@ -3,8 +3,8 @@
 { mkScryptedPlugin }:
 mkScryptedPlugin {
   pname = "core";
-  version = "0.3.147";
-  hash = "sha512-Av1iAk8UwvP3NgQVKUTAv+w6zohHJX7hoG285+TdjZUNvyC7egIHfurU2WXPCvp5Dx8xLt0kWseDH3CahW+gxQ==";
+  version = "0.3.149";
+  hash = "sha512-9uTypEuG8siz6eeIwisQzqHYzotb1zduQevL1OkeUwI6st3bW3CyrgldWhFcgPqwydE9n2F6iwtVQvTW5+jAtw==";
   passthru = _finalAttrs: { };
   meta.description = "Scrypted Core - Scrypted Core plugin. Provides the UI, websocket, and engine.io APIs.";
 }

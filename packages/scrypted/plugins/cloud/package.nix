@@ -3,8 +3,8 @@
 { mkScryptedPlugin }:
 mkScryptedPlugin {
   pname = "cloud";
-  version = "0.2.51";
-  hash = "sha512-T6xtCSzPsFGsIG+GKWuBFrxAEvhoaz451uCGuXMj4RysGtRK+Kp4yr27jxGL4n1ONNz6Zf9qnEkNEIQJ2OE9pA==";
+  version = "0.2.55";
+  hash = "sha512-QA4iRCeOhV5d/rLEmL54bhFuG5e5k47+HLPtAwHyKXPfezqwkAU4/Wl7XGJUy4u3pATGkVWYC5TRS4BzlViHUg==";
   passthru = _finalAttrs: { };
   meta.description = "Scrypted Cloud - Scrypted Cloud plugin which makes your hub accessible at home.scrypted.app";
 }

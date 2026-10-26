@@ -3,8 +3,8 @@
 { mkScryptedPlugin }:
 mkScryptedPlugin {
   pname = "unifi-protect";
-  version = "0.0.165";
-  hash = "sha512-82uahTT7G/ZVo0HSqa+1Nri+T5DUHk5wglfN5W+TK0NH5Bj96RyL9Uo3YJuCa34XIdoD/z8Z3Ij4rEEKXaDaHg==";
+  version = "0.1.6";
+  hash = "sha512-KqqhJxh6AOt6ZsI8I/1lHHfe0auXj8vLutHDV0a2QCZTs/K3dvLcSYlH+TI2NEvqlBHQZg7PPGUoqzw1DWtbxQ==";
   passthru = _finalAttrs: { };
   meta.description = "Unifi Protect Plugin - Unifi Protect Plugin for Scrypted";
 }

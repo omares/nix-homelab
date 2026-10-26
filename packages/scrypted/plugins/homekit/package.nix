@@ -3,8 +3,8 @@
 { mkScryptedPlugin }:
 mkScryptedPlugin {
   pname = "homekit";
-  version = "1.2.65";
-  hash = "sha512-Tmim+0DRfOjyN1fn1Dt5XBHXApDPVyFpVSI0Q2RcAGdLb2AphfDpU8ANDWErwe11nDMsOr6W2ZREnJGkfJCszg==";
+  version = "1.2.71";
+  hash = "sha512-O2jmDbC7ayuH/8zDtKJQGRAy6PxfR/SUNqTf1Y6MaZTm3waVguBl85iWZ1ZQSQ0pyWYeY+bLTAMy8lzfgGs0AA==";
   passthru = _finalAttrs: { };
   meta.description = "HomeKit - HomeKit Plugin for Scrypted";
 }
