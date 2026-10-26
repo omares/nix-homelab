@@ -38,7 +38,9 @@ in
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
 
+      # User units start for every user (e.g. root via remote builds), but only the owner has the config
       unitConfig = {
+        ConditionUser = cfg.owner;
         ConditionPathExists = "!${configDir}/session";
       };
 
