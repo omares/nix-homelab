@@ -7,13 +7,13 @@
 buildHomeAssistantComponent rec {
   owner = "marq24";
   domain = "evcc_intg";
-  version = "2026.10.0";
+  version = "2026.10.7";
 
   src = fetchFromGitHub {
     owner = "marq24";
     repo = "ha-evcc";
     rev = version;
-    hash = "sha256-+H/P5ZQWZ/07DTjBJCDIOaaylpDABX6HpHNZ+q/NGr8=";
+    hash = "sha256-638t1i+i+gBmsCGNHj61rhNMeS6Wcu7r7YX4w16YW04=";
   };
 
   meta = with lib; {

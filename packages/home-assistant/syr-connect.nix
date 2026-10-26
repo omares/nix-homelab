@@ -7,7 +7,7 @@
   babel,
 }:
 let
-  version = "1.26.0";
+  version = "1.27.0";
 in
 buildHomeAssistantComponent {
   owner = "alexhass";
@@ -18,7 +18,7 @@ buildHomeAssistantComponent {
     owner = "alexhass";
     repo = "syr_connect";
     rev = "v${version}";
-    hash = "sha256-B2ComFtSPwtpYJjzJI2Q4P5a+6rDqN9j0W/wsXHmlkU=";
+    hash = "sha256-yDHUK/JBWULR4YHdCa29wnCOkOJ1pzzk+AkfxRHJAys=";
   };
 
   dependencies = [

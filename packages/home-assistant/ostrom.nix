@@ -4,7 +4,7 @@
   fetchFromGitHub,
 }:
 let
-  version = "1.3";
+  version = "1.4";
 in
 buildHomeAssistantComponent {
   owner = "oliverwehrens";
@@ -15,7 +15,7 @@ buildHomeAssistantComponent {
     owner = "oliverwehrens";
     repo = "homeassistant_ostrom_integration";
     tag = version;
-    hash = "sha256-azvRMFiYGGZb7xWZi5nHRTiL83u9TA/lbdP+blfyfLk=";
+    hash = "sha256-5KwRC5J5E/0JxWCxb/64fP4R3+2vFwOi6A4JmN3xk3A=";
   };
 
   # requests is already a dependency of Home Assistant

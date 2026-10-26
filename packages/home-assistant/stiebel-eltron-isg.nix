@@ -8,19 +8,16 @@
 buildHomeAssistantComponent rec {
   owner = "pail23";
   domain = "stiebel_eltron_isg";
-  version = "2026.8";
+  version = "2026.9";
 
   src = fetchFromGitHub {
     owner = "pail23";
     repo = "stiebel_eltron_isg_component";
     rev = version;
-    hash = "sha256-fFD1UjKHV1Q6klJVmnD/LOnCA6w6560+vLboZ6SXBb8=";
+    hash = "sha256-D8qZxMqllG3fVdE4da2fEGRZuDdQy0HpET0sbAAmgoU=";
   };
 
   dependencies = [ pystiebeleltron ];
-
-  # manifest pins pystiebeleltron==0.6.3; everything it imports also exists in the nixpkgs version
-  dontCheckManifest = true;
 
   meta = with lib; {
     description = "Stiebel Eltron ISG heat pump controller integration for Home Assistant";
