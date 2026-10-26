@@ -9,6 +9,9 @@ let
   cfg = config.mares.database.postgres;
 
   formatIp = ip: if lib.hasInfix "/" ip then ip else "${ip}/32";
+
+  passwordUsers = [ cfg.adminUser ] ++ lib.attrNames cfg.users;
+  passwordSecret = name: "pgsql-${name}_password";
 in
 {
   config = lib.mkIf cfg.enable {
@@ -106,5 +109,25 @@ in
         parallel_leader_participation = "on";
       };
     };
+
+    # ensureUsers can't set passwords (nixpkgs#326306), so apply them from sops after role creation
+    systemd.services.postgresql-setup = {
+      serviceConfig.LoadCredential = map (
+        name: "${name}:${config.sops.secrets.${passwordSecret name}.path}"
+      ) passwordUsers;
+
+      postStart = lib.mkAfter ''
+        psql -d postgres --no-psqlrc -v ON_ERROR_STOP=1 <<'SQL'
+        ${lib.concatMapStrings (name: ''
+          \set pw `cat "$CREDENTIALS_DIRECTORY"/${name}`
+          ALTER ROLE "${name}" WITH PASSWORD :'pw';
+        '') passwordUsers}
+        SQL
+      '';
+    };
+
+    sops.secrets = lib.genAttrs (map passwordSecret passwordUsers) (_: {
+      restartUnits = [ "postgresql-setup.service" ];
+    });
   };
 }
