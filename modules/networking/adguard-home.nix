@@ -37,7 +37,6 @@ in
     services.adguardhome = {
       enable = true;
       mutableSettings = false;
-      host = nodeCfg.host;
       settings = {
 
         http = {
