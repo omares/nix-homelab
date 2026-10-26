@@ -44,20 +44,6 @@ in
         };
       };
 
-      build-02 = {
-        tags = [ "build" ];
-        roles = [
-          config.flake.nixosModules.role-proxmox-arm
-          config.flake.nixosModules.role-monitoring-client
-        ];
-        host = "10.10.22.201";
-        system = "aarch64-linux";
-
-        dns = {
-          vlan = "vm";
-        };
-      };
-
       dns-03 = {
         tags = [
           "dns"
