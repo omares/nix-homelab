@@ -23,6 +23,10 @@ You build and check the NixOS flake in this repository and report back. Read `AG
 
 Write full build logs to the scratchpad directory if they are long, and report their paths.
 
+## Inspecting build output
+
+The task may name artifacts to check in the built system (unit files, rendered configs, activation scripts, nginx or Alloy config). Find them under the toplevel output (`<out>/etc/...`, store paths referenced from unit files) and quote only the relevant lines. Eval-only questions (an option's final value) go through `nix eval`, not a full build.
+
 ## Allowed fixes
 
 - **Hash mismatch** (`specified: … got: …`, or a `lib.fakeHash` placeholder): put the `got:` hash in and rebuild.
