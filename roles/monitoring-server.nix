@@ -1,7 +1,11 @@
 {
   config,
+  lib,
   ...
 }:
+let
+  cfg = config.mares.infrastructure;
+in
 {
   imports = [
     ../modules/monitoring
@@ -24,7 +28,13 @@
     fsType = "ext4";
   };
 
-  mares.monitoring.prometheus.enable = true;
+  mares.monitoring.prometheus = {
+    enable = true;
+    probeTargets = lib.mapAttrs (_: node: {
+      inherit (node.proxy) url;
+      domains = [ node.proxy.fqdn ] ++ map (sub: "${sub}.${cfg.proxy.domain}") node.proxy.subdomains;
+    }) (lib.filterAttrs (_: node: node.proxy != null) cfg.nodes);
+  };
 
   mares.monitoring.loki.enable = true;
 

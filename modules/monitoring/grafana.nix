@@ -606,6 +606,8 @@ let
 
     proxmox.dashboard = import ./dashboards/proxmox.nix { inherit lib; };
 
+    uptime.dashboard = import ./dashboards/uptime.nix { inherit lib; };
+
   };
 
   mkDashboardProvider =
