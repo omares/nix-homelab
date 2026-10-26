@@ -133,6 +133,11 @@ in
           };
         })
 
+        # ha_scrypted fires object_detected for every analysed frame, including stationary objects
+        (lib.mkIf cmp.scrypted.enable {
+          recorder.exclude.entity_globs = [ "event.*_object_detected" ];
+        })
+
         # HomeKit config
         (lib.mkIf cmp.homekit.enable {
           homekit = [
