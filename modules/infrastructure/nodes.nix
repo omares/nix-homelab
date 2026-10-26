@@ -301,6 +301,7 @@ in
         tags = [ "starr" ];
         roles = [
           config.flake.nixosModules.role-starr-jellyfin
+          config.flake.nixosModules.role-monitoring-starr-jellyfin
           config.flake.nixosModules.role-proxmox-legacy
           config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
@@ -315,6 +316,7 @@ in
           port = 8096;
           subdomains = [ "jellyfin" ];
           websockets = true;
+          denyLocations = [ "/metrics" ];
         };
       };
 

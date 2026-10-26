@@ -23,9 +23,9 @@ let
     DownMixAudioBoost = 2;
     DownMixStereoAlgorithm = "None";
     MaxMuxingQueueSize = 2048;
-    EnableThrottling = false;
+    EnableThrottling = true;
     ThrottleDelaySeconds = 180;
-    EnableSegmentDeletion = false;
+    EnableSegmentDeletion = true;
     SegmentKeepSeconds = 720;
     HardwareAccelerationType = "vaapi";
     EncoderAppPathDisplay = lib.getExe pkgs.jellyfin-ffmpeg;
@@ -59,6 +59,8 @@ let
     AllowHevcEncoding = true;
     AllowAv1Encoding = false;
     EnableSubtitleExtraction = true;
+    SubtitleExtractionTimeoutMinutes = 30;
+    HlsAudioSeekStrategy = "TrimCopiedAudio";
     HardwareDecodingCodecs = [
       { string = "h264"; }
       { string = "hevc"; }
@@ -89,7 +91,7 @@ let
     LocalNetworkAddresses = [
       { string = cfg.jellyfin.bindAddress; }
     ];
-    KnownProxies = [ ];
+    KnownProxies = [ { string = mares.infrastructure.nodes.proxy-01.host; } ];
     IgnoreVirtualInterfaces = true;
     VirtualInterfaceNames = [
       { string = "veth"; }
@@ -104,7 +106,8 @@ let
     LogFileRetentionDays = 3;
     IsStartupWizardCompleted = true;
     CachePath = "/var/cache/jellyfin";
-    EnableMetrics = false;
+    EnableMetrics = true;
+    EnableLegacyAuthorization = false;
     EnableNormalizedItemByNameIds = true;
     IsPortAuthorized = true;
     QuickConnectAvailable = true;
@@ -256,7 +259,8 @@ let
     ContentTypes = [ ];
     RemoteClientBitrateLimit = 0;
     EnableFolderView = false;
-    EnableGroupingIntoCollections = false;
+    EnableGroupingMoviesIntoCollections = false;
+    EnableGroupingShowsIntoCollections = false;
     DisplaySpecialsWithinSeasons = true;
     CodecsUsed = [ ];
     PluginRepositories = [
@@ -270,7 +274,7 @@ let
       {
         RepositoryInfo = {
           Name = "Intro Skipper";
-          Url = "https://manifest.intro-skipper.org/manifest.json";
+          Url = "https://intro-skipper.org/manifest.json";
           Enabled = true;
         };
       }
@@ -286,7 +290,6 @@ let
     ActivityLogRetentionDays = 30;
     LibraryScanFanoutConcurrency = 0;
     LibraryMetadataRefreshConcurrency = 0;
-    RemoveOldPlugins = false;
     AllowClientLogUpload = true;
     DummyChapterDuration = 0;
     ChapterImageResolution = "MatchSource";
@@ -330,6 +333,10 @@ let
         Override = {
           Microsoft = "Warning";
           System = "Warning";
+          # Harmless Jellyfin 12 startup warnings, silenced upstream in 12.3
+          "Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager" = "Error";
+          "Microsoft.AspNetCore.DataProtection.Repositories.EphemeralXmlRepository" = "Error";
+          "Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware" = "Error";
         };
       };
       WriteTo = [
