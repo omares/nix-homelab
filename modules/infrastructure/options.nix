@@ -71,6 +71,13 @@ let
           description = "Enable SSL for this service";
         };
 
+        denyLocations = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ ];
+          description = "Paths that are blocked on the proxy (deny all).";
+          example = ''[ "/metrics" ]'';
+        };
+
         extraConfig = lib.mkOption {
           type = lib.types.lines;
           default = "";
