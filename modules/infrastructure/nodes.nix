@@ -35,6 +35,7 @@ in
         tags = [ "build" ];
         roles = [
           config.flake.nixosModules.role-proxmox-builder
+          config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
         ];
         host = "10.10.22.122";
