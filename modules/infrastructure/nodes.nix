@@ -56,6 +56,7 @@ in
           config.flake.nixosModules.role-dns-technitium-primary
           config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
+          config.flake.nixosModules.role-monitoring-technitium
         ];
         host = "10.10.22.199";
 
@@ -80,6 +81,7 @@ in
           config.flake.nixosModules.role-dns-technitium-secondary
           config.flake.nixosModules.role-atuin-client
           config.flake.nixosModules.role-monitoring-client
+          config.flake.nixosModules.role-monitoring-technitium
         ];
         host = "10.10.22.225";
 

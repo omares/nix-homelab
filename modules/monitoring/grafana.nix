@@ -608,6 +608,8 @@ let
 
     uptime.dashboard = import ./dashboards/uptime.nix { inherit lib; };
 
+    technitium.dashboard = import ./dashboards/technitium.nix { inherit lib; };
+
   };
 
   mkDashboardProvider =

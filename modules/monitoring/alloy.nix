@@ -18,12 +18,49 @@ let
           ) target.targets
         },
       ]
-      forward_to = [prometheus.remote_write.default.receiver]
+      forward_to = [${
+        if target.metricPrefix != null then
+          "prometheus.relabel.${target.job}.receiver"
+        else
+          "prometheus.remote_write.default.receiver"
+      }]
       job_name   = "${target.job}"
+      metrics_path = "${target.metricsPath}"
+      ${lib.optionalString (
+        target.bearerTokenFile != null
+      ) ''bearer_token_file = "/run/credentials/alloy.service/${target.job}-token"''}
 
       scrape_interval = "15s"
     }
+    ${lib.optionalString (target.metricPrefix != null) ''
+      prometheus.relabel "${target.job}" {
+        forward_to = [prometheus.remote_write.default.receiver]
+
+        // Keep the scrape's own up/scrape_* series unprefixed (RE2 has no negative lookahead)
+        rule {
+          source_labels = ["__name__"]
+          regex         = "up|scrape_.+"
+          target_label  = "__tmp_scrape"
+          replacement   = "1"
+        }
+
+        rule {
+          source_labels = ["__tmp_scrape", "__name__"]
+          separator     = ";"
+          regex         = ";(.+)"
+          target_label  = "__name__"
+          replacement   = "${target.metricPrefix}$1"
+        }
+
+        rule {
+          action = "labeldrop"
+          regex  = "__tmp_scrape"
+        }
+      }
+    ''}
   '') cfg.extraScrapeTargets;
+
+  tokenTargets = builtins.filter (t: t.bearerTokenFile != null) cfg.extraScrapeTargets;
 
   # Generate PVE multi-target scrape configs
   # Each PVE node gets a scrape + relabel component pair
@@ -195,6 +232,22 @@ let
         description = "List of targets to scrape (host:port)";
         example = [ "localhost:9113" ];
       };
+      metricsPath = lib.mkOption {
+        type = lib.types.str;
+        default = "/metrics";
+        description = "HTTP path to scrape";
+      };
+      metricPrefix = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Prefix added to every metric name, for exporters with generic names";
+        example = "technitium_";
+      };
+      bearerTokenFile = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        default = null;
+        description = "File with a bearer token for the scrape (loaded via systemd LoadCredential)";
+      };
     };
   };
 in
@@ -257,6 +310,10 @@ in
         "--disable-reporting"
       ];
     };
+
+    systemd.services.alloy.serviceConfig.LoadCredential = map (
+      t: "${t.job}-token:${t.bearerTokenFile}"
+    ) tokenTargets;
 
     environment.etc."alloy/config.alloy".text = alloyConfig;
 
