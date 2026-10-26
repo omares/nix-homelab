@@ -44,9 +44,11 @@ Most plugins are auto-generated from the npm registry using:
 
 These plugins require custom or extended building (e.g., Python environments) and are not auto-generated. They come with their own `update.sh`:
 
+- `nvr` - NVR plugin with its libav addon pre-provisioned. The plugin otherwise downloads the addon from GitHub on first use. `update.sh` reads the libav version from the plugin bundle.
 - `openvino` - OpenVINO inference with a pre-provisioned Python environment (pinned PyPI wheels) and Hugging Face models, so detection clients work without internet access. See [`docs/scrypted-openvino.md`](../../docs/scrypted-openvino.md#openvino-plugin).
 
 ```bash
+./plugins/nvr/update.sh
 ./plugins/openvino/update.sh
 ```
 
@@ -75,7 +77,7 @@ mkScryptedPlugin {
 
   # Optional: function receiving finalAttrs for self-reference
   passthru = finalAttrs: {
-    # Expose provisioning data for detection plugins
+    # Provisioning data, applied on the clients for detection plugins and on the server for all others
     provision = {
       warnings = [ "Requires network access" ];
       # Relative to volume/plugins/@scrypted/<pname>, created via tmpfiles L+

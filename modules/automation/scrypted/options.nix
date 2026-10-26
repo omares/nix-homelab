@@ -86,6 +86,26 @@ in
       description = "Group account under which scrypted runs";
     };
 
+    detectionPlugins = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [
+        "openvino"
+        "coreml"
+        "onnx"
+        "tensorflow-lite"
+        "ncnn"
+      ];
+      internal = true;
+      description = "Plugins that run on cluster clients and are provisioned there instead of on the server.";
+    };
+
+    provisionedPlugins = lib.mkOption {
+      type = lib.types.listOf lib.types.package;
+      default = [ ];
+      internal = true;
+      description = "Plugin packages whose passthru.provision (symlinks, environment, warnings) is applied on this host.";
+    };
+
     environmentFiles = lib.mkOption {
       type = lib.types.listOf lib.types.path;
       default = [ ];

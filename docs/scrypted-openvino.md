@@ -36,7 +36,7 @@ Scrypted plugins are normally installed via the UI, which fetches packages from 
 
 ## Non-Goals
 
-- Full air-gap support (NVR still downloads libav, Cloud needs licensing)
+- Full air-gap support (NVR licensing and Cloud need internet; libav is pre-provisioned since 2026-10)
 - Packaging all Python plugins (only OpenVINO for now)
 - Removing plugins not in the declared list (additive only)
 

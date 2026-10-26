@@ -73,6 +73,11 @@ in
       };
     };
 
+    # Detection plugins run on cluster clients and are provisioned there
+    mares.automation.scrypted.provisionedPlugins = map (name: plugins.${name}) (
+      lib.filter (name: !(lib.elem name cfg.detectionPlugins)) cfg.plugins
+    );
+
     systemd.services.scrypted-sideload = lib.mkIf hasPlugins {
       description = "Sideload Scrypted plugins";
       after = [ "scrypted.service" ];

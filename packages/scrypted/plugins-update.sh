@@ -12,6 +12,7 @@ PLUGINS_DIR="$SCRIPT_DIR/plugins"
 
 # Complex plugins with their own update.sh in plugins/<name>/
 COMPLEX_PLUGINS=(
+  "nvr"
   "openvino"
 )
 
