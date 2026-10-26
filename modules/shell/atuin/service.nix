@@ -38,11 +38,9 @@ in
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
 
-      # User units start for every user (e.g. root via remote builds), but only the owner has the config
-      unitConfig = {
-        ConditionUser = cfg.owner;
-        ConditionPathExists = "!${configDir}/session";
-      };
+      # User units start for every user (e.g. root via remote builds), but only the owner has the config.
+      # No session check: atuin keeps it in its meta db now, and `atuin login` is a no-op when logged in.
+      unitConfig.ConditionUser = cfg.owner;
 
       serviceConfig = {
         Type = "oneshot";
@@ -50,7 +48,6 @@ in
       };
 
       script = ''
-        eval "$(${lib.getExe cfg.package} init zsh)" || true
         ${lib.getExe cfg.package} login -u ${cfg.username} -p "$(cat ${cfg.passwordPath})"  -k "$(cat ${cfg.keyPath})" || true
         ${lib.getExe cfg.package} sync
       '';
