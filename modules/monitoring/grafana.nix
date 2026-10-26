@@ -11,6 +11,21 @@ let
 
   dashLib = import ../../lib/grafana-dashboards.nix { inherit pkgs lib; };
 
+  unpollerDashboard = uid: id: version: sha256: {
+    inherit id version sha256;
+    transform =
+      dashboard:
+      lib.pipe dashboard [
+        (dashLib.setUid uid)
+        (dashLib.replaceDatasources [
+          {
+            key = "DS_PROMETHEUS";
+            value = "prometheus-main";
+          }
+        ])
+      ];
+  };
+
   dashboardConfigs = {
     node-exporter-full = {
       id = 1860;
@@ -89,6 +104,10 @@ let
                     allValue = ".+";
                     multi = true;
                     sort = 1;
+                    current = {
+                      text = "All";
+                      value = "$__all";
+                    };
                   }
                   # Service variable (renamed from app)
                   {
@@ -105,6 +124,10 @@ let
                     allValue = ".+";
                     multi = true;
                     sort = 1;
+                    current = {
+                      text = "All";
+                      value = "$__all";
+                    };
                   }
                   # Level variable (maps to syslog priority)
                   {
@@ -609,6 +632,22 @@ let
     uptime.dashboard = import ./dashboards/uptime.nix { inherit lib; };
 
     technitium.dashboard = import ./dashboards/technitium.nix { inherit lib; };
+
+    unifi-sites =
+      unpollerDashboard "unifi-sites" 11311 5
+        "0pwz5fdp4ybfgjnydip6p6wy2siikcg0ikz9li65pmwwmawx49mb";
+    unifi-usw =
+      unpollerDashboard "unifi-usw" 11312 9
+        "1v82bzp5m6zvmvjcchd3704rsd0pg3190lvjpsy0zq883dzz94m1";
+    unifi-usg =
+      unpollerDashboard "unifi-usg" 11313 9
+        "0ldngl8rpqkcx6y5qna4w4pl9b91ksfrnxk4lmllj2wlihkvfzzb";
+    unifi-uap =
+      unpollerDashboard "unifi-uap" 11314 10
+        "1g1chjl1zm24l3an3jam0svrbq29k8166699c2467zy2kbgsq0nv";
+    unifi-clients =
+      unpollerDashboard "unifi-clients" 11315 9
+        "1rf60hb5daxha3fiz2j53yrw7hk6rmwg798siiykn8zkjqkmjgz9";
 
   };
 
