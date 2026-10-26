@@ -155,9 +155,9 @@ let
                       value = ".+";
                       selected = true;
                     };
-                    includeAll = true;
-                    allValue = ".+";
-                    multi = true;
+                    # Single-select so Grafana passes the regex values unescaped
+                    includeAll = false;
+                    multi = false;
                   }
                 ]
                 # Keep other variables that aren't 'app'
