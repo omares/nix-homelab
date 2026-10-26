@@ -44,7 +44,7 @@ Most plugins are auto-generated from the npm registry using:
 
 These plugins require custom or extended building (e.g., Python environments) and are not auto-generated. They come with their own `update.sh`:
 
-- `openvino` - OpenVINO inference with pre-provisioned Python environment. **Note:** Unfortunately, Hugging Face ML models are not provisioned due to the complexity of downloading and saving them correctly. Scrypted dynamically generates the target folder based on the worker ID and expects the files to be there. As a result, the plugin requires internet access to acquire the models. :(
+- `openvino` - OpenVINO inference with a pre-provisioned Python environment (pinned PyPI wheels) and Hugging Face models, so detection clients work without internet access. See [`docs/scrypted-openvino.md`](../../docs/scrypted-openvino.md#openvino-plugin).
 
 ```bash
 ./plugins/openvino/update.sh
@@ -78,10 +78,13 @@ mkScryptedPlugin {
     # Expose provisioning data for detection plugins
     provision = {
       warnings = [ "Requires network access" ];
+      # Relative to volume/plugins/@scrypted/<pname>, created via tmpfiles L+
       symlinks = [{
         target = "directory-name";
         path = "${finalAttrs.finalPackage}/some-path";
       }];
+      # Added to scrypted.service
+      environment = { SOME_VAR = "1"; };
     };
   };
 

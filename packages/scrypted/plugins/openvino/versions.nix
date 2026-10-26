@@ -53,4 +53,56 @@
       hash = "sha256-KBSm6ZnRNGTE1nm3iMxdeE61pO38Y4ox8Q6aEatTHvg=";
     };
   };
+
+  # scrypted/plugin-models files per model (openvino/<model>/<file>)
+  models = {
+    commit = "187402b20a3be0a7fab9bceee21d857ed6ae0064";
+    files = {
+      scrypted_yolov9t_relu_test_int8 = {
+        "best-converted.bin" = "sha256-7+Wwov0vXd71kj7rnlkqfvFHGQYbt2BchuBbNcLFjqk=";
+        "best-converted.xml" = "sha256-nkEZKE6SPgjJkp54/THiVS5gKlUqxTiumb80pQ3U0XI=";
+      };
+      scrypted_yolov9t_relu_face_int8 = {
+        "best-converted.bin" = "sha256-ktqL3L7ru4Tzv4waJHiwu/+B22G2TCMF36DF6MCWYY4=";
+        "best-converted.xml" = "sha256-V/GScB0zbHMupaKPnvtidkINH6d+aw8jvgw1mWMyvZ4=";
+      };
+      inception_resnet_v1 = {
+        "best.bin" = "sha256-zeUrL/+Ggb4UdG8v5T88/2U5SEei2MBgaZInp2CahBQ=";
+        "best.xml" = "sha256-emBNy3nxezLKC+jBKq7Aiygne/pyMvRKel2An6je4SU=";
+      };
+      craft = {
+        "best.bin" = "sha256-8BkquXJrOg9OxJScqbQr1zRpMJJqXevQL97HtVO0Sjw=";
+        "best.xml" = "sha256-NjLXQXDBHFjohVCsKJMz3YXFRBHZDu81j2a2TwCcAJk=";
+      };
+      vgg_english_g2 = {
+        "best.bin" = "sha256-f5Ng1v5na2rZt6aATHDkPzrrxIRw1oyX7TIIl1h6xqg=";
+        "best.xml" = "sha256-yX9XDRdnrRD1l00jS/2JlZve2N3+SMsuz3FAGt2T++8=";
+      };
+      scrypted_yolov9t_seg_relu_int8 = {
+        "best-converted.bin" = "sha256-rcU3QHRSqUo4YfYks188R/lj/STgbG5HtC6NMPTAVQc=";
+        "best-converted.xml" = "sha256-FuOXvh2e6SodDTZpF09fEDeU+Y2e1c6dLh4H6W8mTFc=";
+      };
+      clip = {
+        "text.bin" = "sha256-I/s74Q1mdvJLxa3wW2Mh3+NGZQRT3ZWb6EV841BSM18=";
+        "text.xml" = "sha256-NOfHnpnF0BoykxmtpSJlyuCWImyAEsQyu7OOS77pElU=";
+        "vision.bin" = "sha256-UtXLOtXWrNMHC8jp6YUCm1jn3dpB2Aoza1AZW15l+NI=";
+        "vision.xml" = "sha256-gAiVaIR9UJF3/QkcuymN6/sIVDlXBUjqiwzHlwz59as=";
+      };
+    };
+  };
+
+  # HF cache files for CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+  clipProcessor = {
+    repo = "openai/clip-vit-base-patch32";
+    commit = "3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268";
+    files = {
+      "config.json" = "sha256-tXXvPDbyoFf6GeIhZQEFBS1hzJwaly7BUBnGJh7Jh3A=";
+      "merges.txt" = "sha256-9SY5MYkRI5HOb5eV1GlfcEEhzkUsOq0fUzXMQTN+uoU=";
+      "preprocessor_config.json" = "sha256-kQ5ws5VqyYeevJCyL7O8inW2oGd4FFABAaTAcr14V70=";
+      "special_tokens_map.json" = "sha256-+MDWw5ruP4QxB472ZGVnsKun8iRunFS4uZ1VwitwfL8=";
+      "tokenizer.json" = "sha256-tVasjJl1f/tncgivNLyMZyFXIRQRGm4Kr1+mn/C42EI=";
+      "tokenizer_config.json" = "sha256-NLczbkvuEuCpcw6vUYn1gu88PupQJ/ZXMOVxclZ1Wq0=";
+      "vocab.json" = "sha256-UEe1Vs6GzK9qois//M/FLTkepKzNq5wvJAfaW3QtQ2M=";
+    };
+  };
 }

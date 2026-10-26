@@ -9,6 +9,7 @@
 | 2025-01-13 | Abandoned   | Original OpenVINO-only approach abandoned due to maintenance burden     |
 | 2025-01-13 | Revised     | New approach: Auto-generate packages for all Node.js plugins + sideload |
 | 2025-01-13 | Implemented | Phase 1 & 2 complete - package infra + sideload service                 |
+| 2026-10-26 | Revised     | OpenVINO Python env from pinned PyPI wheels, HF models provisioned offline |
 
 ---
 
@@ -400,6 +401,65 @@ in {
 
 ---
 
+## OpenVINO Plugin
+
+The OpenVINO plugin is the only Python plugin packaged here. Its package (`plugins/openvino/package.nix`) provides the
+Python environment and the Hugging Face models, so detection clients need no internet access. Everything is pinned in
+`versions.nix`, which `openvino/update.sh` generates.
+
+### Python Environment
+
+Upstream installs `requirements.txt` with pip at runtime. We build the same set at build time:
+
+- **PyPI wheels** for numpy, openvino, openvino-telemetry, opencv-python-headless, transformers, huggingface-hub,
+  tokenizers, safetensors and hf-xet. openvino needs an older numpy than nixpkgs ships (2024.5 requires `numpy<2.2`),
+  and overriding numpy in the whole Python package set rebuilds everything depending on it from source on every
+  nixpkgs update. opencv, transformers and the HF libraries are not in the binary cache for Python 3.12 anyway.
+- **nixpkgs** (binary cache) for the remaining pure dependencies: pillow, pyyaml, regex, tqdm, typer, httpx, ….
+- Python 3.12, matching upstream's Docker images (Ubuntu 24.04, `test -f /usr/bin/python3.12`).
+
+`update.sh` reads `requirements.txt` from the plugin's own npm package and resolves exact versions with
+`uv pip compile` for Python 3.12 on x86_64. The environment is linked to
+`volume/plugins/@scrypted/openvino/python3.12-Linux-x86_64-20240317` with the `requirements*.installed.txt` markers,
+so Scrypted skips pip.
+
+### Models
+
+The plugin loads models with
+`snapshot_download(repo_id="scrypted/plugin-models", allow_patterns="openvino/<model>/*", local_dir=…/files/hf/openvino/<model>)`
+and falls back to `local_files_only=True` when the Hub is unreachable. With a non-empty `local_dir` and no reachable
+Hub, `snapshot_download` returns that directory as is, so a read-only store path works.
+
+- One `fetchurl` per file from a pinned `scrypted/plugin-models` commit, instead of a hash over the whole ~2 GB
+  Xet-backed repo (the previous approach, which never produced a hash).
+- A `linkFarm` in the layout `snapshot_download` leaves behind: `<model>/openvino/<model>/<file>` (the model name
+  appears twice).
+- Provisioned models: `scrypted_yolov9t_relu_test_int8` (default detection model for Intel iGPUs and CPUs without Arc
+  or Iris Xe), `scrypted_yolov9t_relu_face_int8` + `inception_resnet_v1` (faces), `craft` + `vgg_english_g2` (text and
+  plates), `scrypted_yolov9t_seg_relu_int8` (segmentation) and `clip` (smart search, full precision only).
+- CLIP also needs `CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")`. Its config and tokenizer files are
+  laid out as a Hugging Face hub cache (`models--openai--clip-vit-base-patch32/{refs/main,snapshots/<commit>/…}`).
+- CLIP is about 300 MB of the ~450 MB. The package argument `withClip` (default `true`) leaves it out.
+
+The package exposes `provision.symlinks` (Python env and one link per model under `files/hf/openvino/`) and
+`provision.environment` (`HF_HUB_OFFLINE=1`, `HF_HUB_CACHE=<clip processor cache>`). `client.nix` turns these into
+tmpfiles rules (`L+` replaces previously downloaded model directories) and environment variables on `scrypted.service`.
+
+The build fails unless every model loads the way the plugin loads it offline: `snapshot_download(local_files_only=True)`
+plus `openvino.Core().read_model()` for each model, and `CLIPProcessor.from_pretrained(local_files_only=True)` from
+the read-only cache.
+
+### Limitations
+
+- `HF_HUB_OFFLINE=1`: selecting a model in the UI that is not provisioned (e.g. `scrypted_yolov9s_relu_test_int8`)
+  fails instead of downloading it. Add it to `MODELS` in `update.sh`.
+- x86_64-linux only.
+- Pillow comes from nixpkgs instead of the pinned `Pillow==10.3.0`.
+- OpenVINO stays on 2024.5.0 (plugin 0.1.199). The 0.1.200 beta moves to OpenVINO 2026.2.0, which still requires
+  `numpy<2.5` and is untested on the `legacy1` compute runtime used for Gen 9 iGPUs.
+
+---
+
 ## Plugin Categories
 
 ### Fully Supported (Auto-Generated Node.js)
@@ -427,7 +487,7 @@ All ~55 plugins with `runtime != "python"` are auto-generated. Examples:
 
 | Plugin   | Description              | Status                                    |
 | -------- | ------------------------ | ----------------------------------------- |
-| openvino | OpenVINO object detection | Manual package, needs Python + HF models |
+| openvino | OpenVINO object detection | Manual package, Python env + HF models pre-provisioned |
 
 ### Not Supported (Python - Require Internet)
 
@@ -464,7 +524,7 @@ All ~55 plugins with `runtime != "python"` are auto-generated. Examples:
 ### Phase 3: OpenVINO Integration ✅
 
 - [x] OpenVINO uses `mkScryptedPlugin` as base with `postInstall` hook
-- [x] `openvino/update.sh` uses `nurl` to auto-compute `modelsHash`
+- [x] `openvino/update.sh` pins PyPI wheels and per-file model hashes
 - [x] Client role uses tmpfiles for Python env + models symlinks
 - [x] Main `update.sh` delegates to complex plugins via `COMPLEX_PLUGINS` list
 
@@ -531,7 +591,8 @@ All ~55 plugins with `runtime != "python"` are auto-generated. Examples:
 
 4. **Idempotency**: Let Scrypted handle it - sideload service runs on every boot, Scrypted overwrites existing plugins.
 
-5. **Models hash**: The `openvino/update.sh` uses `nurl -e` to automatically compute the HuggingFace models hash. This downloads ~2GB but eliminates manual hash updates. Falls back to existing hash on non-Linux.
+5. **Models**: Fetched per file from a pinned `scrypted/plugin-models` commit. `openvino/update.sh` takes LFS
+   sha256 values from the Hub tree listing and hashes the small XML files itself. See [OpenVINO Plugin](#openvino-plugin).
 
 ---
 
