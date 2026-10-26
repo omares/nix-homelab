@@ -375,6 +375,77 @@ let
       sha256 = "1121iijgb7l3qb6dcrwc1hai9rivm3rmi84ajczllw5lp4m68lcy";
       transform =
         dashboard:
+        let
+          # pgbouncer_exporter renamed the stats counters (stats_totals_*) and reserve_pool_size;
+          # also fix rate() on gauges, `=` on the multi-value $db and the bytes*8
+          fixExpr =
+            builtins.replaceStrings
+              [
+                "pgbouncer_stats_queries_pooled_total"
+                "pgbouncer_stats_queries_duration_seconds_total"
+                "pgbouncer_stats_server_in_transaction_seconds"
+                "pgbouncer_stats_sql_transactions_pooled_total"
+                "pgbouncer_stats_received_bytes_total"
+                "pgbouncer_stats_sent_bytes_total"
+                ''sum (rate(pgbouncer_databases_reserve_pool_size{database=~"$db"}[30m]))''
+                ''sum ( rate(pgbouncer_pools_client_maxwait_seconds{database=~"$db"}[30m]) )''
+                ''database="$db"''
+                "[30m])*8"
+              ]
+              [
+                "pgbouncer_stats_totals_queries_pooled_total"
+                "pgbouncer_stats_totals_queries_duration_seconds_total"
+                "pgbouncer_stats_totals_server_in_transaction_seconds_total"
+                "pgbouncer_stats_totals_sql_transactions_pooled_total"
+                "pgbouncer_stats_totals_received_bytes_total"
+                "pgbouncer_stats_totals_sent_bytes_total"
+                ''sum (pgbouncer_databases_reserve_pool{database=~"$db"})''
+                ''max ( pgbouncer_pools_client_maxwait_seconds{database=~"$db"} )''
+                ''database=~"$db"''
+                "[30m])"
+              ];
+          fixLegend =
+            builtins.replaceStrings
+              [
+                "Waiting duration microseconds"
+                "Transactions duration microseconds"
+                "Duration microseconds"
+              ]
+              [
+                "Max client wait"
+                "Time in transactions"
+                "Query time"
+              ];
+          leftUnit = {
+            "12" = "s";
+            "14" = "Bps";
+            "16" = "s";
+          };
+          fixPanel =
+            panel:
+            panel
+            // {
+              targets = map (
+                t:
+                t
+                // {
+                  expr = fixExpr t.expr;
+                  legendFormat = fixLegend (t.legendFormat or "");
+                }
+              ) panel.targets;
+            }
+            // lib.optionalAttrs (leftUnit ? ${toString panel.id}) {
+              yaxes = lib.imap0 (
+                i: axis: if i == 0 then axis // { format = leftUnit.${toString panel.id}; } else axis
+              ) panel.yaxes;
+            };
+          # host/port/service expect labels this setup doesn't have and are unused
+          unusedVars = [
+            "host"
+            "port"
+            "service"
+          ];
+        in
         lib.pipe dashboard [
           (dashLib.setUid "pgbouncer")
           (dashLib.replaceDatasources [
@@ -383,6 +454,14 @@ let
               value = "prometheus-main";
             }
           ])
+          (
+            d:
+            d
+            // {
+              panels = map fixPanel d.panels;
+              templating.list = builtins.filter (v: !(builtins.elem v.name unusedVars)) d.templating.list;
+            }
+          )
         ];
     };
 
@@ -402,42 +481,105 @@ let
               value = "prometheus-main";
             }
           ])
-          # Transform queries to work without Kubernetes labels
-          # Original: sum(ssl_certificate_expiry_seconds{}) by (kubernetes_pod_node_name, path)
-          # New: ssl_certificate_expiry_seconds{} grouped by instance and path
+          # Replace the Kubernetes table-old panel; only leaf certs of live ACME dirs
+          # (skips .minica, .lego, chain/issuer files and *.bck copies)
           (
             d:
             d
             // {
-              panels = map (
-                panel:
-                if panel ? targets then
-                  panel
-                  // {
-                    targets = map (
-                      target:
-                      if target ? expr then
-                        target
-                        // {
-                          expr =
-                            builtins.replaceStrings
-                              [
-                                "sum(ssl_certificate_expiry_seconds{}) by (kubernetes_pod_node_name, path)"
-                                "kubernetes_pod_node_name"
-                              ]
-                              [
-                                "ssl_certificate_expiry_seconds{}"
-                                "instance"
-                              ]
-                              target.expr;
-                        }
-                      else
-                        target
-                    ) panel.targets;
-                  }
-                else
-                  panel
-              ) d.panels;
+              tags = [ "node-cert-exporter" ];
+              panels = [
+                {
+                  id = 2;
+                  type = "table";
+                  title = "Certificates";
+                  datasource = {
+                    type = "prometheus";
+                    uid = "prometheus-main";
+                  };
+                  gridPos = {
+                    h = 16;
+                    w = 24;
+                    x = 0;
+                    y = 0;
+                  };
+                  targets = [
+                    {
+                      refId = "A";
+                      expr = ''min by (instance, dns_names, path) (ssl_certificate_expiry_seconds{path=~"/var/lib/acme/[^/.][^/]*\\.mares\\.id/cert\\.pem"})'';
+                      format = "table";
+                      instant = true;
+                    }
+                  ];
+                  transformations = [
+                    {
+                      id = "organize";
+                      options = {
+                        excludeByName.Time = true;
+                        indexByName = {
+                          dns_names = 0;
+                          Value = 1;
+                          instance = 2;
+                          path = 3;
+                        };
+                        renameByName = {
+                          dns_names = "Names";
+                          Value = "Expires in";
+                          instance = "Host";
+                          path = "Path";
+                        };
+                      };
+                    }
+                  ];
+                  fieldConfig = {
+                    defaults.custom.align = "auto";
+                    overrides = [
+                      {
+                        matcher = {
+                          id = "byName";
+                          options = "Expires in";
+                        };
+                        properties = [
+                          {
+                            id = "unit";
+                            value = "dtdurations";
+                          }
+                          {
+                            id = "custom.cellOptions";
+                            value.type = "color-background";
+                          }
+                          {
+                            id = "thresholds";
+                            value = {
+                              mode = "absolute";
+                              steps = [
+                                {
+                                  color = "red";
+                                  value = null;
+                                }
+                                {
+                                  color = "orange";
+                                  value = 1209600;
+                                }
+                                {
+                                  color = "green";
+                                  value = 2592000;
+                                }
+                              ];
+                            };
+                          }
+                        ];
+                      }
+                    ];
+                  };
+                  options.sortBy = [
+                    {
+                      displayName = "Expires in";
+                      desc = false;
+                    }
+                  ];
+                }
+              ];
             }
           )
         ];
