@@ -17,6 +17,13 @@
         };
       };
     };
+
+    # Some tmpfiles rules create ~/.config/<app> and leave the parent owned by root
+    systemd.tmpfiles.settings.omares-home."${config.users.users.omares.home}/.config".d = {
+      mode = "0755";
+      user = "omares";
+      group = config.users.users.omares.group;
+    };
   };
 
 }
