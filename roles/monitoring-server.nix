@@ -38,6 +38,24 @@ in
 
   mares.monitoring.loki.enable = true;
 
+  # Self-monitoring of the stack; Prometheus scrapes itself
+  mares.monitoring.alloy.extraScrapeTargets = [
+    {
+      job = "loki";
+      targets = [ "localhost:${toString config.mares.monitoring.loki.port}" ];
+    }
+    {
+      job = "grafana";
+      targets = [ "localhost:${toString config.mares.monitoring.grafana.port}" ];
+    }
+    {
+      job = "influxdb";
+      targets = [
+        "${config.mares.monitoring.influxdb.bindAddress}:${toString config.mares.monitoring.influxdb.port}"
+      ];
+    }
+  ];
+
   sops.secrets.influxdb-admin_password.owner = "influxdb2";
   sops.secrets.influxdb-admin_token.owner = "influxdb2";
 

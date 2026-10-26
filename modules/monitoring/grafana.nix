@@ -610,22 +610,7 @@ let
 
     exportarr.dashboard = import ./dashboards/media.nix { inherit lib; };
 
-    prometheus-stats = {
-      id = 2;
-      version = 2;
-      sha256 = "0z3i2vli6blb3nxah27w72ml1ns1svr5hqnb6y4qlpqzzhn3inb1";
-      transform =
-        dashboard:
-        lib.pipe dashboard [
-          (dashLib.setUid "prometheus-stats")
-          (dashLib.replaceDatasources [
-            {
-              key = "DS_PROMETHEUS";
-              value = "prometheus-main";
-            }
-          ])
-        ];
-    };
+    monitoring.dashboard = import ./dashboards/monitoring.nix { inherit lib; };
 
     proxmox.dashboard = import ./dashboards/proxmox.nix { inherit lib; };
 
